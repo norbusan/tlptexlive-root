@@ -1,3 +1,0 @@
-binpattern f/amd64-freebsd bin/amd64-freebsd/dvipdfmx
-binpattern f/amd64-freebsd bin/amd64-freebsd/ebb
-binpattern f/amd64-freebsd bin/amd64-freebsd/extractbb

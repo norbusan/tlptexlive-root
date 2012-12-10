@@ -1,9 +1,0 @@
-binpattern f/i386-cygwin bin/i386-cygwin/eptex
-binpattern f/i386-cygwin bin/i386-cygwin/makejvf
-binpattern f/i386-cygwin bin/i386-cygwin/mendex
-binpattern f/i386-cygwin bin/i386-cygwin/pbibtex
-binpattern f/i386-cygwin bin/i386-cygwin/pdvitype
-binpattern f/i386-cygwin bin/i386-cygwin/platex
-binpattern f/i386-cygwin bin/i386-cygwin/ppltotf
-binpattern f/i386-cygwin bin/i386-cygwin/ptex
-binpattern f/i386-cygwin bin/i386-cygwin/ptftopl

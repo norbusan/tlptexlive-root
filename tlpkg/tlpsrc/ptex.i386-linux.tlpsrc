@@ -1,9 +1,0 @@
-binpattern f/i386-linux bin/i386-linux/eptex
-binpattern f/i386-linux bin/i386-linux/makejvf
-binpattern f/i386-linux bin/i386-linux/mendex
-binpattern f/i386-linux bin/i386-linux/pbibtex
-binpattern f/i386-linux bin/i386-linux/pdvitype
-binpattern f/i386-linux bin/i386-linux/platex
-binpattern f/i386-linux bin/i386-linux/ppltotf
-binpattern f/i386-linux bin/i386-linux/ptex
-binpattern f/i386-linux bin/i386-linux/ptftopl

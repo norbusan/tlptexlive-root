@@ -1,3 +1,0 @@
-binpattern f/universal-darwin bin/universal-darwin/dvipdfmx
-binpattern f/universal-darwin bin/universal-darwin/ebb
-binpattern f/universal-darwin bin/universal-darwin/extractbb
