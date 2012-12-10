@@ -346,9 +346,11 @@ sub create_tlpdb {
     # split bin packages off unless requested otherwise (no reason to so
     # request these days).
     unless ($opt_nobinsplit) {
-      # packages which have already a .win32 extension or the 
+      # - split: texlive.infra but NO OTHER PACKAGE containing \.
+      # - NO split: 00texlive
+      # packages which have already a .SOMETHING extension or the 
       # 00texlive.something package are NOT split, never!
-      if ($tlp->name !~ m/\.win32/
+      if (($tlp->name !~ m/\./ || $tlp->name =~ m/texlive\.infra/)
           && $tlp->name !~ m/^00texlive/) {
         my @binobjs = $tlp->split_bin_package;
         foreach my $binobj (@binobjs) {
