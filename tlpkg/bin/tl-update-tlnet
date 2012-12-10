@@ -1,15 +1,15 @@
 #!/bin/sh -e
-# Copyright 2008, 2009, 2010, 2011 Norbert Preining
+# Copyright 2008, 2009, 2010, 2011, 2012 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 # 
 # Update a TeX Live tlnet area, with testing.
 
-vc_id='$Id: tl-update-tlnet 24220 2011-10-06 22:50:55Z karl $'
+vc_id='$Id: tl-update-tlnet 26418 2012-05-15 23:26:55Z karl $'
 unset CDPATH
 unset LS_COLORS
 
-yyyy=2011
+yyyy=2012
 
 chicken=false
 critical=
@@ -161,8 +161,9 @@ unexpected_output=`cat install.log \
   | grep -Ev '^Logfile: ' \
   | grep -Ev '^Time used for installing ' \
   | grep -Ev '^setting up ConTeXt MkIV cache ' \
-  | grep -Ev '^resolvers +\| ' \
-  | grep -Ev '^system +\| ' \
+  | grep -Ev '^resolvers +\|' \
+  | grep -Ev '^system +\|' \
+  | grep -Ev '^mtxrun +\|' \
   | grep -Ev '^done$' \
   | cat`
 
@@ -177,7 +178,7 @@ fi
 # more consistency checks.
 if test $failure = false; then
   for cmd in \
-      "$tltryinst/$yyyy/bin/*/tlmgr update --list" \
+      "$tltryinst/$yyyy/bin/*/tlmgr --repository $tltry update --list" \
       "$Master/tlpkg/bin/check-tlnet-consistency --location=$tltry" \
       "$Master/tlpkg/bin/tl-compare-tlpdbs $critical $tltry/tlpkg/texlive.tlpdb" \
   ; do

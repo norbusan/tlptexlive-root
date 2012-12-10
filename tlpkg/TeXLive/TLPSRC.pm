@@ -1,6 +1,6 @@
-# $Id: TLPSRC.pm 26098 2012-04-23 01:20:06Z preining $
-# TeXLive::TLPSRC.pm - module for using tlpsrc files
-# Copyright 2007, 2008, 2009, 2010, 2011 Norbert Preining
+# $Id: TLPSRC.pm 26458 2012-05-16 23:22:30Z karl $
+# TeXLive::TLPSRC.pm - module for handling tlpsrc files
+# Copyright 2007, 2008, 2009, 2010, 2011, 2012 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
@@ -15,7 +15,7 @@ use TeXLive::TLTREE;
 my $_tmp;
 my %autopatterns;  # computed once internally
 
-my $svnrev = '$Revision: 26098 $';
+my $svnrev = '$Revision: 26458 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -645,15 +645,14 @@ the C<.tlpsrc> file contains two physical lines like this:
   foo\
   bar
 
-they are concatenated into C<foobar>.  The newline is removed; no other
-whitespace is added or removed, so typically the continuation line
-starts with one or more spaces.
+they are concatenated into C<foobar>.  The backslash and the newline are
+removed; no other whitespace is added or removed.
 
 Comment lines begin with a # and continue to the end of the line.
 
 Blank lines are ignored.
 
-The meaning of the I<key>s are:
+The meaning of the I<key>s:
 
 =over 4
 

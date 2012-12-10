@@ -1,4 +1,4 @@
-# $Id: TLConfig.pm 26329 2012-05-13 17:31:15Z karl $
+# $Id: TLConfig.pm 27010 2012-07-12 09:16:29Z preining $
 # TeXLive::TLConfig.pm - module exporting configuration values
 # Copyright 2007, 2008, 2009, 2010, 2011, 2012 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
@@ -6,7 +6,7 @@
 
 package TeXLive::TLConfig;
 
-my $svnrev = '$Revision: 26329 $';
+my $svnrev = '$Revision: 27010 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -58,7 +58,10 @@ $ReleaseYear = 2012;
 
 # users can upgrade from this year to the current year; maybe a spread
 # of more than one year will be useful at some point, but not now.
-$MinRelease = $ReleaseYear - 1;
+# $MinRelease = $ReleaseYear - 1;
+
+# users can NOT upgrade due to internal changes, force a full installation
+$MinRelease = $ReleaseYear;
 
 # Meta Categories do not ship files, but only call for other packages.
 our @MetaCategories = qw/Collection Scheme/;
@@ -166,10 +169,10 @@ our %TLPDBOptions = (
     [ "p", "/usr/local/bin", "sys_bin",
       "Destination for symlinks for binaries" ],
   "sys_info" =>
-    [ "p", "/usr/local/info", "sys_info",
+    [ "p", "/usr/local/share/info", "sys_info",
       "Destination for symlinks for info docs" ],
   "sys_man" =>
-    [ "p", "/usr/local/man", "sys_man",
+    [ "p", "/usr/local/share/man", "sys_man",
       "Destination for symlinks for man pages" ],
   "w32_multi_user" =>
     [ "b", 0, "multiuser",

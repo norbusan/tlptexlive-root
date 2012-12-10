@@ -1,0 +1,163 @@
+#!/usr/bin/env perl
+# Copyright 2012 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+#
+# Prune (remove) platforms from a tlnet distribution tree
+
+my $vc_id;
+my $mydir;
+
+BEGIN {
+  $vc_id = '$Id: tl-prune-platforms 27168 2012-07-26 12:08:31Z preining $';
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+use TeXLive::TLConfig;
+use TeXLive::TLPOBJ;
+use TeXLive::TLPDB;
+use TeXLive::TLUtils;
+use Getopt::Long;
+use Pod::Usage;
+use File::Path;
+
+my $opt_version = 0;
+my $opt_help = 0;
+my $opt_dry = 0;
+
+TeXLive::TLUtils::process_logging_options();
+GetOptions(
+  "dry-run|n"	=> \$opt_dry,
+  "version"	=> \$opt_version,
+  "help|?"      => \$opt_help) or pod2usage(1);
+
+pod2usage("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
+if ($opt_version) { print "$vc_id\n"; exit 0; } 
+
+exit (&main());
+
+
+sub main
+{
+  # prune db in the same hierarchy from which we are being run.
+  chomp(my $Master = `cd $mydir/../.. && pwd`);
+  # necessary for TLUtils->platform
+  $::installerdir = $Master;
+  my $tlpdb = TeXLive::TLPDB->new("root" => $Master);
+  die "cannot find tlpdb in $Master" unless defined($tlpdb);
+
+  my $format = $tlpdb->config_container_format;
+  my $type = "xz";
+  if ($format ne "xz") {
+    tlwarn("$0: unknown container format $format in 00texlive.config; ",
+           "ignoring and continuing with $type");
+  }
+
+  # check that all archs given on the command line are actual archs,
+  # otherwise bail out for security
+  my @all_archs = $tlpdb->available_architectures;
+  for my $a (@ARGV) {
+    if (!TeXLive::TLUtils::member($a, @all_archs)) {
+      print "Platform $a not installed, cannot prune, exiting\n";
+      exit 1;
+    }
+  }
+
+  my $containerdir = "$Master/$TeXLive::TLConfig::Archive";
+
+  # loop over packages and remove their binary component
+  for my $pkg ($tlpdb->list_packages) {
+    # by definition, any 00texlive... package does not need containers.
+    next if $pkg =~ /00texlive/;
+    
+    my $tlp = $tlpdb->get_package($pkg);
+    if (!$tlp) {
+      # that is a package foobar.$a that has already been remove but
+      # is still in the list above, so ignore that
+      next;
+    }
+    foreach my $dep ($tlp->depends) {
+      if ($dep =~ m/^(.*)\.ARCH$/) {
+        foreach my $a (@ARGV) {
+          if ($tlpdb->get_package("$pkg.$a")) {
+            # remove entry in the tlpdb
+            print "removing $pkg.$a from tlpdb ... ";
+            $tlpdb->remove_tlpobj("$pkg.$a") unless $opt_dry;
+            print "done\n";
+            # remove the container
+            if (-r "$containerdir/$pkg.$a.tar.xz") {
+              print "removing $containerdir/$pkg.$a.tar.xz ... ";
+              `rm $containerdir/$pkg.$a.tar.xz` unless $opt_dry;
+              print "done\n";
+            }
+          }
+        }
+      }
+    }
+  }
+
+  my @newarchs;
+  for my $a (@all_archs) {
+    push @newarchs, $a if !TeXLive::TLUtils::member($a, @ARGV);
+  }
+
+  $tlpdb->setting("available_architectures",@newarchs);
+  $tlpdb->save unless $opt_dry;
+
+  return 0;
+}
+
+__END__
+
+=head1 NAME
+
+tl-prune-platforms - remove platforms from a tlnet hierarchy
+
+=head1 SYNOPSIS
+
+tl-prune-platforms [I<option>] [I<platform>] ...
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-help>
+
+Print this documentation and exit.
+
+=back
+
+The standard options B<-q>, B<-v>, and B<-logfile>=I<file> are also
+accepted; see the C<process_logging_options> function in
+L<TeXLive::TLUtils> for details.
+
+The format of the containers and the splitting of source and
+documentation files are controlled by the TLPDB options in the
+pseudo-package C<00texlive.config>.  See L<TeXLive::TLPDB>.
+
+=head1 DESCRIPTION
+
+This program removes all traces of all platforms given as arguments,
+that is: remove the binfiles entries in the tlpdb, and remove the
+containers. 
+
+It is used during DVD production to exclude certain
+platforms, and is run from the L<tl-update-image> script.
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2 expandtab: #

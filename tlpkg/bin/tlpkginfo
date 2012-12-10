@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: tlpkginfo 24315 2011-10-18 22:26:36Z karl $
+# $Id: tlpkginfo 28240 2012-11-13 00:19:06Z karl $
 # Public domain.  Originally written 2005, Karl Berry.
 # 
 # Return information given a TL package name (i.e., a tlpsrc file name).
@@ -15,12 +15,11 @@ sub main {
     || die "$0: TEX_CATALOGUE ($CATALOGUE) must point to entries/ subdir"
            . " of a TeX Catalogue checkout.\n";
   
-  # erroneous or problematic tds files (warn Robin about them)
-  # list format: pkg1|pkg2|etc
+  # erroneous or problematic tds files (when new, tell RobinF and author)
   $erroneous_tds = join ("|",
-    qw(ccaption engpron fmtcount imtekda purifyeps spanish svn-multi
-       thailatex tugboat tufte-latex xetexref xtab),
-    qw(lastpage papermas papertex undolabl));
+    qw(countriesofeurope engpron gost hacm he-she imakeidx imtekda spanish
+    sttools titleps),
+    );
   
   # Heiko's tds files (don't propagate through CTAN fast enough).
   $oberdiek_tds = "hyperref|oberdiek";
@@ -115,6 +114,7 @@ sub find_ctan_dir {
       "language/devanagari/$me",		# velthuis
       "language/croatian/$me",			# hrlatex
       "language/coptic/$me",			# cbcoptic
+      "language/japanese/$me",			# e.g., jfontmaps
       "info/spanish/$me",			# guia-bibtex
       "info/symbols/$me",			# comprehensive
       "info/math/voss/$me",			# mathmode
@@ -283,15 +283,18 @@ sub prepare {
     $tds_path = "/home/ftp/tex/$pkg/$pkg.tds.zip";
     # will be ignored below if it doesn't exist.
 
-  # ...and except for amsfonts ...
+  } elsif ($pkg eq "context") {
+    $tds_path = "/tmp/cont-tmf.zip";
+
+  # ...and except for amsfonts, and others ...
   } elsif ($pkg eq "amsfonts") {
-    # CTAN apparently doesn't want to put this in install:
     $tds_path = "$CTAN/fonts/amsfonts/amsfonts.zip";
 
-  # ...and except for koma-script ...
-  } elsif ($pkg eq "koma-script") {
-    # CTAN apparently doesn't want to put this in install:
-    $tds_path = "$CTAN/macros/latex/contrib/koma-script/komascript.tds.zip";
+  } elsif ($pkg eq "hfoldsty") {
+    $tds_path = glob ("$CTAN/fonts/hfoldsty/hfoldsty-v*.zip");
+
+  } elsif ($pkg eq "libertine-legacy") {
+    $tds_path = "$CTAN/fonts/libertine-legacy/libertine-legacy-texmf.zip";
 
   # ...and except for files in latex-tds...
   } elsif ($pkg =~ /^($latex_tds_pkgs)$/) {
@@ -300,7 +303,7 @@ sub prepare {
     } else {
       $tds_path = "$latex_tds_dir/$pkg.tds.zip";
     }
-    # and more exceptions to the exceptions:
+    # and more latex exceptions to the latex exceptions:
     $tds_path = "$latex_tds_dir/source.tds.zip" if $pkg eq "latex-tds";
     $tds_path = "$latex_tds_dir/base.tds.zip" if $pkg eq "latex";
   }

@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: tl-update-auto 24213 2011-10-05 23:38:23Z karl $
+# $Id: tl-update-auto 28265 2012-11-15 00:35:53Z karl $
 # Public domain.  Originally written 2003, Karl Berry.
 # 
 # Deal with files that are automatically updated in one way or another.
@@ -126,19 +126,22 @@ fi # !config_scripts_only
 
 
 #  config.guess/sub/etc. from elsewhere on tug.org, mirrored from GNU.
-# ylwrap comes from automake; ltmain.sh comes from libtool.  For those
-# two, have to manually remember to update when new versions are installed.
+# See Build/source/build-aux/README.TL for more info on common scripts.
 # 
 config_masterdir=/home/ftp/dist/build-aux
 #
-for gnuconf in config.guess config.sub depcomp install-sh missing \
-    texinfo.tex; do 
+for gnuconf in config.guess config.sub depcomp install-sh texinfo.tex; do 
   master_conffile=$config_masterdir/$gnuconf
   local_conffile=../Build/source/build-aux/$gnuconf
   #
+  if test ! -s $master_conffile; then
+    echo "$0: $master_conffile missing, skipping." >&2
+    continue
+  fi
+  #
   if $diff $local_conffile $master_conffile >$temp.$gnuconf.diff; then
     $verbose "  $gnuconf ok."
-    rm -f $temp
+    rm -f $temp.$gnuconf.diff
   else
     # updated needed. find all copies in source.
     # Build/source/utils/asymptote/gc* is not checked in (since it's not

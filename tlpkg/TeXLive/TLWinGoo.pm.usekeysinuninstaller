@@ -1,6 +1,7 @@
-# $Id: TLWinGoo.pm 28457 2012-12-07 15:41:08Z siepo $
-# TeXLive::TLWinGoo.pm - Windows nastiness
-# Copyright 2008-2012 Siep Kroonenberg, Norbert Preining
+# $Id: TLWinGoo.pm 15716 2009-10-09 03:50:18Z preining $
+# TeXLive::TLWinGoo.pm -# Windows nastiness
+#
+# Copyright 2008, 2009 Siep Kroonenberg, Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
@@ -11,7 +12,7 @@
 
 package TeXLive::TLWinGoo;
 
-my $svnrev = '$Revision: 28457 $';
+my $svnrev = '$Revision: 15716 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -46,13 +47,12 @@ C<TeXLive::TLWinGoo> -- Additional utilities for Windows
   TeXLive::TLWinGoo::global_tmpdir;
   TeXLive::TLWinGoo::get_system_path;
   TeXLive::TLWinGoo::get_user_path;
+  TeXLive::TLWinGoo::win_which_dir($prog);
   TeXLive::TLWinGoo::setenv_reg($env_var, $env_data);
   TeXLive::TLWinGoo::unsetenv_reg($env_var);
   TeXLive::TLWinGoo::adjust_reg_path_for_texlive($action, $texbindir, $mode);
-  TeXLive::TLWinGoo::add_to_progids($ext, $filetype);
-  TeXLive::TLWinGoo::remove_from_progids($ext, $filetype);
-  TeXLive::TLWinGoo::register_extension($mode, $extension, $file_type);
-  TeXLive::TLWinGoo::unregister_extension($mode, $extension);
+  TeXLive::TLWinGoo::register_extension($extension, $file_type);
+  TeXLive::TLWinGoo::unregister_extension($extension);
   TeXLive::TLWinGoo::register_file_type($file_type, $command);
   TeXLive::TLWinGoo::unregister_file_type($file_type);
 
@@ -101,8 +101,6 @@ BEGIN {
     &setenv_reg
     &unsetenv_reg
     &adjust_reg_path_for_texlive
-    &add_to_progids
-    &remove_from_progids
     &register_extension
     &unregister_extension
     &register_file_type
@@ -123,6 +121,7 @@ BEGIN {
     &admin_again
     &get_system_env
     &get_user_env
+    &win_which_dir
     &global_tmpdir
     &is_a_texdir
     &tex_dirs_on_path
@@ -131,29 +130,19 @@ BEGIN {
     require Win32::API;
     require Win32::TieRegistry;
     Win32::TieRegistry->import( qw( $Registry
-      REG_SZ REG_EXPAND_SZ REG_NONE KEY_READ KEY_WRITE KEY_ALL_ACCESS
+      REG_SZ REG_EXPAND_SZ  KEY_READ KEY_WRITE KEY_ALL_ACCESS
          KEY_ENUMERATE_SUB_KEYS ) );
     $Registry->Delimiter('/');
     $Registry->ArrayValues(0);
     $Registry->FixSzNulls(1);
     require Win32::Shortcut;
     Win32::Shortcut->import( qw( SW_SHOWNORMAL SW_SHOWMINNOACTIVE ) );
-    require Time::HiRes;
   }
 }
 
 use TeXLive::TLConfig;
 use TeXLive::TLUtils;
 TeXLive::TLUtils->import( qw( mkdirhier ) );
-
-sub reg_debug {
-  return if ($::opt_verbosity < 1);
-  my $mess = shift;
-  my $regerr = Win32API::Registry::regLastError();
-  if ($regerr) {
-    debug("$regerr\n$mess");
-  }
-}
 
 my $is_win = $^O=~/^MSWin(32|64)$/i;
 
@@ -263,28 +252,26 @@ Two-letter country code representing the locale of the current user
 
 sub reg_country {
   my $value = $Registry -> {"CUser/Control Panel/International//Locale"};
-  return unless $value;
+  return 0 unless $value;
   # there might be trailing nulls on Vista
   $value =~ s/\x00*$//;
   $value = substr $value, -4;
-  return unless $value;
+  return 0 unless $value;
   my $lmkey = $Registry -> Open("HKEY_CLASSES_ROOT/MIME/Database/Rfc1766/",
                              {Access => KEY_READ()});
-  return unless $lmkey;
+  return 0 unless $lmkey;
   $lm = $lmkey->{"/$value"};
-  return unless $lm;
+  return 0 unless $lm;
   debug("found lang codes value = $value, lm = $lm...\n");
   if ($lm) {
     if ($lm =~ m/^zh-(tw|hk)$/i) {
-      return ("zh", "tw");
+      return ("zh-tw");
     } elsif ($lm =~ m/^zh/) {
       # for anything else starting with zh return, that is zh, zh-cn, zh-sg
       # and maybe something else
-      return ("zh", "cn");
+      return ("zh-cn");
     } else {
-      my $lang = lc(substr $lm, 0, 2);
-      my $area = lc(substr $lm, 3, 2);
-      return($lang, $area);
+      return(substr $lm, 0, 2);
     }
   }
 }
@@ -352,7 +339,7 @@ sub is_a_texdir {
   $sr =~ s/\\/\//g;
   $sr = $sr . '/' unless $sr =~ m!/$!;
   return 0 if index($d, $sr)==0;
-  foreach $p (qw(luatex.exe mktexlsr.exe pdftex.exe tex.exe xetex.exe)) {
+  foreach $p qw(luatex.exe mktexlsr.exe pdftex.exe tex.exe xetex.exe) {
     return 1 if (-e $d.$p);
   }
   return 0;
@@ -369,6 +356,7 @@ forward slashes.
 
 sub get_system_path {
   my $value = get_system_env() -> {'/Path'};
+  $value =~ s/\\/\//g;
   # Remove terminating zero bytes; there may be several, at least
   # under w2k, and the FixSzNulls option only removes one.
   $value =~ s/[\s\x00]+$//;
@@ -388,35 +376,35 @@ expandable.
 sub get_user_path {
   my $value = get_user_env() -> {'/Path'};
   return "" if not $value;
+  $value =~ s/\\/\//g;
   $value =~ s/[\s\x00]+$//;
   return $value;
 }
 
-#=pod
-#
-#=item C<win_which_dir>
-#
-#More or less the same as which, except that 1. it returns a
-#directory, 2. it consults the path stored in the registry rather
-#than the path of the current process, and 3. it assumes that the
-#filename includes an extension. Currently only used for testing.
-#
-#=cut
-#
-#sub win_which_dir {
-#  my $prog = shift;
-#  my $d;
-#  # first check system path
-#  my $path = expand_string(get_system_path());
-#  my $user_path = expand_string(get_user_path());
-#  $path = $path . ';' . $user_path if $user_path;
-#  $path =~ s/\\/\//g;
-#  foreach $d (split (';',$path)) {
-#    $d =~ s/\/$//;
-#    return $d if -e $d.'/'.$prog;
-#  }
-#  return 0;
-#}
+=pod
+
+=item C<win_which_dir>
+
+More or less the same as which, except that 1. it returns a
+directory, 2. it consults the path stored in the registry rather
+than the path of the current process, and 3. it assumes that the
+filename includes an extension. Currently only used for testing.
+
+=cut
+
+sub win_which_dir {
+  my $prog = shift;
+  my $d;
+  # first check system path
+  my $path = expand_string(get_system_path());
+  my $user_path = expand_string(get_user_path());
+  $path = $path . ';' . $user_path if $user_path;
+  foreach $d (split (';',$path)) {
+    $d =~ s/\/$//;
+    return $d if -e $d.'/'.$prog;
+  }
+  return 0;
+}
 
 =pod
 
@@ -439,7 +427,7 @@ sub setenv_reg {
     if ($mode eq "system" and !$is_admin);
   my $env;
   if ($mode ne "system") {
-    $env = get_user_env();
+    my $env = get_user_env();
     $env->ArrayValues(1);
     $env->{'/'.$env_var} =
        [ $env_data, ($env_data =~ /%/) ? REG_EXPAND_SZ : REG_SZ ];
@@ -510,9 +498,9 @@ to system or user PATH variable in the registry (depending on $mode).
 sub adjust_reg_path_for_texlive {
   my ($action, $tlbindir, $mode) = @_;
   die("Unknown path action: $action\n")
-    if ($action ne 'add') && ($action ne 'remove');
+    if ($action ne 'add') and ($action ne 'remove');
   die("Unknown path mode: $mode\n")
-    if ($mode ne 'system') && ($mode ne 'user');
+    if ($mode ne 'system') and ($mode ne 'user');
   debug("Warning: [pdf]tex program not found in $tlbindir\n")
     if (!is_a_texdir($tlbindir));
   my $path = ($mode eq 'system') ? get_system_path() : get_user_path();
@@ -520,23 +508,18 @@ sub adjust_reg_path_for_texlive {
   my $tlbindir_short = uc(short_name($tlbindir));
   my ($d, $d_short, @newpath);
   my $tex_dir_conflict = 0;
-  my @texdirs;
   foreach $d (split (';', $path)) {
     $d_short = uc(short_name(expand_string($d)));
     $d_short =~ s!/!\\!g;
     ddebug("adjust_reg: compar $d_short with $tlbindir_short\n");
     if ($d_short ne $tlbindir_short) {
       push(@newpath, $d);
-      if (is_a_texdir($d)) {
-        $tex_dir_conflict++;
-        push(@texdirs, $d);
-      }
+      $tex_dir_conflict += is_a_texdir($d);
     }
   }
   if ($action eq 'add') {
     if ($tex_dir_conflict) {
-      log("Warning: conflicting [pdf]tex program found on the $mode path ", 
-          "in @texdirs; appending $tlbindir to the front of the path.\n");
+      debug("Warning: conflicting [pdf]tex found on the $mode path in $d; appending texlive bin dir to the front.");
       unshift(@newpath, $tlbindir);
     } else {
       push(@newpath, $tlbindir);
@@ -549,296 +532,34 @@ sub adjust_reg_path_for_texlive {
     debug("TLWinGoo: adjust_reg_path_for_texlive: calling unsetenv_reg in $mode\n");
     unsetenv_reg("Path", $mode);
   }
-  if ( ($action eq 'add') && ($mode eq 'user') ) {
-    @texdirs = tex_dirs_on_path( get_system_path() );
-    return 0 unless (@texdirs);
-    tlwarn("Warning: conflicting [pdf]tex program found on the system path ",
-           "in @texdirs; not fixable in user mode.\n");
+  if (($action eq 'add') and ($mode eq 'user') and tex_dirs_on_path(get_system_path())) {
+    debug("Warning: conflicting [pdf]tex found on the system path in $d; not fixable in user mode.");
     return 1;
   }
   return 0;
 }
 
-### File types ###
-
-# Refactored from 2010 edition. New functionality:
-# add_to_progids for defining alternate filetypes for an extension.
-# Their associated programs show up in the `open with' right-click menu.
-
-### helper subs ###
-
-# merge recursive hash refs such as occur in the registry
-
-sub hash_merge {
-  my $target = shift; # the recursive hash ref to be modified by $mods
-  my $mods = shift; # the recursive hash ref to be merged into $target
-  my $k;
-  foreach $k (keys %$mods) {
-    if (ref($target->{$k}) eq 'HASH' and ref($mods->{$k}) eq 'HASH') {
-      hash_merge($target->{$k}, $mods->{$k});
-    } else {
-      $target->{$k} = $mods->{$k};
-      reg_debug ("at hash merge\n");
-      $target->Flush();
-      reg_debug ("at hash merge\n");
-    }
-  }
-}
-
-# prevent catastrophies during testing; not to be used in production code
-
-sub getans {
-  my $prompt = shift;
-  my $ans;
-  print STDERR "$prompt ";
-  $ans = <STDIN>;
-  if ($ans =~ /^y/i) {print STDERR "\n"; return 1;}
-  die "Aborting as requested";
-}
-
 # delete a registry key recursively.
 # the key parameter should be a string, not a registry object.
+# We shall use this with file types.
 
 sub reg_delete_recurse {
   my $parent = shift;
   my $childname = shift;
-  my $parentpath = $parent->Path;
-  ddebug("Deleting $parentpath$childname\n");
-  my $child;
+  ddebug("Deleting $childname regkey\n");
   if ($childname !~ '^/') { # subkey
-    $child = $parent->Open ($childname, {Access => KEY_ALL_ACCESS()});
-    reg_debug ("at open $childname for all access\n");
-    return 1 unless defined($child);
+    my $child = $parent->Open ($childname, {Access => KEY_ALL_ACCESS()});
+    return unless $child;
     foreach my $v (keys %$child) {
       if ($v =~ '^/') { # value
         delete $child->{$v};
-        reg_debug ("at delete $childname/$v\n");
-        $child->Flush();
-        reg_debug ("at delete $childname/$v\n");
-        Time::HiRes::usleep(20000);
       } else { # subkey
-        return 0 unless reg_delete_recurse ($child, $v);
+        reg_delete_recurse ($child, $v);
       }
     }
-    #delete $child->{'/'};
+    delete $child->{'/'};
   }
   delete $parent->{$childname};
-  reg_debug ("at delete $parentpath$childname\n");
-  $parent->Flush();
-  reg_debug ("at delete $parentpath$childname\n");
-  Time::HiRes::usleep(20000);
-  return 1;
-}
-
-sub cu_root {
-  my $k = $Registry -> Open("CUser", {
-    Access => KEY_ALL_ACCESS(), Delimiter => '/'
-  });
-  reg_debug ("at open HKCU for all access\n");
-  die "Cannot open HKCU for writing" unless $k;
-  return $k;
-}
-
-sub lm_root {
-  my $k = $Registry -> Open("LMachine", {
-      Access => ($is_admin ? KEY_ALL_ACCESS() : KEY_READ()),
-      Delimiter => '/'
-  });
-  reg_debug ("at open HKLM\n");
-  die "Cannot open HKLM for ".($is_admin ? "writing" : "reading")
-      unless $k;
-  return $k;
-}
-
-sub do_write_regkey {
-  my $keypath = shift; # modulo cu/lm
-  my $keyhash = shift; # ref to a possibly nested hash; empty hash allowed
-  my $remove_cu = shift;
-  die "No regkey specified" unless $keypath && defined($keyhash);
-  # for error reporting:
-  my $hivename = $is_admin ? 'HKLM' : 'HKCU';
-
-  # split into parent and final subkey
-  # remove initial slash from parent
-  # ensure subkey ends with slash
-  my ($parentpath, $keyname);
-  if ($keypath =~ /^\/?(.+\/)([^\/]+)\/?$/) {
-    ($parentpath, $keyname) = ($1, $2);
-    $keyname .= '/';
-    debug ("key - $hivename - $parentpath - $keyname\n");
-  } else {
-    die "Cannot determine final component of $keypath";
-  }
-
-  my $cu_key = cu_root();
-  my $lm_key = lm_root();
-  # cu_root() and lm_root() already die upon failure
-  my $parentkey;
-
-  # make sure parent exists
-  if ($is_admin) {
-    $parentkey = $lm_key->Open($parentpath);
-    reg_debug ("at open $parentpath; creating...\n");
-    if (!$parentkey) {
-      # in most cases, this probably shouldn't happen for lm
-      $parentkey = $lm_key->CreateKey($parentpath);
-      reg_debug ("at creating $parentpath\n");
-    }
-  } else {
-    $parentkey = $cu_key->Open($parentpath);
-    reg_debug ("at open $parentpath; creating...\n");
-    if (!$parentkey) {
-      $parentkey = $cu_key->CreateKey($parentpath);
-      reg_debug ("at creating $parentpath\n");
-    }
-  }
-  if (!$parentkey) {
-    tlwarn "Cannot create parent of $hivename/$keypath\n";
-    return 0;
-  }
-
-  # create or merge key
-  if ($parentkey->{$keyname}) {
-    hash_merge($parentkey->{$keyname}, $keyhash);
-  } else {
-    $parentkey->{$keyname} = $keyhash;
-    reg_debug ("at creating $keyname\n");
-  }
-  if (!$parentkey->{$keyname}) {
-    tlwarn "Failure to create $hivename/$keypath\n";
-    return 0;
-  }
-  if ($is_admin and $cu_key->{$keypath} and $remove_cu) {
-    # delete possibly conflicting cu key
-    tlwarn "Failure to delete $hivename/$keypath key\n" unless
-      reg_delete_recurse ($cu_key->{$parentpath}, $keyname);
-  }
-  return 1;
-}
-
-# remove a registry key under HKCU or HKLM, depending on privilege level
-
-sub do_remove_regkey {
-  my $keypath = shift; # key or value
-  my $remove_cu = shift;
-  my $hivename = $is_admin ? 'HKLM' : 'HKCU';
-
-  my $parentpath = "";
-  my $keyname = "";
-  my $valname = "";
-  # two successive delimiters: value.
-  # *? = non-greedy match: want FIRST double delimiter
-  if ($keypath =~ /^(.*?\/)(\/.*)$/) {
-    ($parentpath, $valname) = ($1, $2);
-    $parentpath =~ s!^/!!; # remove leading delimiter
-  } elsif ($keypath =~ /^\/?(.+\/)([^\/]+)\/?$/) {
-    ($parentpath, $keyname) = ($1, $2);
-    $keyname .= '/';
-  } else {
-    die "Cannot determine final component of $keypath";
-  }
-
-  my $cu_key = cu_root();
-  my $lm_key = lm_root();
-  my ($parentkey, $k, $skv, $d);
-  if ($is_admin) {
-    $parentkey = $lm_key->Open($parentpath);
-  } else {
-    $parentkey = $cu_key->Open($parentpath);
-  }
-  reg_debug ("at opening $parentpath\n");
-  if (!$parentkey) {
-    debug ("$hivename/$parentpath not present or not writable".
-      " so $keypath not removed\n");
-    return 1;
-  }
-  if ($keyname) {
-    #getans("Deleting $parentpath$keyname regkey? ");
-    reg_delete_recurse($parentkey, $keyname);
-    if ($parentkey->{$keyname}) {
-      tlwarn "Failure to delete $hivename/$keypath\n";
-      return 0;
-    }
-    if ($is_admin and $cu_key->{$parentpath}) {
-      reg_delete_recurse($cu_key->{$parentpath}, $keyname);
-      if ($cu_key->{$parentpath}->{$keyname}) {
-        tlwarn "Failure to delete HKCU/$keypath\n";
-        return 0;
-      }
-    }
-  } else {
-    delete $parentkey->{$valname};
-    reg_debug ("at deleting $valname\n");
-    if ($parentkey->{$valname}) {
-      tlwarn "Failure to delete $hivename/$keypath\n";
-      return 0;
-    }
-    if ($is_admin and $cu_key->{$parentpath}) {
-      delete $cu_key->{$parentpath}->{$valname};
-      reg_debug ("at deleting $valname\n");
-      if ($cu_key->{$parentpath}->{$valname}) {
-        tlwarn "Failure to delete HKCU/$keypath\n";
-        return 0;
-      }
-    }
-  }
-  return 1;
-}
-
-# Effective default value of any key under Classes.
-# admin: HKLM; user: HKCU or otherwise HKLM
-# Reject if there is no corresponding key under classes
-sub current_filetype {
-  my $extension = shift;
-  my $filetype;
-  if ($is_admin) {
-    $filetype = lm_root()->{"Software/Classes/$extension//"}; # REG_SZ
-  } else {
-    # Mysterious failures on w7_64 => merge HKLM/HKCU info explicitly
-    # rather than checking HKCR
-    $filetype = cu_root()->{"Software/Classes/$extension//"};
-    if (!defined($filetype) or ($filetype eq "")) {
-      $filetype = lm_root()->{"Software/Classes/$extension//"}
-    };
-  }
-  $filetype = "" unless defined($filetype);
-  return $filetype;
-}
-
-### now the exported file type functions ###
-
-=pod
-
-=item C<add_to_progids($ext, $filetype)>
-
-Add $filetype to the list of alternate progids/filetypes of extension $ext.
-The associated program shows up in the `open with' right-click menu.
-
-=cut
-
-sub add_to_progids {
-  my $ext = shift;
-  my $filetype = shift;
-  #$Registry->ArrayValues(1);
-  #do_write_regkey("Software/Classes/$ext/OpenWithProgIds/",
-  #    {"/$filetype" => [0, REG_NONE()]});
-  #$Registry->ArrayValues(0);
-  do_write_regkey("Software/Classes/$ext/OpenWithProgIds/",
-      {"/$filetype" => ""});
-}
-
-=pod
-
-=item C<remove_from_progids($ext, $filetype)>
-
-Remove $filetype from the list of alternate filetypes for $ext
-
-=cut
-
-sub remove_from_progids {
-  my $ext = shift;
-  my $filetype = shift;
-  do_remove_regkey("Software/Classes/$ext/OpenWithProgIds//$filetype");
 }
 
 =pod
@@ -848,86 +569,152 @@ sub remove_from_progids {
 Add registry entry to associate $extension with $file_type. Slashes
 are flipped where necessary.
 
-If $mode is 0, nothing is actually done.
-
-For $mode 1, the filetype for the extension is preserved, but only
-if there is a registry key under Classes for it. For $mode>0,
-the new filetype is always added to the openwithprogids list.
-
-For $mode 2, the filetype is always overwritten. The old filetype
-moves to the openwithprogids list if necessary.
+If $mode is 0, nothing is actually done. If $mode is 1, only not-present
+keys of keys that are matching the given key are (re)created. If $mode
+is 2 then keys are (re)created in any case.
 
 =cut
 
 sub register_extension {
   my $mode = shift;
-  return 1 if $mode == 0;
-  my $extension = shift;
-  # ensure leading dot
-  $extension = '.'.$extension unless $extension =~ /^\./;
-  $extension = lc($extension);
-  my $file_type = shift;
-  my $regkey;
+  return if ($mode == 0);
 
-  my $old_file_type = current_filetype($extension);
-  if ($old_file_type) {
-    if ($is_admin) {
-      if (not lm_root()->{"Software/Classes/$old_file_type/"}) {
-        $old_file_type = "";
-      }
-    } else {
-      if ((not cu_root()->{"Software/Classes/$old_file_type/"}) and
-          (not lm_root()->{"Software/Classes/$old_file_type/"})) {
-        $old_file_type = "";
-      }
-    }
-  }
-  # admin: whether to remove HKCU entry. admin never _writes_ to HKCU
-  my $remove_cu = ($mode == 2) && admin();
-  # can do the following safely:
-  debug ("Adding $file_type to OpenWithProgIds of $extension\n");
-  add_to_progids ($extension, $file_type);
-  if ($old_file_type and $old_file_type ne $file_type) {
-    if ($mode == 1) {
-      debug ("Not overwriting $old_file_type with $file_type for $extension\n");
-    } else {
-      debug("Linking $extension to $file_type\n");
-      debug ("Moving $old_file_type to OpenWithProgIds\n");
-      add_to_progids ($extension, $old_file_type);
-      $regkey = {'/' => $file_type};
-      do_write_regkey("Software/Classes/$extension/", $regkey, $remove_cu);
-    }
+  my $extension = shift;
+  $extension = '.'.$extension unless $extension =~ /^\./; # ensure leading dot
+  $extension = uc($extension);
+
+  my $file_type = shift;
+  debug("Linking $extension to $file_type\n");
+  my ($classes_key_path, $classes_key, $k);
+
+  $extension = lc($extension);
+  if ($is_admin) {
+    $classes_key_path = "LMachine/Software/Classes/";
   } else {
-    $regkey = {'/' => $file_type};
-    do_write_regkey("Software/Classes/$extension/", $regkey, $remove_cu);
+    $classes_key_path = "CUser/Software/Classes/";
+  }
+
+  $classes_key = $Registry -> Open($classes_key_path, 
+    {Access => KEY_ALL_ACCESS()});
+
+  if (!defined($classes_key)) {
+    tlwarn("Cannot get key to $classes_key\n" .
+      "Cannot continue setting up associations.\n");
+    # should we die here in the admin case?
+    # so it was before, but that is probably not the best idea
+    return;
+  }
+
+  my $do_create_key = 0;
+
+  if ($mode == 1) {
+    if (defined($classes_key->{$extension})) {
+      if (defined($classes_key->{$extension}->{'/'})) {
+        if ($classes_key->{$extension}->{'/'} eq $file_type) {
+          debug("register_extension: already same key $extension $file_type present, recreate it\n");
+          # delete it so that it is recreated ...
+          delete $classes_key -> {$extension};
+          $do_create_key = 1;
+        } else {
+          debug("register_extension: old foreign key" . $classes_key->{$extension}->{'/'} . " found, not changing\n");
+        }
+      }
+    } else {
+      debug("register_extension: old key $extension not found, recreating it\n");
+      $do_create_key = 1;
+    }
+  } elsif ($mode == 2) {
+    $do_create_key = 1;
+  } else {
+    die "Unknown mode $mode for register_extension";
+  }
+
+  if ($do_create_key) {
+    $k = $classes_key->CreateKey($extension);
+    if (!defined($k)) {
+      tlwarn("Cannot create key for $extension in $classes_key_path.\n");
+      return;
+    }
+    $k -> ArrayValues(0);
+    $k -> {"/"} = $file_type;
+    if (admin()) {
+      # delete possibly conflicting value from HKCU/software
+      $classes_key = $Registry -> Open("CUser/Software/Classes/",
+          {Access => KEY_ALL_ACCESS()});
+      delete $classes_key -> {$extension};
+    }
   }
 }
 
 =pod
 
-=item C<unregister_extension($mode, $extension, $file_type)>
+=item C<unregister_extension($mode, $extension, $filetype)>
 
 Reversal of register_extension.
 
 =cut
 
 sub unregister_extension {
-  # we don't error check; we just do the best we can.
   my $mode = shift;
-  return 1 if $mode == 0;
-  # mode 1 and 2 treated identically:
-  # only unregister if the current value is as expected
+  return if ($mode == 0);
+
+  # we don't error check; we just do the best we can.
   my $extension = shift;
-  my $file_type = shift;
-  $extension = '.'.$extension unless $extension =~ /^\./;
-  remove_from_progids($extension, $file_type);
-  my $old_file_type = current_filetype("$extension");
-  if ($old_file_type ne $file_type) {
-    debug("Filetype $extension now $old_file_type; not ours, so not removed\n");
-    return 1;
+  my $filetype = shift;
+  $extension = '.'.$extension unless $extension =~ /^\./; # ensure leading dot
+  $extension = uc($extension);
+  debug("unregistering $extension\n");
+
+  my $classes_key;
+
+  my $HKLMclasses_key = $Registry -> Open("LMachine/Software/Classes/",
+    {Access => KEY_ALL_ACCESS()});
+  my $HKCUclasses_key = $Registry -> Open("CUser/Software/Classes/",
+    {Access => KEY_ALL_ACCESS()});
+  if (admin()) {
+    $classes_key = $HKLMclasses_key;
   } else {
-    debug("unregistering extension $extension\n");
-    do_remove_regkey("Software/Classes/$extension//");
+    $classes_key = $HKCUclasses_key;
+  }
+  if ($classes_key) {
+    my $do_remove_key = 0;
+    if ($mode == 1) {
+      if (defined($classes_key->{$extension})) {
+        if (defined($classes_key->{$extension}->{'/'})) {
+          if ($classes_key->{$extension}->{'/'} eq $filetype) {
+            debug("unregister_extension: correct key/value $extension/$filetype found, removing\n");
+            $do_remove_key = 1;
+          } else {
+            debug("unregister_extension: foreign value for $extension found, keeping it\n");
+          }
+        } else {
+          $do_remove_key = 1;
+        }
+      } else {
+        # nothing necessary, this key wasn't found
+      }
+    } elsif ($mode == 2) {
+      $do_remove_key = 1;
+    } else {
+      die "Unknown mode $mode for unregister_extension";
+    }
+
+    if ($do_remove_key) {
+      reg_delete_recurse ($classes_key, $extension."/");
+      if (admin()) {
+        if ($HKCUclasses_key) {
+          reg_delete_recurse ($HKCUclasses_key, $extension."/");
+        } else {
+          debug("Cannot open HKCU classes for write\n");
+        }
+      }
+    }
+  } else {
+    if (admin()) {
+      debug("Cannot open HKLM classes for write\n");
+    } else {
+      debug("Cannot open HKCU classes for write\n");
+    }
   }
 }
 
@@ -944,36 +731,59 @@ caller if necessary.
 sub register_file_type {
   my $file_type = shift;
   my $command = shift;
-  tlwarn "register_file_type called with empty command\n" unless $command;
-  $command =~s!/!\\!g;
+  $command =~s/\//\\/g;
   debug ("Linking $file_type to $command\n");
-  my $keyhash = {
-    "shell/" => {
-      "open/" => {
-        "command/" => {
-          "/" => $command
-        }
-      }
-    }
-  };
-  do_write_regkey("Software/Classes/$file_type", $keyhash);
+  my ($classes_key, $k);
+
+  if ($is_admin) {
+    $classes_key = $Registry -> Open("LMachine/Software/Classes/",
+      {Access => KEY_ALL_ACCESS()}) or die "Cannot open classpath";
+    $k = $classes_key->CreateKey($file_type."/Shell/Open/Command/");
+    $k -> {"/"} = $command;
+    $k -> ArrayValues(0);
+    # delete possibly conflicting values from HKCU/software
+    $classes_key = $Registry -> Open("CUser/Software/Classes/",
+        {Access => KEY_ALL_ACCESS()});
+    reg_delete_recurse($classes_key, $file_type);
+  } else {
+    $classes_key = $Registry -> Open("CUser/Software/Classes/",
+        {Access => KEY_ALL_ACCESS()});
+    $k = $classes_key->CreateKey($file_type."/Shell/Open/Command/");
+    $k -> ArrayValues(0);
+    $k -> {"/"} = $command;
+  }
 }
 
 =pod
 
 =item C<unregister_file_type($file_type)>
 
-Reversal of register_file_type.
+Reversal of register_script_type.
 
 =cut
 
 sub unregister_file_type {
   # we don't error check; we just do the best we can.
-  # All our filetypes start with 'TL.' so we consider them
-  # our own even if they have been tampered with.
   my $file_type = shift;
   debug ("unregistering $file_type\n");
-  do_remove_regkey("Software/Classes/$file_type/");
+
+  my $classes_key = $Registry -> Open("CUser/Software/Classes/",
+    {Access => KEY_ALL_ACCESS()});
+  if ($classes_key) {
+    reg_delete_recurse ($classes_key, $file_type."/");
+  } else {
+    tlwarn("Cannot open HKCU classes for write\n");
+  }
+  if ($is_admin) {
+    $classes_key = $Registry -> Open("LMachine/Software/Classes/",
+    {Access => KEY_ALL_ACCESS()});
+    if ($classes_key) {
+      reg_delete_recurse ($classes_key, $file_type."/");
+    } else {
+    debug ("Cannot open HKLM classes for write\n");
+    }
+    #reg_delete_recurse ($classes_key, $file_type);
+  }
 }
 
 =pod
@@ -1073,16 +883,14 @@ sub shell_folder {
   if (admin()) {
     return 0 unless $admin_name;
     $shell_key = $Registry->Open(
-    "LMachine/software/microsoft/windows/currentversion/explorer/user shell folders/",
-      {Access => KEY_READ}) or return 0;
-    $sh_folder = $shell_key -> {"/$admin_name"};
-    $sh_folder = short_name(expand_string($sh_folder));
+    "LMachine/software/microsoft/windows/currentversion/explorer/shell folders/",
+      {Access => KEY_READ});
+    $sh_folder = short_name($shell_key -> {"/$admin_name"});
   } else {
     $shell_key = $Registry->Open(
-    "CUser/software/microsoft/windows/currentversion/explorer/user shell folders/",
-      {Access => KEY_READ}) or return 0;
-    $sh_folder = $shell_key -> {"/$user_name"};
-    $sh_folder = short_name(expand_string($sh_folder));
+    "CUser/software/microsoft/windows/currentversion/explorer/shell folders/",
+      {Access => KEY_READ});
+    $sh_folder = short_name($shell_key -> {"/$user_name"});
   }
   $sh_folder =~ s!\\!/!g;
   return $sh_folder;
@@ -1090,10 +898,38 @@ sub shell_folder {
 
 sub desktop_path() {
   return shell_folder('Desktop');
+  #my ($shell_key, $deskpath);
+  #if (admin()) {
+  #  $shell_key = $Registry->Open(
+  #  "LMachine/software/microsoft/windows/currentversion/explorer/shell folders/",
+  #    {Access => KEY_READ});
+  #  $deskpath = short_name($shell_key -> {"/Common Desktop"});
+  #} else {
+  #  $shell_key = $Registry->Open(
+  #  "CUser/software/microsoft/windows/currentversion/explorer/shell folders/",
+  #    {Access => KEY_READ});
+  #  $deskpath = short_name($shell_key -> {"/Desktop"});
+  #}
+  #$deskpath =~ s!\\!/!g;
+  #return $deskpath;
 }
 
 sub menu_path() {
   return shell_folder('Programs', 'Common Programs');
+  #my ($shell_key, $menupath);
+  #if (admin()) {
+  #  $shell_key = $Registry->Open(
+  #  "LMachine/software/microsoft/windows/currentversion/explorer/shell folders/",
+  #    {Access => KEY_READ});
+  #  $menupath = short_name($shell_key -> {"/Common Programs"});
+  #} else {
+  #  $shell_key = $Registry->Open(
+  #  "CUser/software/microsoft/windows/currentversion/explorer/shell folders/",
+  #    {Access => KEY_READ});
+  #  $menupath = short_name($shell_key -> {"/Programs"});
+  #}
+  #$menupath =~ s!\\!/!g;
+  #return $menupath;
 }
 
 =pod
@@ -1203,11 +1039,15 @@ the job.
 =cut
 
 sub create_uninstaller {
-  my ($tdfw, $tdsvfw, $tdscfw) = @_;
-  # TEXDIR, TEXMFSYSVAR, TEXMFSYSCONFIG
+  my ($tdfw, $tdwfw, $tdsvfw, $tdscfw) = @_;
+  # TEXDIR, TEXDIRW, TEXMFSYSVAR, TEXMFSYSCONFIG
   $tdfw =~ s![\\/]$!!;
   my $td = $tdfw;
   $td =~ s!/!\\!g;
+
+  $tdwfw =~ s![\\/]$!!;
+  my $tdw = $tdwfw;
+  $tdw =~ s!/!\\!g;
 
   $tdsvfw =~ s![\\/]$!!;
   my $tdsv = $tdsvfw;
@@ -1223,66 +1063,70 @@ sub create_uninstaller {
   my $k = $uninst_key->CreateKey(
     "uninstall/TeXLive$::TeXLive::TLConfig::ReleaseYear/");
   $k->{"/DisplayName"} = "TeX Live $::TeXLive::TLConfig::ReleaseYear";
-  $k->{"/UninstallString"} = "\"$td\\tlpkg\\installer\\uninst.bat\"";
+  $k->{"/UninstallString"} = "\"$tdw\\tlpkg\\installer\\uninst.bat\"";
   $k->{'/DisplayVersion'} = $::TeXLive::TLConfig::ReleaseYear;
   $k->{'/URLInfoAbout'} = "http://www.tug.org/texlive";
 
-  mkdirhier("$tdfw/tlpkg/installer"); # wasn't this done yet?
-  if (open UNINST, ">$tdfw/tlpkg/installer/uninst.bat") {
+  mkdirhier("$tdwfw/tlpkg/installer"); # wasn't this done yet?
+  if (open UNINST, ">$tdwfw/tlpkg/installer/uninst.bat") {
     print UNINST <<UNEND;
 \@echo off
 setlocal
+rem This should not be necessary, but sometimes it is:
 path $td\\tlpkg\\tlperl\\bin;$td\\bin\\win32;%path%
 set PERL5LIB=$td\\tlpkg\\tlperl\\lib
 perl.exe \"$td\\texmf\\scripts\\texlive\\uninstall-win32.pl\"
 if errorlevel 1 goto :eof
-rem test for taskkill and try to stop exit tray menu
-taskkill /? >nul 2>&1
-if not errorlevel 1 1>nul 2>&1 taskkill /IM tl-tray-menu.exe /f
-copy \"$td\\tlpkg\\installer\\uninst2.bat\" \"\%TEMP\%\"
+copy \"$tdw\\tlpkg\\installer\\uninst2.bat\" \"\%TEMP\%\"
 rem pause
 \"\%TEMP\%\\uninst2.bat\"
 UNEND
 ;
   close UNINST;
   } else {
-    warn "Cannot open $tdfw/tlpkg/installer/uninst.bat for append";
+    warn "Cannot open $tdwfw/tlpkg/installer/uninst.bat for append";
   }
 
-  # We could simply delete everything under the root at one go,
-  # but this might be catastrophic if TL doesn't have its own root.
-  if (open UNINST2, ">$tdfw/tlpkg/installer/uninst2.bat") {
-    print UNINST2 <<UNEND2;
-rmdir /s /q \"$td\\bin\"
+  if (open UNINST2, ">$tdwfw/tlpkg/installer/uninst2.bat") {
+    print UNINST2 <<UNEND2 if ($td eq $tdw);
+rmdir /s /q \"$td\\texmf-dist\"
+rmdir /s /q \"$td\\texmf-doc\"
+rmdir /s /q \"$td\\texmf\"
 rmdir /s /q \"$td\\readme-html.dir\"
 rmdir /s /q \"$td\\readme-txt.dir\"
-if exist \"$td\\temp\" rmdir /s /q \"$td\\temp\"
-rmdir /s /q \"$td\\texmf\"
-rmdir /s /q \"$td\\texmf-dist\"
+rmdir /s /q \"$td\\bin\"
 rmdir /s /q \"$td\\tlpkg\"
-rmdir /s /q \"$tdsc\"
-rmdir /s /q \"$tdsv\"
 del /q \"$td\\README.*\"
 del /q \"$td\\LICENSE.*\"
-if exist \"$td\\doc.html\" del /q \"$td\\doc.html\"
-del /q \"$td\\index.html\"
-del /q \"$td\\texmf.cnf\"
-del /q \"$td\\texmfcnf.lua\"
-del /q \"$td\\install-tl*.*\"
-del /q \"$td\\tl-tray-menu.exe\"
-rem del /q \"$td\\texlive.profile\"
-del /q \"$td\\release-texlive.txt\"
+del /q \"$td\\doc.html\"
+del \"$td\\index.html\"
+del \"$td\\texmf.cnf\"
+del \"$td\\install-tl\"
+del \"$td\\tl-portable\"
+del \"$td\\tl-portable.bat\"
+del \"$td\\install-tl.bat\"
+del \"$td\\install-tl-advanced.bat\"
+UNEND2
+;
+    print UNINST2 <<UNEND2;
+rmdir /s /q \"$tdsv\"
+rmdir /s /q \"$tdsc\"
+rmdir /s /q \"$tdw\\temp\"
+rmdir /s /q \"$tdw\\tlpkg\"
+del \"$tdw\\install-tl.log\"
+del \"$tdw\\texlive.profile\" 2>nul
+del \"$tdw\\release-texlive.txt\"
 set test=
-for \%\%f in (\"$td\\*.*\") do \@set test=nonempty
-if x\%test\%==x rd \"$td\"
+for \%\%f in (\"$tdw\\*.*\") do \@set test=nonempty
+if x\%test\%==x rd \"$tdw\"
 \@echo Done uninstalling TeXLive.
-\@pause
-del \"%0\"
+rem \@pause
+del %0
 UNEND2
 ;
     close UNINST2;
   } else {
-    warn "Cannot open $tdfw/tlpkg/installer/uninst2.bat for writing";
+    warn "Cannot open $tdwfw/tlpkg/installer/uninst2.bat for writing";
   }
 }
 
@@ -1300,11 +1144,8 @@ sub unregister_uninstaller {
     "/software/microsoft/windows/currentversion/uninstall/";
   my $regkey_uninst = $Registry->Open($regkey_uninst_path,
     {Access => KEY_ALL_ACCESS()});
-  reg_delete_recurse(
-    $regkey_uninst, "TeXLive$::TeXLive::TLConfig::ReleaseYear/") 
+  reg_delete_recurse($regkey_uninst, "TeXLive$::TeXLive::TLConfig::ReleaseYear/") 
     if $regkey_uninst;
-  tlwarn "Failure to unregister uninstaller\n" if
-    $regkey_uninst->{"TeXLive$::TeXLive::TLConfig::ReleaseYear/"};
 }
 
 =pod

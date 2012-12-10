@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: tl-update-man 23089 2011-06-22 15:33:05Z karl $
+# $Id: tl-update-man 26689 2012-05-28 17:40:26Z karl $
 # Public domain.  Originally written 2008, Karl Berry.
 # 
 # This script is run by hand at the end of a release cycle to copy the
@@ -38,10 +38,19 @@ for sect in 1 5; do
   # do not delete, since many man pages aren't installed from the build,
   # but just in case we want to look:
   comm -23 $TMPDIR/now $TMPDIR/new | grep -v '\.pdf$' >>$TMPDIR/extraman.$sect
-  # compare with (cd $lb && \ls | comm -13 - /tmp/extraman.1)
-  
+  #
+  # and we can check against the binaries.
+  if test $sect = 1; then
+    bindir=$Master/bin/i386-linux
+    for m in *; do
+      f=`basename $m .1`
+      test -r "$bindir/$f" || echo "$0: $f in man but not bin"
+    done
+  fi
+
   # for man1, generate make fragment for checking against man1/Makefile.
   (cd $rundir/.. && make so.rules >$TMPDIR/so.rules)
+  echo "$0: check $TMPDIR/so.rules against `pwd`"
   
   # see what we've done:
   (cd $rundir && svn status)

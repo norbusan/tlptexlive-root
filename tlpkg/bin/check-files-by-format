@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: check-files-by-format 22442 2011-05-12 22:53:34Z karl $
+# $Id: check-files-by-format 28224 2012-11-10 00:50:20Z karl $
 #
 # Check that files in various formats are in good shape.
 #
@@ -15,7 +15,7 @@
 # Formats that might be added:
 # - afm with (afm2pl?)
 #
-# Manuel P\'egouri\'e-Gonnard, 2010. WTFPL v2.
+# Manuel P\'egouri\'e-Gonnard, 2010-2012. WTFPL v2.
 
 use warnings;
 use File::Basename;
@@ -33,14 +33,15 @@ use TeXLive::TLPDB;
 # 1 means pdfinfo issues errors but still exits successfully
 # 2 means pdfinfo exits non-zero
 my $exclude_pdf = {
-  'texmf-dist/doc/latex/dvdcoll/dcexample.pdf' => 1,  # [1]
-  'texmf/dvips/tetex/config.pdf' => 2, # not a PDF file actually
+     # 14nov11 author cannot fix:
+  'texmf-dist/doc/fonts/frcursive/frcursive.pdf' => 1,
+  'texmf/dvips/tetex/config.pdf' => 2, # not a PDF file
 };
-# cf thread started on pdftex@ 2010-03-01
 
 # the value has no meaning here
 my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
   'adobe/courier/' => 1,
+  'adobe/sourcecodepro/' => 1, # SourceCodePro-Regular.pfb, 10nov12 contacted
   'arabi/arabeyes/' => 1,
   'arabi/farsiweb/' => 1,
   'arkandis/adfsymbols/' => 1,
@@ -58,6 +59,7 @@ my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
   'public/amsfonts/cmextra/' => 1,
   'public/arev/' => 1,
   'public/ascii/' => 1,
+  'public/aspectratio/' => 1, # 11feb12 reported to author
   'public/augie/' => 1,
   'public/aurical/' => 1,
   'public/bbold-type1/' => 1, # old y&y fonts, won't be changing
@@ -72,6 +74,7 @@ my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
   'public/cm-super/' => 1,
   'texmf-dist/doc/fonts/cm-unicode/Fontmap.CMU.pfb' => 1,
   'public/cm-unicode/cmunobi.pfb' => 1,
+  'public/countriesofeurope/' => 1, # 22apr12 not reported
   'public/cs/' => 1,
   'public/doublestroke/' => 1,
   'public/epiolmec/' => 1,
@@ -88,18 +91,20 @@ my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
   'public/gfsdidot/' => 1,
   'public/gfsneohellenic/' => 1,
   'public/gfssolomos/' => 1,
+  'public/hacm/' => 1,
   'public/initials/' => 1,
   'public/itrans/' => 1,
   'public/kerkis/' => 1,
   'public/kpfonts/' => 1,
-  'public/libertine/' => 1,
+  'public/libertine-legacy/' => 1,
   'public/linearA/' => 1,
   'public/lm/' => 1,
   'public/lxfonts/' => 1,
   'public/mathabx-type1/' => 1,  # 14jan11 wrote bnb/preining --karl
   'public/marvosym/' => 1,
   'public/mathpazo/' => 1,
-  'public/musixtex/' => 1,
+  'public/musixtex-fonts/' => 1, # 2nov11 wrote tennent --karl
+  'public/newtx/' => 1,          # 12may12 author will fix in next release
   'public/ocherokee/' => 1,
   'public/oinuit/' => 1,
   'public/omega/' => 1,
@@ -107,7 +112,7 @@ my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
   'public/pl/' => 1,
   'public/pxfonts/' => 1,
   'public/rsfs/' => 1,
-  'public/starfont/' => 1,	# reported to author 4oct10
+  'public/starfont/' => 1,	# 4oct10 reported to author 
   'public/staves/' => 1,
   'public/stmaryrd/' => 1,	# blue values not defined, not maintained
   'public/tabvar/' => 1,
@@ -136,7 +141,7 @@ my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
   'wadalab/dmj/' => 1,
   'wadalab/mcj/' => 1,
   'wadalab/mrj/' => 1,
-  'tlpkg/texworks/fonts/' => 1,	# these come from gs
+  'tlpkg/texworks/share/fonts/type1/gsfonts/' => 1, # these come from gs
 };
 # mpg: are these files actually broken?? Should look for the actual errors and
 # check with a font expert which are dummy, then filter them out.
@@ -147,11 +152,13 @@ my $exclude_tfm = { '*base*' => 'texmf-dist/fonts/tfm',
   'jknappen/ec/' => 1,
   'jknappen/fc/' => 1,
   'public/arev/' => 1,
-  'public/chess/' => 1,  # original has extra bytes, not worth fixing
+  'public/chess/' => 1,		# original has extra bytes, not worth fixing
   'public/cmcyr/' => 1,
-  'public/dozenal/' => 1,
+  'public/dozenal/' => 1,	# wrote author 31oct12
   'public/gfsbodoni/' => 1,
   'public/malayalam/' => 1,
+  'public/japanese-otf/' => 1,	# japanese tfm's
+  'public/japanese-otf-uptex/' => 1, # japanese tfm's
   'public/wnri/' => 1,
   'public/wsuipa/' => 1,
 };
@@ -161,6 +168,7 @@ my $exclude_vf = { '*base*' => 'texmf-dist/fonts/vf',
   'public/bgreek/' => 1,
   'public/eco/' => 1,
   'public/epigrafica/' => 1,
+  'public/fonts-tlwg/' => 1,	# reported to author, early 2012
   'public/gfsartemisia/' => 1,
   'public/gfscomplutum/' => 1,
   'public/gfsdidot/' => 1,
@@ -186,11 +194,10 @@ my $exclude_otf = { '*base*' => 'texmf-dist/fonts/opentype',
 
 my $tmpdir = File::Temp::tempdir(CLEANUP => 1);
 
-exit(main());
+exit(&main());
 
 
-sub main
-{
+sub main {
   my @files = get_file_list();
   for my $file (grep { /\.pdf$/ } @files) {
     check_pdf($file);
@@ -211,8 +218,7 @@ sub main
 }
 
 # get the list of files in the database of a TL installation
-sub get_file_list
-{
+sub get_file_list {
   my $tlpdb = TeXLive::TLPDB->new(root => $tlroot);
   my @files = ();
   for my $tlpname ($tlpdb->list_packages) {
@@ -221,14 +227,13 @@ sub get_file_list
   }
   # ptex font files are in their own formats; don't bother checking,
   # or adding individual entries to the exclude lists.
-  @files = grep ($_ !~ m!/ptex/!, @files);
+  @files = grep ($_ !~ m!/u?ptex/!, @files);
   return @files;
 }
 
 
 # return the value in exclude list associated to a file, or undef
-sub exclude_value
-{
+sub exclude_value {
   my ($exclude, $file) = @_;
   my $base = $exclude->{'*base*'};
   $file =~ s!$base/!! if $base;
@@ -237,8 +242,7 @@ sub exclude_value
 }
 
 # check a pdf file
-sub check_pdf
-{
+sub check_pdf {
   my ($file) = @_;
   my $errfile = "$tmpdir/pdferr";
   unlink($errfile);
@@ -251,8 +255,7 @@ sub check_pdf
 }
 
 # check a pfb file
-sub check_pfb
-{
+sub check_pfb {
   my ($file) = @_;
   return if defined exclude_value($exclude_pfb, $file);
   my $errfile = "$tmpdir/pfberr";
@@ -262,8 +265,7 @@ sub check_pfb
 }
 
 # check a tfm file
-sub check_tfm
-{
+sub check_tfm {
   my ($file) = @_;
   return if defined exclude_value($exclude_tfm, $file);
   my $outfile = "$tmpdir/tfmout.pl";
@@ -274,8 +276,7 @@ sub check_tfm
 }
 
 # check a vf file
-sub check_vf
-{
+sub check_vf {
   my ($file) = @_;
   return if defined exclude_value($exclude_vf, $file);
   (my $tfmfile = $file) =~ s!/vf/!/tfm/!;
@@ -289,8 +290,7 @@ sub check_vf
 }
 
 # check an otf file
-sub check_otf
-{
+sub check_otf {
   my ($file) = @_;
   return if defined exclude_value($exclude_otf, $file);
   my $bad = system("otfinfo --info $tlroot/$file >/dev/null 2>&1");

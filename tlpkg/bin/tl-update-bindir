@@ -2,7 +2,7 @@
 # Public domain.  Originally written 2008, Karl Berry.
 # Update a TeX Live Master/bin/PLATFORM directory.
 
-vc_id='$Id: tl-update-bindir 23033 2011-06-17 23:07:24Z karl $'
+vc_id='$Id: tl-update-bindir 26690 2012-05-28 17:47:46Z karl $'
 unset CDPATH
 unset LS_COLORS
 
@@ -109,7 +109,12 @@ for tlname in $tlnames; do
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab ftp://ftp.cea.fr/incoming/y2k01/texlive2011/x86_64-unknown-kfreebsd8.2-gnu.tar.bz2;;
+    $grab ftp://ftp.cea.fr/incoming/y2k01/braslau/x86_64-unknown-kfreebsd9.0-gnu.tar.xz;;
+   armel-linux)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://boris.lk.net/texlive-2012/armv7l-unknown-linux-gnueabi.tgz;;
    hppa-hpux)
     default_bin_loc=$download_loc
     $grab http://www.jtartlabs.com/test/hppa2.0-hp-hpux10.20.tar.gz;;
@@ -125,7 +130,7 @@ for tlname in $tlnames; do
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab ftp://ftp.cea.fr/incoming/y2k01/texlive2011/i686-unknown-kfreebsd8.2-gnu.tar.bz2;;
+    $grab ftp://ftp.cea.fr/incoming/y2k01/braslau/i386-unknown-kfreebsd9.0-gnu.tar.xz;;
    i386-linux)
     default_bin_loc=/home/texlive/sarge/tmp/source/inst/bin/i686-pc-linux-gnu;;
    i386-netbsd)
@@ -140,7 +145,12 @@ for tlname in $tlnames; do
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab http://ocean1.ee.duth.gr/~apostolo/i386-pc-solaris2.11.tar.xz;;
+    $grab http://www.math.fsu.edu/~ealdrov/texlive/2012/bin-i386-pc-solaris2.10.tar.gz;;
+   mipsel-linux)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://www.mojca.si/tl/mipsel-linux.tar.gz;;
    powerpc-linux)
     default_bin_loc=/home/tschmitz/powerpc.tar.bz2;;
    sparc-linux)
@@ -149,7 +159,7 @@ for tlname in $tlnames; do
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab http://www.uoregon.edu/~koch/universal-darwin.tar.xz;;
+    $grab http://pages.uoregon.edu/koch/universal-darwin.tar.xz;;
    win32)
     default_bin_loc=$tmpdir/tl.$tlname.zip
     $grab http://members2.jcom.home.ne.jp/wt1357ak/tl2009w32-02.zip;;
@@ -157,7 +167,7 @@ for tlname in $tlnames; do
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab  www.uoregon.edu/~koch/x86_64-darwin.tar.xz;;
+    $grab http://pages.uoregon.edu/koch/x86_64-darwin.tar.xz;;
    x86_64-linux)
     default_bin_loc=$download_loc
     $grab ftp://ftpth.mppmu.mpg.de/pub/peb/TLtests/Build-x86_64-linux.tar.bz2;;
@@ -165,7 +175,7 @@ for tlname in $tlnames; do
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab http://ocean1.ee.duth.gr/~apostolo/x86_64-pc-solaris2.11.tar.xz;;
+    $grab http://www.math.fsu.edu/~ealdrov/texlive/2012/bin-x86_64-pc-solaris2.10.tar.gz;;
    esac
   fi
   

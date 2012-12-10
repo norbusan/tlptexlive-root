@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
-# $Id: tl-update-tlpdb 20338 2010-11-05 22:31:40Z karl $
+# $Id: tl-update-tlpdb 26755 2012-06-01 00:21:05Z karl $
 # convert a set of tlpsrc files (given as arguments) into tlpdb
 # 
-# Copyright 2007, 2008, 2009, 2010 Norbert Preining
+# Copyright 2007-2012 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
@@ -20,6 +20,7 @@ use TeXLive::TLPOBJ;
 use TeXLive::TLPDB;
 use TeXLive::TLTREE;
 use TeXLive::TLUtils;
+use TeXLive::TeXCatalogue;
 use Getopt::Long;
 use Pod::Usage;
 use File::Path;
@@ -43,7 +44,7 @@ my $opt_keep_revisions = 0;
 TeXLive::TLUtils::process_logging_options();
 GetOptions(
     "catalogue=s"                => \$opt_catalogue,
-    "dry-run|n",		 => \$opt_dry_run,
+    "dry-run|n",                 => \$opt_dry_run,
     "fix-reverse-revisions!"     => \$opt_fix_reverse_revisions,
     "keep-revisions"             => \$opt_keep_revisions,
     "from-files"                 => \$opt_fromfiles,
@@ -64,43 +65,48 @@ my $progname = TeXLive::TLUtils::basename($0);
 exit (&main ());
 
 
-sub main
-{
+sub main {
   if (! -d $opt_master) {
     die "$progname: Master $opt_master not a directory, goodbye.\n";
   }
+
+  $opt_catalogue = "/home/httpd/html/catalogue"
+    if ! $opt_catalogue;
 
   if ($opt_dry_run) {
     $opt_no_commit = 1;
     $opt_no_revision_check = 1;
     $opt_output = "/tmp/tlut" if ! $opt_output;
-    $opt_catalogue = "/home/httpd/html/catalogue" if ! $opt_catalogue;
   }
   
-  my $tlc = undef;
-  if (! -d $opt_catalogue) {
-    info ("$progname: -c /Cat/a/logue not given, continuing without it.\n");
-  } else {
-    require TeXLive::TeXCatalogue;  # not at compile time, for now anyway.
+  our $tlc = undef;
+  if (-r $opt_catalogue) {
     info ("$progname: reading TeX Catalogue $opt_catalogue ...\n");
     $tlc = TeXLive::TeXCatalogue->new ("location" => $opt_catalogue);
+  } else {
+    tlwarn("$progname: reusing Catalogue data, since source is not readable: "
+           . "$opt_catalogue\n");
   }
 
-  my $oldtlpdb;
-  if (-r "$opt_master/$TeXLive::TLConfig::InfraLocation/texlive.tlpdb") {
+  # Create our working tlpdb with Catalogue data.
+  my ($newtlpdb,$pkgcount) = create_tlpdb($tlc);
+
+  my $oldtlpdb = undef;
+  my $OLDTLPDB = "$opt_master/$TeXLive::TLConfig::InfraLocation/texlive.tlpdb";
+  if (-r $OLDTLPDB) {
     $oldtlpdb = TeXLive::TLPDB->new ("root" => $opt_master);
   }
-  my ($newtlpdb, $pkgcount) = create_tlpdb($tlc);
   if (!defined($oldtlpdb)) {
-    info ("$progname: No checking on increasing revisions, no old tlpdb found\n");
+    tlwarn ("$progname: No revision check, no old tlpdb: $OLDTLPDB\n");
     finish ($newtlpdb, $pkgcount);
   }
+
   if ($opt_no_revision_check) {
     if ($opt_keep_revisions) {
       move_revisions_over($oldtlpdb, $newtlpdb);
       info ("$progname: Keeping old revisions due to --keep-revisions\n");
     } else {
-      info ("$progname: Not checking increasing revisions due to --no-reverse-revision-check\n");
+      info ("$progname: Not checking revisions due to --no-reverse-revision-check\n");
     }
     finish ($newtlpdb, $pkgcount);
   }
@@ -159,8 +165,7 @@ sub main
 }
 
 
-sub move_revisions_over
-{
+sub move_revisions_over {
   my ($oldtlpdb, $newtlpdb) = @_;
   for my $pkg ($newtlpdb->list_packages) {
     my $oldtlp = $oldtlpdb->get_package($pkg);
@@ -171,8 +176,7 @@ sub move_revisions_over
 }
 
 
-sub compare_and_fix_tlpdbs
-{
+sub compare_and_fix_tlpdbs {
   my ($oldtlpdb, $newtlpdb) = @_;
 
   my %ret = TeXLive::TLUtils::compare_tlpdbs($oldtlpdb, $newtlpdb);
@@ -288,8 +292,7 @@ sub compare_and_fix_tlpdbs
 }
 
 
-sub create_tlpdb
-{
+sub create_tlpdb {
   my ($tlc) = @_;
   
   if (defined($opt_w32warning)) {
@@ -300,15 +303,13 @@ sub create_tlpdb
   if (@ARGV) {
     # if we have cmd line arguments act as if --tlpsrc-from-cmdline was given.
     if (!$opt_tlpsrc_from_cmdline) {
-      debug ("$progname: generating tlpdb in /tmp/tlut for @ARGV,\n");
+      debug ("$progname: generating tlpdb in /tmp/tlut for @ARGV.\n");
       $opt_tlpsrc_from_cmdline = 1;
     }
   }
   if (!$opt_tlpsrc_from_cmdline) {
-    # if not otherwise given use all tlpsrc files
-
-    # if regenerating the whole thing, push all tlpsrc files onto @ARGV.
-    chdir ($tlpsrc_dir) || die "chdir($tlpsrc_dir) failed: $!";
+    # if not otherwise given, use all tlpsrc files.
+    chdir ($tlpsrc_dir) || die "$progname: chdir($tlpsrc_dir) failed: $!";
     @ARGV = glob ("*.tlpsrc");
   }
   
@@ -347,7 +348,7 @@ sub create_tlpdb
     unless ($opt_nobinsplit) {
       # packages which have already a .win32 extension or the 
       # 00texlive.something package are NOT split, never!
-      if ($tlp->name !~ m/\./
+      if ($tlp->name !~ m/\.win32/
           && $tlp->name !~ m/^00texlive/) {
         my @binobjs = $tlp->split_bin_package;
         foreach my $binobj (@binobjs) {
@@ -413,8 +414,7 @@ sub create_tlpdb
 
 
 
-sub finish
-{
+sub finish {
   my ($tlpdb,$pkgcount) = @_;
   if ($opt_output) {
     if (open(OUT, ">$opt_output")) {
@@ -444,81 +444,88 @@ tl-update-tlpdb [OPTION]... [TLPSRC]...
 
 =over 4
 
-=item B<-catalogue> I<Catalogue_dir>
+=item B<--catalogue> I<Catalogue_file>
 
-The location given by B<-catalogue> must point to a valid TeX Catalogue
-directory (with subdirectory C<entries>).  No default value.  If given,
-the generated tlpobj files will contain information gathered from the
-TeX Catalogue.
+The I<Catalogue_file> must point to a valid TeX Catalogue as a Perl data
+dump; default is C<Master/texmf/scripts/texlive/var/texcatalogue.data>,
+where C<Master> is the master directory described below.  That file is
+update nightly by the C<tl-update-auto> script.  If this file is given
+and readable, the generated tlpobj files will contain information
+gathered from the TeX Catalogue.
 
-=item B<-fix-reverse-revisions>
+=item B<--fix-reverse-revisions>
 
 If a package with revisions going backward is found, this option makes
-C<tl-update-tlpdb> try to check in some dummy changes to the package's
+C<tl-update-tlpdb> try to check in a dummy change to the package's
 tlpsrc file to artificially increase the version number.
 
-=item B<-from-files>
+=item B<--from-files>
 
 Use C<find> instead of C<svn -status> to create the list of files.
 
-=item B<-master> I<Master/dir>
+=item B<--master> I<Master_dir>
 
 The location I<Master/dir> must point to a valid svn repository of TeX
 Live's Master directory.  Defaults to C<../..> of C<$0>.
 
-=item B<-no-bin-split>
+=item B<-n>, B<--dry-run>
+
+Don't make permanent changes: same as C<--no-commit> and
+C<--no-reverse-revision-check>, plus output to the C</tmp/tlut> (if no
+C<--output> file is given) rather than updating the current tlpdb.
+
+=item B<--no-bin-split>
 
 Do NOT split files with binaries into several packages (one for the arch
 independent and one for each of the architectures with only the respective
 binaries).  There is no reason to use this option.
 
-=item B<-no-commit>
+=item B<--no-commit>
 
 If changes have been made to the tlpsrc files (because reversed
-revisions have been found and C<-fix-reverse-revisions> was given) these
-changes will by default committed using C<svn commit> on the tlpsrc
-directory.  With this option the commit step is skipped.
+revisions have been found and C<--fix-reverse-revisions> is enabled)
+these changes will by default be committed using C<svn commit> on the
+tlpsrc directory.  With this option the commit step is skipped.
 
-=item B<-no-reverse-revision-check>
+=item B<--no-reverse-revision-check>
 
 By default, C<tl-update-tlpdb> checks that in the generated tlpdb the
 revision numbers of packages are not going backward compared to the
 previous version. This option disables this check.
 
-=item B<-output=filename>
+=item B<--output=filename>
 
-By default, B<tl-update-tlpdb> saves/updates the tlpdb in the default
-place. This option specifies the place where the output should go to.
+By default, C<tl-update-tlpdb> saves/updates the tlpdb in the default
+place.  This option specifies the place where the output should go to.
 
-=item B<-save-anyway>
+=item B<--save-anyway>
 
 If the newly created tlpdb is in considered buggy due to reversed
 revisions it will normally not be saved. This switch allows saving it
-anyway. It can be useful in combination with the C<-from-files> option
+anyway. It can be useful in combination with the C<--from-files> option
 where the revision numbers will be adjusted afterwards by an external
 program.
 
-=item B<-tlpsrc-from-cmdline>
+=item B<--tlpdb-options-from-tlpsrc>
 
-By default, B<tl-update-tlpdb> recreates the tlpdb from all the tlpsrc
+By default, the tlpdb specific settings in C<00texlive.config> are taken
+from the C<%TeXLive::TLConfig::TLPDBConfigs>.  Alternative repositories
+might set these values directly in the tlpsrc file; using this option
+omits adding anything to the configs set in the tlpsrc file.
+
+=item B<--tlpsrc-from-cmdline>
+
+By default, C<tl-update-tlpdb> recreates the tlpdb from all the tlpsrc
 files present in the current tree.  If this option is given, the tlpsrc
-have to be given on the command line.  If you're trying to debug the
-conversion of one particular package, this is the option to use.
+file(s) have to be given on the command line.  If you're trying to debug
+the conversion of one particular package, this is the option to use.
 
-=item B<-with-w32-pattern-warning>
+=item B<--with-w32-pattern-warning>
 
 Normally, this program issues a warning for patterns without a matching
 file, with the exception that it does I<not> warn for binpatterns
 related to Windows. Giving this option makes it issue all warnings,
 i.e., also those where a W32-related binpattern does not hit.
-
-=item B<-tlpdb-options-from-tlpsrc>
-
-By default the tlpdb specific settings in 00texlive.config are taken from
-the C<%TeXLive::TLConfig::TLPDBConfigs>. Alternative repositories might
-set these values directly in the tlpsrc file. Using 
-B<-tlpdb-options-from-tlpsrc> overrides the default behaviour and does
-not add anything to the configs set in the tlpsrc file.
 
 =back
 
@@ -539,8 +546,8 @@ made.  In this case it commits a dummy change to the package's tlpsrc
 file to make sure that revisions are always increasing.
 
 If a TeX Catalogue hierarchy is specified, additional information from
-the catalogue are merged into the database (see L<TeXLive::TLPOBJ> for
-the list of included information from the TeX Catalogue).
+the Catalogue is merged into the database (see L<TeXLive::TLPOBJ> for
+the specifics).
 
 =head1 AUTHORS AND COPYRIGHT
 

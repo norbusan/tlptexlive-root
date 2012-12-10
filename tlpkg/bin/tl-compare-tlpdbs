@@ -7,7 +7,7 @@
 #
 
 BEGIN {
-  $vc_id = '$Id: tl-compare-tlpdbs 22918 2011-06-11 21:11:04Z karl $';
+  $vc_id = '$Id: tl-compare-tlpdbs 26100 2012-04-23 04:20:08Z preining $';
   $^W = 1;
   ($mydir = $0) =~ s,/[^/]*$,,;
   unshift (@INC, "$mydir/..");
@@ -43,6 +43,10 @@ exit (&main());
 sub main
 {
   chomp(my $Master = `cd $mydir/../.. && pwd`);
+
+  # get additional list of disabled packages
+  push @add_ignored_packs, TeXLive::TLUtils::tlnet_disabled_packages($Master);
+
   #
   # if tl-compare-tlpdbs was called with two arguments like
   #   tl-compare-tlpdbs aaa bbb

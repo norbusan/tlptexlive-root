@@ -1,8 +1,8 @@
-#!/bin/sh -e
-# $Id: tl-update-images 23047 2011-06-18 22:46:06Z karl $
+#!/bin/sh
+# $Id: tl-update-images 27122 2012-07-23 22:05:17Z karl $
 # Create the .iso image(s) for TeX Live.
 # 
-# Copyright 2007, 2008, 2009, 2010, 2011 Karl Berry.
+# Copyright 2007, 2008, 2009, 2010, 2011, 2012 Karl Berry.
 # Copyright 2003, 2004, 2005 Sebastian Rahtz.
 #
 # This file is licensed under the GNU General Public License version 2
@@ -12,7 +12,7 @@
 # Historical notes at the end of the script.
 
 NAME=texlive
-V=2011
+V=2012
 D=`date +%Y%m%d`
 target=/home/ftp/texlive/Images/test
 
@@ -28,9 +28,12 @@ master=`cd ../.. && /bin/pwd`
 test -z "$master" && exit 1
 
 debug=${OVERRIDE_DEBUG-false}
+mkisofs="xorriso -read_mkisofsrc -as mkisofs"   # mkisofs
 makeinst=true
 maketar=true
-mkisofs="xorriso -read_mkisofsrc -as mkisofs"   # mkisofs
+tar_all=true
+tar_bin_only=false
+tar_source_only=false
 quiet=  # for passing to mkisofs
 
 while test $# -gt 0; do
@@ -43,6 +46,8 @@ while test $# -gt 0; do
   --notar)     maketar=false;;
   --quiet)     quiet=-quiet;;
   --target=*)  target=`echo $1 | sed 's/.*=//'`;;
+  --tar-bin-only)    tar_all=false; makeinst=false; tar_bin_only=true;;
+  --tar-source-only) tar_all=false; makeinst=false; tar_source_only=true;;
   --version)   echo "$0 for $NAME-$V ($D)"; exit 0;;  # who cares ...
   *) echo "$0: unknown option $1; try --help if you need it." >&2; exit 1;;
   esac
@@ -99,6 +104,9 @@ MAKEINST ()
   cmd="$mkisofs $common_mkisofs_options -o $iso ."
   echo "-- `date` with: $cmd"
   $cmd
+  if test $? -ne 0; then
+    echo "$0: $mkisofs failed, goodbye." >&2
+  fi
   chmod a+rw $iso
   
   rm -rf $imgdir
@@ -128,27 +136,38 @@ MAKEINST ()
 # Make the tar files: the sources, the texmf trees, the binaries, the
 # minor "extra" files.  Each should unpack into its directory name.  We
 # use the GNU tar --transform option to avoid copying the whole
-# hierarchy to temp directory.  This auxiliary function takes that name
-# as its first argument, and the files to archive as the rest.
+# hierarchy to temp directory.  This auxiliary function takes that
+# directory name as its first argument, and the files to archive as the
+# rest.
 # 
 do_tar ()
 {
+  name=$1; shift
+  #
   if false; then # ddebug
     verbose="-v --show-transformed-names"
   else
     verbose=
   fi
-  compress=--xz
-  tar_common_opt="--exclude-vcs $compress $verbose"
   #
-  name=$1
-  shift
+  compress=--xz
+  #
+  excludes=--exclude-vcs  
+  for e in bibtex epstopdf jfontmaps; do  # "upstream" sources
+    excludes="$excludes --exclude=extra/$e"
+  done
+  #
+  tar_common_opt="$verbose $compress $excludes"
+  #
   tarfile=$target/$name.tar.xz
-  tar -cf "$tarfile" --owner=0 --group=0 \
+  tar -cf $tarfile --owner=0 --group=0 \
       --transform="s,^,$name/," $tar_common_opt \
       "$@"
+  if test $? -ne 0; then
+    echo "$0: tar failed, goodbye." >&2
+  fi
   (cd $target && sha256sum `basename $tarfile`) >$tarfile.sha256
-  ls -l "$tarfile"
+  ls -l $tarfile
 }
 
 MAKETAR ()
@@ -156,18 +175,25 @@ MAKETAR ()
   # remove old tarballs and checksums.
   rm -f $target/$NAME-*.tar.*
 
-  cd $master
+  if $tar_bin_only || $tar_all; then
+    cd $master/bin || exit 1
+    do_tar $NAME-$D-bin *
+    $tar_bin_only && return
+  fi
+  
+  if $tar_source_only || $tar_all; then
+    cd $master/../Build/source || exit
+    do_tar $NAME-$D-source *
+    $tar_source_only && return
+  fi
+
+  cd $master || exit 1
   do_tar $NAME-$D-extra \
          LICENSE* README* autorun.inf *.html install* re* tl-* \
          tlpkg/TeXLive tlpkg/translations tlpkg/tlpostcode
 
-  do_tar $NAME-$D-texmf texmf* || return
-
-  cd $master/../Build/source
-  do_tar $NAME-$D-source * || return
-
-  cd $master/bin
-  do_tar $NAME-$D-bin *
+  cd $master || exit 1
+  do_tar $NAME-$D-texmf texmf*
 }
 
 

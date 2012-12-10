@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
-# $Id: trans.pl 25377 2012-02-13 00:36:11Z preining $
-# Copyright 2009, 2010, 2011 Norbert Preining
+# $Id: trans.pl 27413 2012-08-15 22:26:59Z karl $
+# Copyright 2009-2012 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 #
@@ -27,7 +27,7 @@ if (defined($::opt_lang)) {
   $::lang = $::opt_lang;
   if ($::lang eq "zh") {
     # set language to simplified chinese
-    $::lang = "zh-cn";
+    $::lang = "zh_CN";
   }
 } else {
   if ($^O =~ /^MSWin(32|64)$/i) {
@@ -35,7 +35,7 @@ if (defined($::opt_lang)) {
     my ($lang, $area) =  TeXLive::TLWinGoo::reg_country();
     if ($lang) {
       $::lang = $lang;
-      $::area = $area;
+      $::area = uc($area);
     } else {
       debug("Didn't get any usuful code from reg_country.\n");
     }
@@ -49,16 +49,16 @@ if (defined($::opt_lang)) {
     if ($loc =~ m/^([^_.]*)(_([^.]*))?(\.([^@]*))?(@.*)?$/) {
       $lang = defined($1)?$1:"";
       # lower case the area code
-      $area = defined($3)?lc($3):"";
+      $area = defined($3)?uc($3):"";
       if ($lang eq "zh") {
         if ($area =~ m/^(TW|HK)$/i) {
           $lang = "zh";
-          $area = "tw";
+          $area = "TW";
         } else {
           # fallback to zh-cn for anything else, that is
           # zh-cn, zh-sg, zh, and maybe something else
           $lang = "zh";
-          $area = "cn";
+          $area = "CN";
         }
       }
     }
@@ -106,25 +106,31 @@ sub __ ($@) {
 
 if (($::lang ne "en") && ($::lang ne "C")) {
   my $code = $::lang;
-  $code .= "_$::area" if defined($::area);
-  my $found = 0;
-  if (-r "$::installerdir/tlpkg/translations/$code.po") {
-    $found = 1;
-    # set $::lang to the actually used one
-    $::lang = $code;
+  my @files_to_check;
+  if (defined($::area)) {
+    $code .= "_$::area";
+    push @files_to_check,
+      $::lang . "_" . $::area, "$::lang-$::area",
+      $::lang . "_" . lc($::area), "$::lang-" . lc($::area),
+      # try also without area code, even if it is given!
+      $::lang;
   } else {
-    # retry without area code
-    if (! -r "$::installerdir/tlpkg/translations/$::lang.po") {
-      tlwarn ("\n  Sorry, no translations available for $code (nor $::lang); falling back to English.
+    push @files_to_check, $::lang;
+  }
+  my $found = 0;
+  for my $f (@files_to_check) {
+    if (-r "$::installerdir/tlpkg/translations/$f.po") {
+      $found = 1;
+      $::lang = $f;
+      last;
+    }
+  }
+  if (!$found) {
+    tlwarn ("\n  Sorry, no translations available for $code (nor $::lang); falling back to English.
   Make sure that you have the package \"texlive-msg-translations\" installed.
   (If you'd like to help translate the installer's messages, please see
   http://tug.org/texlive/doc.html#install-tl-xlate for information.)\n\n");
-    } else {
-      debug ("translation: falling back to $::lang, not available: $code\n");
-      $found = 1;
-    }
-  }
-  if ($found) {
+  } else {
     # merge the translated strings into the text string
     open(LANG, "<$::installerdir/tlpkg/translations/$::lang.po");
     my $msgid;

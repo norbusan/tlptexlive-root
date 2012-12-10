@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: tl-update-asy 23155 2011-06-28 00:43:01Z karl $
+# $Id: tl-update-asy 26755 2012-06-01 00:21:05Z karl $
 # Public domain.  Originally written 2008, Karl Berry.
 # Info about updating asymptote.
 # 
@@ -35,7 +35,7 @@ if false && $update_sources_from_ctan; then
   svn rm ...
 
   # final check and commit:
-  svn status
+  svn status # don't worry about binaries.
   svn commit -m"asy $ver sources" . ../README
   exit $?
 
@@ -76,7 +76,6 @@ elif false && $update_runtime_from_ainst; then
   xu=$B/source/utils
   xy=$xu/asymptote
   cd $xy
-  $cp binaries/i386-win32/texlive/asy.exe $cb/
   $cp binaries/i386-win32/texlive/asy.exe $pg/asymptote/
 
   cd /tmp/ainst

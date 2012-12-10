@@ -1,4 +1,4 @@
-# $Id: TeXCatalogue.pm 22498 2011-05-16 18:27:55Z karl $
+# $Id: TeXCatalogue.pm 26741 2012-05-31 18:01:43Z preining $
 # TeXLive::TeXCatalogue - module for accessing the TeX Catalogue
 # Copyright 2007, 2008, 2009, 2010, 2011 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
@@ -13,7 +13,7 @@ use Text::Unidecode;
 
 package TeXLive::TeXCatalogue::Entry;
 
-my $svnrev = '$Revision: 22498 $';
+my $svnrev = '$Revision: 26741 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -187,7 +187,15 @@ sub initialize {
   # parse all the files
   foreach (glob("?/*.xml")) {
     open(my $io,"<$_") or die "Cannot read $_: $!";
-    my $tce = TeXLive::TeXCatalogue::Entry->new( 'ioref' => $io );
+    our $tce;
+    # the XML parser die's on malformed xml entries, so we catch
+    # that and continue, simply skipping the entry
+    eval { $tce = TeXLive::TeXCatalogue::Entry->new( 'ioref' => $io ); };
+    if ($@) {
+      printf STDERR "TeX Catalogue: cannot read $_, skipping it!\n";
+      close($io);
+      next;
+    }
     close($io);
     $self->{'entries'}{lc($tce->{'entry'}{'id'})} = $tce;
   }

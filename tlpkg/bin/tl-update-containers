@@ -8,7 +8,7 @@
 # packages) if none specified.
 
 BEGIN {
-  $vc_id = '$Id: tl-update-containers 22918 2011-06-11 21:11:04Z karl $';
+  $vc_id = '$Id: tl-update-containers 26100 2012-04-23 04:20:08Z preining $';
   $^W = 1;
   ($mydir = $0) =~ s,/[^/]*$,,;
   unshift (@INC, "$mydir/..");
@@ -89,6 +89,9 @@ sub main
   my $opt_containerdir = "$opt_location/$TeXLive::TLConfig::Archive";
   &debug("output containerdir = $opt_containerdir\n");
   
+  my @disabled_pkgs = TeXLive::TLUtils::tlnet_disabled_packages($Master);
+  print "additional tlnet disabled packages: @disabled_pkgs\n";
+
   if ($opt_recreate) {
     # remake everything.
     if (@ARGV) {
@@ -122,13 +125,15 @@ sub main
       # by definition, any 00texlive... package does not need containers.
       next if $pkg =~ /00texlive/;
 
-      # we check for the existence of a special config file, and if it
-      # is present any package listed therein will not be updated in
-      # tlnet.  Assume GNU grep for checking it.
-      my $disabled_pkgs = "$Master/tlpkg/dev/tlnet-disabled-packages.txt";
-      if (-r $disabled_pkgs) {
-        if (!system("grep", "-q", "-x", "-F", $pkg, $disabled_pkgs)) {
-          tlwarn("$0: $pkg disabled for tlnet updates in $disabled_pkgs\n");
+      # disable all packages (ignoring .ARCH parts) if they appear in
+      # tlnet-disabled-packages.txt
+      my $shortpkg = $pkg;
+      $shortpkg =~ s/\..*$//;
+      if (TeXLive::TLUtils::member($shortpkg, @disabled_pkgs)) {
+        if ($opt_all || $opt_recreate) {
+          tlwarn("$0: Updating tlnet disabled $pkg due to -all\n");
+        } else {
+          tlwarn("$0: $pkg disabled for tlnet updates\n");
           next;
         }
       }

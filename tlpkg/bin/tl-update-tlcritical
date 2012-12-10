@@ -1,5 +1,5 @@
 #!/bin/sh -e
-# $Id: tl-update-tlcritical 19872 2010-09-24 09:18:07Z preining $
+# $Id: tl-update-tlcritical 26100 2012-04-23 04:20:08Z preining $
 # Public domain.  Originally written 2008, Karl Berry.
 # Update the tlcritical mini-repository on tug with the critical
 # packages.  Also listed in tl-update-containers, unfortunately.
@@ -26,6 +26,8 @@ fi
 mydir=`cd \`dirname $0\` && pwd`
 PATH=$mydir:/usr/local/gnu/bin:/usr/local/bin:$PATH # sha256sum+makensis on tug
 
+master=`cd $mydir/../.. && pwd`
+
 TMPDIR=${TMPDIR-/tmp}
 
 cd $TMPDIR
@@ -51,10 +53,16 @@ do_updater ()
   (cd $tlcrit && ln -s $newfile.sha256 update-tlmgr-latest.$type.sha256)
 }
 
+# additionally disabled packages
+moredis=`grep -v '^\s*#' $master/tlpkg/dev/tlnet-disabled-packages.txt | \
+						sed -e 's/\s*$//'`
+echo "$0: additional packages from via tlnet-disabled-packages.txt: $moredis"
+
 # update normal containers.
 echo "$0: running tl-update-containers (for critical packages)..."
 tl-update-containers -location $tlcrit $recreate -all \
-  00texlive.installation 00texlive.config texlive.infra tlperl.win32
+  00texlive.installation 00texlive.config texlive.infra tlperl.win32 \
+  $moredis
 
 # update Unix disaster recovery.
 echo "$0: running tl-makeself-from-tlnet..."

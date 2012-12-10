@@ -1,12 +1,12 @@
-# $Id: TLPDB.pm 26036 2012-04-19 05:51:43Z preining $
+# $Id: TLPDB.pm 28293 2012-11-18 08:14:17Z preining $
 # TeXLive::TLPDB.pm - module for using tlpdb files
-# Copyright 2007, 2008, 2009, 2010, 2011 Norbert Preining
+# Copyright 2007-2012 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
 package TeXLive::TLPDB;
 
-my $svnrev = '$Revision: 26036 $';
+my $svnrev = '$Revision: 28293 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -43,7 +43,7 @@ C<TeXLive::TLPDB> -- A database of TeX Live Packages
   $tlpdb->needed_by($pkg);
   $tlpdb->remove_tlpobj($pkg);
   $tlpdb->get_package("packagename");
-  $tlpdb->list_packages;
+  $tlpdb->list_packages ( [$tag] );
   $tlpdb->expand_dependencies(["-only-arch",] $totlpdb, @list);
   $tlpdb->expand_dependencies(["-no-collections",] $totlpdb, @list);
   $tlpdb->find_file("filename");
@@ -69,7 +69,7 @@ C<TeXLive::TLPDB> -- A database of TeX Live Packages
   $tlpdb->add_default_options();
   $tlpdb->settings;
   $tlpdb->setting($key, [$value]);
-  $tlpdb->sizes_of_packages($opt_src, $opt_doc [, @packs ]);
+  $tlpdb->sizes_of_packages($opt_src, $opt_doc, $ref_arch_list [, @packs ]);
   $tlpdb->install_package($pkg, $dest_tlpdb);
   $tlpdb->remove_package($pkg, %options);
   $tlpdb->install_package_files($file [, $file ]);
@@ -81,6 +81,7 @@ C<TeXLive::TLPDB> -- A database of TeX Live Packages
   $tlpdb->is_virtual;
   $tlpdb->virtual_add_tlpdb($tlpdb, $tag);
   $tlpdb->virtual_remove_tlpdb($tag);
+  $tlpdb->virtual_get_tlpdb($tag);
   $tlpdb->virtual_get_package($pkg, $tag);
   $tlpdb->candidates($pkg);
   $tlpdb->virtual_candidate($pkg);
@@ -629,18 +630,40 @@ sub media_of_package {
 
 The C<list_packages> function returns the list of all included packages.
 
+By default, for virtual tlpdbs only packages that are installable
+are listed. That means, packages that are only in subsidiary repositories
+but are not specifically pinned to it cannot be installed and are thus
+not listed. Adding "-all" argument lists also these packages.
+
+Finally, if there is another argument, the tlpdb must be virtual,
+and the argument must specify a tag/name of a sub-tlpdb. In this
+case all packages (without exceptions) from this repository are returned.
+
 =cut
 
 sub list_packages {
   my $self = shift;
   my $arg = shift;
+  my $tag;
   my $showall = 0;
-  if (defined($arg) && ($arg eq "-all")) {
-    $showall = 1;
+  if (defined($arg)) {
+    if ($arg eq "-all") {
+      $showall = 1;
+    } else {
+      $tag = $arg;
+    }
   }
   if ($self->is_virtual) {
     if ($showall) {
       return (sort keys %{$self->{'packages'}});
+    }
+    if ($tag) {
+      if (defined($self->{'tlpdbs'}{$tag})) {
+        return $self->{'tlpdbs'}{$tag}->list_packages;
+      } else {
+        tlwarn("TLPDB:list_packages: tag not defined: $tag\n");
+        return 0;
+      }
     }
     # we have to be careful here: If a package
     # is only present in a subsidiary repository
@@ -1242,7 +1265,7 @@ sub config_revision {
 
 =pod
 
-=item C<< $tlpdb->sizes_of_packages ( $opt_src, $opt_doc, [ @packs ] ) >>
+=item C<< $tlpdb->sizes_of_packages ( $opt_src, $opt_doc, $ref_arch_list, [ @packs ] ) >>
 
 This function returns a reference to a hash with package names as keys
 and the sizes in bytes as values. The sizes are computed for the arguments,
@@ -1251,11 +1274,21 @@ or all packages if nothing was given.
 In case something has been computed one addition key is added C<__TOTAL__>
 which contains the total size of all packages under discussion.
 
+If the third argument is a reference to a list of architectures, then
+only the sizes for the binary packages for these architectures are used,
+otherwise all sizes for all architectures are summed up.
+
 =cut
 
 sub sizes_of_packages {
-  my ($self, $opt_src, $opt_doc, @packs) = @_;
+  my ($self, $opt_src, $opt_doc, $arch_list_ref, @packs) = @_;
   @packs || ( @packs = $self->list_packages() );
+  my @archs;
+  if (defined($arch_list_ref)) {
+    @archs = @$arch_list_ref;
+  }
+  # if nothing is passed on, then we keep @archs undefined, which means
+  # use all architectures
   my %tlpsizes;
   my %tlpobjs;
   my $totalsize;
@@ -1266,7 +1299,7 @@ sub sizes_of_packages {
       warn "STRANGE: $p not to be found in ", $self->root;
       next;
     }
-    $tlpsizes{$p} = $self->size_of_one_package($media, $tlpobjs{$p}, $opt_src, $opt_doc);
+    $tlpsizes{$p} = $self->size_of_one_package($media, $tlpobjs{$p}, $opt_src, $opt_doc, @archs);
     $totalsize += $tlpsizes{$p};
   }
   if ($totalsize) {
@@ -1276,7 +1309,7 @@ sub sizes_of_packages {
 }
 
 sub size_of_one_package {
-  my ($self, $media, $tlpobj, $opt_src, $opt_doc) = @_;
+  my ($self, $media, $tlpobj, $opt_src, $opt_doc, @used_archs) = @_;
   my $size = 0;
   if ($media ne 'local_uncompressed') {
     # we use the container size as the measuring unit since probably
@@ -1291,7 +1324,11 @@ sub size_of_one_package {
     $size += $tlpobj->srcsize if $opt_src;
     $size += $tlpobj->docsize if $opt_doc;
     my %foo = %{$tlpobj->binsize};
-    for my $k (keys %foo) { $size += $foo{$k}; }
+    for my $k (keys %foo) { 
+      if (@used_archs && member($k, @used_archs)) {
+        $size += $foo{$k};
+      }
+    }
     # all the packages sizes are in blocks, so transfer that to bytes
     $size *= $TeXLive::TLConfig::BlockSize;
   }
@@ -2153,7 +2190,7 @@ sub make_virtual {
   my $self = shift;
   if (!$self->is_virtual) {
     if ($self->list_packages) {
-      tlerror("Cannot convert a initialized tlpdb to virtual for now!\n");
+      tlwarn("Cannot convert a initialized tlpdb to virtual for now!\n");
       return 0;
     }
     $self->{'virtual'} = 1;
@@ -2161,10 +2198,23 @@ sub make_virtual {
   return 1;
 }
 
+sub virtual_get_tlpdb {
+  my ($self, $tag) = @_;
+  if (!$self->is_virtual) {
+    tlwarn("Cannot remove tlpdb from a non-virtual tlpdb!\n");
+    return 0;
+  }
+  if (!defined($self->{'tlpdbs'}{$tag})) {
+    tlwarn("TLPDB virtual_get_tlpdb: unknown tag $tag\n");
+    return 0;
+  }
+  return $self->{'tlpdbs'}{$tag};
+}
+
 sub virtual_add_tlpdb {
   my ($self, $tlpdb, $tag) = @_;
   if (!$self->is_virtual) {
-    tlerror("Cannot add tlpdb to a non-virtual tlpdb!\n");
+    tlwarn("Cannot add tlpdb to a non-virtual tlpdb!\n");
     return 0;
   }
   $self->{'tlpdbs'}{$tag} = $tlpdb;
@@ -2180,7 +2230,7 @@ sub virtual_add_tlpdb {
 sub virtual_remove_tlpdb {
   my ($self, $tag) = @_;
   if (!$self->is_virtual) {
-    tlerror("Cannot remove tlpdb from a non-virtual tlpdb!\n");
+    tlwarn("Cannot remove tlpdb from a non-virtual tlpdb!\n");
     return 0;
   }
   if (!defined($self->{'tlpdbs'}{$tag})) {
@@ -2309,7 +2359,7 @@ sub virtual_pinning {
   my $self = shift;
   my (@pins) = @_;
   if (!$self->is_virtual) {
-    tlerror("Not-virtual databases cannot have pinning data.\n");
+    tlwarn("Not-virtual databases cannot have pinning data.\n");
     return 0;
   }
   if (!@pins) {
@@ -2363,6 +2413,9 @@ sub make_pin_data_from_line {
   }
   # split the package globs
   for (split(/,/, $b)) {
+    # remove leading and terminal white space
+    s/^\s*//;
+    s/\s*$//;
     my %mm = %m;
     $mm{'glob'} = $_;
     $mm{'re'} = glob_to_regex($_);

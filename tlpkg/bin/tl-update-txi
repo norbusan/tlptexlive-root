@@ -1,5 +1,5 @@
 #!/bin/sh -e
-# $Id: tl-update-txi 24109 2011-09-27 00:50:06Z karl $
+# $Id: tl-update-txi 26690 2012-05-28 17:47:46Z karl $
 # Public domain.  Originally written 2008, Karl Berry.
 # 
 # From the Texinfo manuals in TeX Live, simplistically build html/pdf,
@@ -79,16 +79,14 @@ do_web2c() {
   $texipdf $mypkg.texi && mv -v $mypkg.pdf $docdir/$mypkg/
 }
 
-do_mf2pt1
-exit $?
-
 do_dvipng
 do_dvips
 do_fontname
 do_kpathsea
+do_mf2pt1
 do_web2c
 
 exit $?
 
-# static: tds, texdraw.
-# done as part of package update: epspdf, latex2e[-es], latex2man.
+# static: tds texdraw.
+# done as part of package update: asy eplain epspdf latex2e[-es] latex2man.

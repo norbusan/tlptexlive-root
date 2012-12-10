@@ -1,12 +1,12 @@
-# $Id: TLUtils.pm 26320 2012-05-13 03:53:19Z preining $
+# $Id: TLUtils.pm 27741 2012-09-19 13:59:51Z preining $
 # TeXLive::TLUtils.pm - the inevitable utilities for TeX Live.
-# Copyright 2007, 2008, 2009, 2010, 2011 Norbert Preining, Reinhard Kotucha
+# Copyright 2007-2012 Norbert Preining, Reinhard Kotucha
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
 package TeXLive::TLUtils;
 
-my $svnrev = '$Revision: 26320 $';
+my $svnrev = '$Revision: 27741 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -114,9 +114,11 @@ use vars qw(
   $::LOGFILENAME @::LOGLINES 
   @::debug_hook @::ddebug_hook @::dddebug_hook @::info_hook @::warn_hook
   @::install_packages_hook
+  $::latex_updated
   $::machinereadable
   $::no_execute_actions
   $::regenerate_all_formats
+  $::tex_updated
   $TeXLive::TLDownload::net_lib_avail
 );
 
@@ -268,7 +270,7 @@ sub platform_name {
   my $OS;  # O/S type as reported by config.guess.
   ($CPU = $guessed_platform) =~ s/(.*?)-.*/$1/;
   $CPU =~ s/^alpha(.*)/alpha/;   # alphaev whatever
-  $CPU =~ s/armv7l/armel/;       # arm whatever
+  $CPU =~ s/armv\dl/armel/;      # arm whatever
   $CPU =~ s/powerpc64/powerpc/;  # don't distinguish ppc64
   $CPU =~ s/sparc64/sparc/;      # don't distinguish sparc64
   $CPU =~ s/mips64el/mipsel/;    # don't distinguish mips64 and 32 el
@@ -313,7 +315,7 @@ sub platform_desc {
     'alpha-linux'      => 'DEC Alpha with GNU/Linux',
     'alphaev5-osf'     => 'DEC Alphaev5 OSF',
     'amd64-freebsd'    => 'x86_64 with FreeBSD',
-    'amd64-kfreebsd'   => 'x86_64 with GNU/FreeBSD',
+    'amd64-kfreebsd'   => 'x86_64 with GNU/kFreeBSD',
     'armel-linux'      => 'ARM with GNU/Linux',
     'hppa-hpux'        => 'HP-UX',
     'i386-cygwin'      => 'Intel x86 with Cygwin',
@@ -357,9 +359,8 @@ currently based on the value of Perl's C<$^O> variable.
 
 =cut
 
-sub win32
-{
-  if ($^O=~/^MSWin(32|64)$/i) {
+sub win32 {
+  if ($^O =~ /^MSWin/i) {
     return 1;
   } else {
     return 0;
@@ -478,8 +479,7 @@ C<chdir($dir)> or die.
 
 =cut
 
-sub xchdir
-{
+sub xchdir {
   my ($dir) = @_;
   chdir($dir) || die "$0: chdir($dir) failed: $!";
   ddebug("xchdir($dir) ok\n");
@@ -492,8 +492,7 @@ Run C<system(@args)> and die if unsuccessful.
 
 =cut
 
-sub xsystem
-{
+sub xsystem {
   my (@args) = @_;
   ddebug("running system(@args)\n");
   my $retval = system(@args);
@@ -880,8 +879,7 @@ that is a fatal error.
 
 =cut
 
-sub copy
-{
+sub copy {
   my $infile = shift;
   my $filemode = 0;
   if ($infile eq "-f") { # second argument is a file
@@ -1001,8 +999,7 @@ C</absolute/path/to/dir1>.
 
 =cut
 
-sub collapse_dirs
-{
+sub collapse_dirs {
   my (@files) = @_;
   my @ret = ();
   my %by_dir;
@@ -1071,8 +1068,7 @@ returns all the directories from which all content will be removed
 #   case put that directory into the removal list
 # - return this removal list
 #
-sub removed_dirs
-{
+sub removed_dirs {
   my (@files) = @_;
   my %removed_dirs;
   my %by_dir;
@@ -1575,7 +1571,7 @@ sub _do_postaction_fileassoc {
     tlwarn("filetype of fileassoc postaction not given\n");
     return 0;
   }
-  my $filetype = $keyval{'filetype'};
+  my $filetype = $keyval{'filetype'}.'.'.$ReleaseYear;
 
   &log("postaction $how fileassoc for " . $tlpobj->name .
     ": $extension, $filetype\n");
@@ -1606,7 +1602,7 @@ sub _do_postaction_filetype {
     tlwarn("name of filetype postaction not given\n");
     return 0;
   }
-  my $name = $keyval{'name'};
+  my $name = $keyval{'name'}.'.'.$ReleaseYear;
 
   # cmd can be an arbitrary string
   if (!defined($keyval{'cmd'})) {
@@ -1656,7 +1652,7 @@ sub _do_postaction_progid {
     tlwarn("filetype of progid postaction not given\n");
     return 0;
   }
-  my $filetype = $keyval{'filetype'};
+  my $filetype = $keyval{'filetype'}.'.'.$ReleaseYear;
 
   &log("postaction $how progid for " . $tlpobj->name .
     ": $extension, $filetype\n");
@@ -2224,8 +2220,7 @@ Returns 1 if different, 0 if the same.
 
 =cut
 
-sub tlcmp
-{
+sub tlcmp {
   my ($filea, $fileb) = @_;
   if (!defined($fileb)) {
     die <<END_USAGE;
@@ -2241,11 +2236,14 @@ END_USAGE
 }
 
 
-# Return contents of FNAME as a string, converting all of CR, LF, and
-# CRLF to just LF.
-#
-sub read_file_ignore_cr
-{
+=item C<read_file_ignore_cr($file)>
+
+Return contents of FILE as a string, converting all of CR, LF, and
+CRLF to just LF.
+
+=cut
+
+sub read_file_ignore_cr {
   my ($fname) = @_;
   my $ret = "";
 
@@ -2501,8 +2499,7 @@ sub download_file {
   return($ret);
 }
 
-sub _download_file
-{
+sub _download_file {
   my ($url, $dest, $wgetdefault) = @_;
   if (win32()) {
     $dest =~ s!/!\\!g;
@@ -2584,7 +2581,7 @@ Generate a skeleton of empty directories in the C<TEXMFSYSVAR> tree.
 =cut
 
 sub make_var_skeleton {
-  my $prefix=shift;
+  my ($prefix) = @_;
 
   mkdirhier "$prefix/tex/generic/config";
   mkdirhier "$prefix/fonts/map/dvipdfm/updmap";
@@ -2600,27 +2597,28 @@ sub make_var_skeleton {
 
 =item C<make_local_skeleton($prefix)>
 
-Generate a skeleton of empty directories in the C<TEXMFLOCAL> tree 
-if C<TEXMFLOCAL> doesn't already exist.
+Generate a skeleton of empty directories in the C<TEXMFLOCAL> tree,
+unless C<TEXMFLOCAL> already exists.
 
 =cut
 
 sub make_local_skeleton {
-  my $prefix=shift;
+  my ($prefix) = @_;
 
   return if (-d $prefix);
 
-  mkdirhier "$prefix/tex/latex/local";
-  mkdirhier "$prefix/tex/plain/local";
-  mkdirhier "$prefix/dvips/local";
   mkdirhier "$prefix/bibtex/bib/local";
   mkdirhier "$prefix/bibtex/bst/local";
-  mkdirhier "$prefix/fonts/tfm/local";
-  mkdirhier "$prefix/fonts/vf/local";
-  mkdirhier "$prefix/fonts/source/local";
-  mkdirhier "$prefix/fonts/type1/local";
-  mkdirhier "$prefix/metapost/local";
   mkdirhier "$prefix/doc/local";
+  mkdirhier "$prefix/dvips/local";
+  mkdirhier "$prefix/fonts/source/local";
+  mkdirhier "$prefix/fonts/tfm/local";
+  mkdirhier "$prefix/fonts/type1/local";
+  mkdirhier "$prefix/fonts/vf/local";
+  mkdirhier "$prefix/metapost/local";
+  mkdirhier "$prefix/tex/latex/local";
+  mkdirhier "$prefix/tex/plain/local";
+  mkdirhier "$prefix/tlpkg";
   mkdirhier "$prefix/web2c";
 }
 
@@ -2682,9 +2680,64 @@ sub create_fmtutil {
 
 sub create_updmap {
   my ($tlpdb,$dest) = @_;
+  check_for_old_updmap_cfg();
   my @tlpdblines = $tlpdb->updmap_cfg_lines();
   _create_config_files($tlpdb, "texmf/web2c/updmap-hdr.cfg", $dest,
                        undef, 0, '#', \@tlpdblines);
+}
+
+sub check_for_old_updmap_cfg {
+  chomp( my $tmfsysconf = `kpsewhich -var-value=TEXMFSYSCONFIG` ) ;
+  my $oldupd = "$tmfsysconf/web2c/updmap.cfg";
+  return unless -r $oldupd;  # if no such file, good.
+
+  open (OLDUPD, "<$oldupd") || die "open($oldupd) failed: $!";
+  my $firstline = <OLDUPD>;
+  close(OLDUPD);
+  # cygwin returns undef when reading from an empty file, we have
+  # to make sure that this is anyway initialized
+  $firstline = "" if (!defined($firstline));
+  chomp ($firstline);
+  #
+  if ($firstline =~ m/^# Generated by (install-tl|.*\/tlmgr) on/) {
+    # assume it was our doing, rename it.
+    my $nn = "$oldupd.DISABLED";
+    if (-r $nn) {
+      my $fh;
+      ($fh, $nn) = File::Temp::tempfile( 
+        "updmap.cfg.DISABLED.XXXXXX", DIR => "$tmfsysconf/web2c");
+    }
+    print "Renaming old config file from 
+  $oldupd
+to
+  $nn
+";
+    if (rename($oldupd, $nn)) {
+      if (system("mktexlsr", $tmfsysconf) != 0) {
+        die "mktexlsr $tmfsysconf failed after updmap.cfg rename, fix fix: $!";
+      }
+      print "No further action should be necessary.\n";
+    } else {
+      print STDERR "
+Renaming of
+  $oldupd
+did not succeed.  This config file should not be used anymore,
+so please do what's necessary to eliminate it.
+See the documentation for updmap.
+";
+    }
+
+  } else {  # first line did not match
+    # that is NOT a good idea, because updmap creates updmap.cfg in
+    # TEXMFSYSCONFIG when called with --enable Map etc, so we should
+    # NOT warn here
+    # print STDERR "Apparently
+#  $oldupd
+# was created by hand.  This config file should not be used anymore,
+# so please do what's necessary to eliminate it.
+# See the documentation for updmap.
+# ";
+  }
 }
 
 sub check_updmap_config_value {
@@ -3188,8 +3241,7 @@ If HASH is a reference, it is followed.
 
 =cut
 
-sub debug_hash
-{
+sub debug_hash {
   my ($label) = shift;
   my (%hash) = (ref $_[0] && $_[0] =~ /.*HASH.*/) ? %{$_[0]} : @_;
 
@@ -3384,8 +3436,7 @@ and the program has to be C<wget> since we parse the output.
 
 =cut
 
-sub query_ctan_mirror
-{
+sub query_ctan_mirror {
   my $wget = $::progs{'wget'};
   if (!defined ($wget)) {
     tlwarn("query_ctan_mirror: Programs not set up, trying wget\n");
@@ -3440,8 +3491,7 @@ Check if MIRROR is functional.
 
 =cut
 
-sub check_on_working_mirror
-{
+sub check_on_working_mirror {
   my $mirror = shift;
 
   my $wget = $::progs{'wget'};
@@ -3478,8 +3528,7 @@ sub check_on_working_mirror
 
 =cut
 
-sub give_ctan_mirror_base
-{
+sub give_ctan_mirror_base {
   my @backbone = qw!http://www.ctan.org/tex-archive
                     http://www.tex.ac.uk/tex-archive
                     http://dante.ctan.org/tex-archive!;
@@ -3522,8 +3571,7 @@ sub give_ctan_mirror_base
 }
 
 
-sub give_ctan_mirror
-{
+sub give_ctan_mirror {
   return (give_ctan_mirror_base(@_) . "/$TeXLiveServerPath");
 }
 
@@ -3857,9 +3905,9 @@ sub mktexupd {
         $files{$file}=1;
       }
     },
-    # "reset" => sub { 
-    #    %files=();
-    # },
+    "reset" => sub { 
+       %files=();
+    },
     "mustexist" => sub {
       $mustexist=shift;
     },
@@ -3880,12 +3928,14 @@ sub mktexupd {
       foreach my $path (keys %files) {
         foreach my $db (@texmfdbs) {
           $db=substr($db, -1) if ($db=~m|/$|); # strip leading /
-          if (substr($path, 0, length("$db/")) eq "$db/") {
+          $db = lc($db) if win32();
+          $up = (win32() ? lc($path) : $path);
+          if (substr($up, 0, length("$db/")) eq "$db/") {
             # we appended a / because otherwise "texmf" is recognized as a
             # substring of "texmf-dist".
-            my $path='./' . substr($path, length("$db/"));
+            my $np = './' . substr($up, length("$db/"));
             my ($dir, $file);
-            $_=$path;
+            $_=$np;
             ($dir, $file) = m|(.*)/(.*)|;
             $dbs{$db}{$dir}{$file}=1;
           }

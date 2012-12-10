@@ -1,0 +1,37 @@
+#!/usr/bin/env perl
+# $Id: tl-dump-texcatalogue 26533 2012-05-21 04:22:56Z preining $
+# Copyright 2012 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+#
+# Write a parsable representation of the catalogue to stdout
+# run from cron.tl
+
+BEGIN {
+  $^W = 1;
+  chomp ($mydir = `dirname $0`);
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+$^W = 1;
+use Data::Dumper;
+use TeXLive::TeXCatalogue;
+
+exit (&main ());
+
+sub main {
+  if (@ARGV != 1) {
+    die "Usage: $0 /PATH/TO/CATALOGUE\n";
+  }
+
+  my $texcatalogue = TeXLive::TeXCatalogue->new(location => $ARGV[0]);
+
+  $Data::Dumper::Indent = 1;
+  $Data::Dumper::Sortkeys = 1;  # stable output
+  $Data::Dumper::Purity = 1; # recursive structures must be safe
+  print Data::Dumper->Dump([\$texcatalogue], [qw(tlc)]);
+  
+  return 0;
+}
+
