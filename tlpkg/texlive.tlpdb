@@ -237,7 +237,7 @@ binfiles arch=x86_64-linux size=142
 name ptex.i386-linux
 category Package
 revision 27000
-binfiles arch=i386-linux size=587
+binfiles arch=i386-linux size=457
  bin/i386-linux/eptex
  bin/i386-linux/makejvf
  bin/i386-linux/mendex
@@ -251,7 +251,7 @@ binfiles arch=i386-linux size=587
 name ptex.i386-netbsd
 category Package
 revision 27000
-binfiles arch=i386-netbsd size=569
+binfiles arch=i386-netbsd size=439
  bin/i386-netbsd/eptex
  bin/i386-netbsd/makejvf
  bin/i386-netbsd/mendex
@@ -265,7 +265,7 @@ binfiles arch=i386-netbsd size=569
 name ptex.x86_64-linux
 category Package
 revision 27000
-binfiles arch=x86_64-linux size=626
+binfiles arch=x86_64-linux size=496
  bin/x86_64-linux/eptex
  bin/x86_64-linux/makejvf
  bin/x86_64-linux/mendex
@@ -354,7 +354,7 @@ binfiles arch=x86_64-linux size=375
 name uptex.i386-linux
 category Package
 revision 27000
-binfiles arch=i386-linux size=551
+binfiles arch=i386-linux size=419
  bin/i386-linux/convbkmk
  bin/i386-linux/euptex
  bin/i386-linux/upbibtex
@@ -368,7 +368,7 @@ binfiles arch=i386-linux size=551
 name uptex.i386-netbsd
 category Package
 revision 27000
-binfiles arch=i386-netbsd size=543
+binfiles arch=i386-netbsd size=411
  bin/i386-netbsd/convbkmk
  bin/i386-netbsd/euptex
  bin/i386-netbsd/upbibtex
@@ -382,7 +382,7 @@ binfiles arch=i386-netbsd size=543
 name uptex.x86_64-linux
 category Package
 revision 27000
-binfiles arch=x86_64-linux size=591
+binfiles arch=x86_64-linux size=459
  bin/x86_64-linux/convbkmk
  bin/x86_64-linux/euptex
  bin/x86_64-linux/upbibtex
