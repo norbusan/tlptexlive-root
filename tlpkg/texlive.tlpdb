@@ -7,7 +7,7 @@ depend minrelease/2010
 depend container_format/xz
 depend container_split_doc_files/1
 depend container_split_src_files/1
-depend minrelease/2011
+depend minrelease/2012
 depend release/2012
 depend revision/1
 
@@ -25,8 +25,8 @@ depend opt_install_srcfiles:1
 depend opt_location:__MASTER__
 depend opt_post_code:1
 depend opt_sys_bin:/usr/local/bin
-depend opt_sys_info:/usr/local/info
-depend opt_sys_man:/usr/local/man
+depend opt_sys_info:/usr/local/share/info
+depend opt_sys_man:/usr/local/share/man
 depend opt_w32_multi_user:0
 
 name hiraprop
@@ -191,7 +191,7 @@ name pmetapost.i386-linux
 category Package
 revision 8
 shortdesc i386-linux files of pmetapost
-binfiles arch=i386-linux size=138
+binfiles arch=i386-linux size=129
  bin/i386-linux/pdvitomp
  bin/i386-linux/pmpost
 
@@ -234,6 +234,36 @@ binfiles arch=x86_64-linux size=137
  bin/x86_64-linux/pdvitomp
  bin/x86_64-linux/pmpost
 
+name ptex.i386-linux
+category Package
+revision 27000
+shortdesc i386-linux files of ptex
+binfiles arch=i386-linux size=587
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+
+name ptex.i386-netbsd
+category Package
+revision 27000
+shortdesc i386-netbsd files of ptex
+binfiles arch=i386-netbsd size=569
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+
 name pxdvi
 category TLCore
 revision 5
@@ -273,7 +303,7 @@ name pxdvi.i386-linux
 category TLCore
 revision 9
 shortdesc i386-linux files of pxdvi
-binfiles arch=i386-linux size=370
+binfiles arch=i386-linux size=326
  bin/i386-linux/pxdvi
  bin/i386-linux/pxdvi-xaw
 
@@ -281,7 +311,7 @@ name pxdvi.i386-netbsd
 category TLCore
 revision 9
 shortdesc i386-netbsd files of pxdvi
-binfiles arch=i386-netbsd size=305
+binfiles arch=i386-netbsd size=307
  bin/i386-netbsd/pxdvi
  bin/i386-netbsd/pxdvi-xaw
 
@@ -308,4 +338,34 @@ shortdesc x86_64-linux files of pxdvi
 binfiles arch=x86_64-linux size=372
  bin/x86_64-linux/pxdvi
  bin/x86_64-linux/pxdvi-xaw
+
+name uptex.i386-linux
+category Package
+revision 27000
+shortdesc i386-linux files of uptex
+binfiles arch=i386-linux size=551
+ bin/i386-linux/convbkmk
+ bin/i386-linux/euptex
+ bin/i386-linux/upbibtex
+ bin/i386-linux/updvitype
+ bin/i386-linux/uplatex
+ bin/i386-linux/uppltotf
+ bin/i386-linux/uptex
+ bin/i386-linux/uptftopl
+ bin/i386-linux/wovp2ovf
+
+name uptex.i386-netbsd
+category Package
+revision 27000
+shortdesc i386-netbsd files of uptex
+binfiles arch=i386-netbsd size=543
+ bin/i386-netbsd/convbkmk
+ bin/i386-netbsd/euptex
+ bin/i386-netbsd/upbibtex
+ bin/i386-netbsd/updvitype
+ bin/i386-netbsd/uplatex
+ bin/i386-netbsd/uppltotf
+ bin/i386-netbsd/uptex
+ bin/i386-netbsd/uptftopl
+ bin/i386-netbsd/wovp2ovf
 

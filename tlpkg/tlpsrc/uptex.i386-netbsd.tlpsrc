@@ -1,0 +1,9 @@
+binpattern f/i386-netbsd bin/i386-netbsd/convbkmk
+binpattern f/i386-netbsd bin/i386-netbsd/euptex
+binpattern f/i386-netbsd bin/i386-netbsd/upbibtex
+binpattern f/i386-netbsd bin/i386-netbsd/updvitype
+binpattern f/i386-netbsd bin/i386-netbsd/uplatex
+binpattern f/i386-netbsd bin/i386-netbsd/uppltotf
+binpattern f/i386-netbsd bin/i386-netbsd/uptftopl
+binpattern f/i386-netbsd bin/i386-netbsd/uptex
+binpattern f/i386-netbsd bin/i386-netbsd/wovp2ovf
