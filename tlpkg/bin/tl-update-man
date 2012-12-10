@@ -1,0 +1,48 @@
+#!/bin/sh
+# $Id: tl-update-man 23089 2011-06-22 15:33:05Z karl $
+# Public domain.  Originally written 2008, Karl Berry.
+# 
+# This script is run by hand at the end of a release cycle to copy the
+# man pages from the temporary install tree resulting from a normal
+# build to the live Master hierarchy.
+
+mydir=`cd \`dirname $0\` && pwd`
+Master=`cd $mydir/../.. && pwd`
+Build=`cd $Master/../Build && pwd`
+Build_inst=`cd $Build/source/inst && pwd`
+
+: ${TMPDIR=/tmp}
+
+for sect in 1 5; do
+  # existing:
+  rundir=$Master/texmf/doc/man/man$sect
+  (cd $rundir && ls) >$TMPDIR/now
+
+  # from a current build:
+  cd $Build_inst/texmf/doc/man/man$sect || exit 1
+  ls >$TMPDIR/new
+
+  # copy files from build to runtime:
+  find -type f | sort | xargs tar cf - | (cd $rundir && tar xf -)
+  if test -n "`find -type l`"; then
+    echo "$0: unexpected man symlinks in `pwd`" >&2
+    echo "$0: everything should use .so; goodbye" >&2
+    exit 1
+  fi
+
+  # add new:
+  needed=$TMPDIR/needed.$sect
+  comm -13 $TMPDIR/now $TMPDIR/new >$needed
+  test -s $needed && (cd $rundir && svn add `cat $needed`) 
+
+  # do not delete, since many man pages aren't installed from the build,
+  # but just in case we want to look:
+  comm -23 $TMPDIR/now $TMPDIR/new | grep -v '\.pdf$' >>$TMPDIR/extraman.$sect
+  # compare with (cd $lb && \ls | comm -13 - /tmp/extraman.1)
+  
+  # for man1, generate make fragment for checking against man1/Makefile.
+  (cd $rundir/.. && make so.rules >$TMPDIR/so.rules)
+  
+  # see what we've done:
+  (cd $rundir && svn status)
+done

@@ -1,0 +1,38 @@
+\input docstrip
+\keepsilent
+\ifToplevel{\askonceonly}
+\usedir{tex/uplatex/base}
+
+\Msg{*** Generating the upLaTeX class files ***}
+
+%
+% 横組用クラスファイル
+%
+\generate{
+    \file{ujarticle.cls}{\from{ujclasses.dtx}{article,yoko}}
+    \file{ujreport.cls}{\from{ujclasses.dtx}{report,yoko}}
+    \file{ujbook.cls}{\from{ujclasses.dtx}{book,yoko}}
+    \file{ujsize10.clo}{\from{ujclasses.dtx}{10pt,yoko}}
+    \file{ujsize11.clo}{\from{ujclasses.dtx}{11pt,yoko}}
+    \file{ujsize12.clo}{\from{ujclasses.dtx}{12pt,yoko}}
+    \file{ujbk10.clo}{\from{ujclasses.dtx}{10pt,bk,yoko}}
+    \file{ujbk11.clo}{\from{ujclasses.dtx}{11pt,bk,yoko}}
+    \file{ujbk12.clo}{\from{ujclasses.dtx}{12pt,bk,yoko}}
+}
+
+%
+% 縦組用クラスファイル
+%
+\generate{
+    \file{utarticle.cls}{\from{ujclasses.dtx}{article,tate}}
+    \file{utreport.cls}{\from{ujclasses.dtx}{report,tate}}
+    \file{utbook.cls}{\from{ujclasses.dtx}{book,tate}}
+    \file{utsize10.clo}{\from{ujclasses.dtx}{10pt,tate}}
+    \file{utsize11.clo}{\from{ujclasses.dtx}{11pt,tate}}
+    \file{utsize12.clo}{\from{ujclasses.dtx}{12pt,tate}}
+    \file{utbk10.clo}{\from{ujclasses.dtx}{10pt,bk,tate}}
+    \file{utbk11.clo}{\from{ujclasses.dtx}{11pt,bk,tate}}
+    \file{utbk12.clo}{\from{ujclasses.dtx}{12pt,bk,tate}}
+}
+
+\endbatchfile

@@ -1,0 +1,134 @@
+#!/bin/sh
+# $Id: ctan2tl 15493 2009-09-28 00:03:40Z karl $
+# Public domain.  Originally written 2005, Karl Berry.
+#
+# Attempt to push a package from CTAN into TL.
+
+unset CDPATH  # avoid extraneous output
+LC_ALL=C; export LC_ALL # avoid problems with diff, comm, etc
+
+mydir=`cd \`dirname $0\` && pwd`	# Master/tlpkg/bin
+libexec=`cd $mydir/../libexec && pwd`	# Master/tlpkg/libexec
+PATH=$mydir:$libexec:$PATH  # we call lots of our other tools
+
+Build=`cd $mydir/../../../Build && pwd`
+raw=$Build/tmp.raw
+test -d $raw || mkdir $raw
+cd $raw || exit 1
+
+if test "x$1" = x--help; then
+  echo "Usage: $0 [--place] [--no-ctan] TLPKGNAME"
+  echo
+  echo "Install a package from CTAN into TeX Live."
+  echo
+  echo "--place, -p  perform repository adds/removes."
+  echo "--no-ctan    if already have files in Build/tmp.raw/PKG."
+  echo
+  echo "This never actually commits anything to the repository,"
+  echo "but it does svn update the potentially affected directories."
+  echo
+  echo "Without --place, it only creates files in Build/tmp.{raw,cooked}."
+  echo "With --place, it also does repository adds and removes,"
+  echo "but never commits."
+  echo
+  echo "Read and understand http://tug.org/texlive/pkgupdate.html"
+  echo "before running this."
+  exit 0
+fi
+
+if test "x$1" = x--place ||  test "x$1" = x-p; then
+  place_chicken=
+  shift
+else
+  place_chicken=-n
+fi
+
+if test "x$1" = x--no-ctan; then
+  copy_from_ctan=false
+  shift
+else
+  copy_from_ctan=true
+fi
+
+pkg=$1
+if test -z "$pkg"; then
+  echo "$0: no TL package name specified." >&2
+  exit 1
+fi
+
+if $copy_from_ctan; then
+  ctan_dir=`tlpkginfo --prepare $pkg`
+else
+  ctan_dir="$pkg"
+fi
+
+if test -z "$ctan_dir"; then
+  echo "$0: can't find CTAN directory for $pkg." >&2
+  exit 1
+fi
+echo "$0: ctan dir for $pkg"
+echo "$0: is $ctan_dir"
+
+test -r "$ctan_dir/TDS_READY" \
+&& echo "... from `cat $ctan_dir/TDS_READY`"
+
+# help in keeping things in sync.
+if egrep " $pkg"'( |$)' $mydir/tlpkg-ctan-check >/dev/null; then :; else
+  echo
+  echo "*** $0: $pkg not in $mydir/tlpkg-ctan-check, add?"
+fi
+  
+if grep "^depend  *$pkg\$" $mydir/../tlpsrc/collection-* >/dev/null; then :
+else
+  echo
+  echo "*** $0: $pkg not in any collection, add?"
+fi
+  
+# 
+if $copy_from_ctan; then
+
+# remove whatever dregs in raw that might be lying around.
+rm -rf $pkg
+
+if test "$pkg" = genmisc; then  # remove files after copying in ctan2tds
+  # do not copy subdirs, symlinks, or any files but .sty and .tex
+  # (that is, no patch.doc or pmat.zip).
+  mkdir -p $pkg
+  cp -p \
+    `find $ctan_dir/* '(' -type d -o -type l ')' -prune -o \
+                          '(' -name '*.sty' -o -name *.tex ')' -print` \
+    $pkg
+
+else
+  # normal case (/. to deref symlinks, e.g., arabtex)
+  cp -pr $ctan_dir/. $pkg
+fi
+
+# clean up the tmpdir possibly created by tlpkginfo --prepare.
+ctan_root=`tlpkginfo --ctan-root`
+if echo "$ctan_dir" | egrep "^$ctan_root" >/dev/null; then :; else
+  rm -rf $ctan_dir
+fi
+fi  # end of copying from CTAN.
+
+
+# 
+printf "\n$0: calling ctan2tds\n"
+cooked=$Build/tmp.cooked
+rm -rf $cooked/$pkg
+test -d $cooked || mkdir $cooked
+ctan2tds --ctan-dir=$ctan_dir $pkg || exit 1
+
+cd $cooked || exit 1
+printf "\n\f cooked\n"
+find $pkg -name TDS_READY -exec rm '{}' \;  # remove sentinel file
+find -depth -type d | xargs rmdir 2>/dev/null  # remove empty directories
+find $pkg \! -type d -printf "%TY%Tm%Td.%TH%TM %p\n" | sort -k2
+
+printf "\n$0: calling place $place_chicken $pkg\n"
+rm -rf $pkg.done
+place $place_chicken $pkg
+status=$?
+
+$copy_from_ctan && rm -rf $raw/$pkg
+exit $status

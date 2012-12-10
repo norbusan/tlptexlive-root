@@ -1,0 +1,96 @@
+\documentclass{ujarticle}
+\textwidth170mm
+\textheight240mm
+\oddsidemargin0mm
+\topmargin-10mm
+\usepackage[uplatex]{utf}
+%\usepackage[uplatex,noreplace]{otf}
+%\usepackage[uplatex]{otf}% upTeX-0.24以降では、noreplaceなしで動くようになった。
+\pagestyle{empty}
+\parindent=0zw
+\begin{document}
+\Large
+森\UTF{9DD7}外\textbf{森\UTF{9DD7}外}%
+森\CID{7646}外\textbf{森\CID{7646}外}\\%
+森鷗外\textbf{森鷗外}森\char"9DD7外\textbf{森\char"9DD7外}%
+森\kchar"9DD7外\textbf{森\kchar"9DD7外}
+
+内田百\UTF{9592}\textbf{内田百\UTF{9592}}%
+内田百\CID{8685}\textbf{内田百\CID{8685}}\\%
+内田百閒\textbf{内田百閒}内田百\char"9592\textbf{内田百\char"9592}%
+内田百\kchar"9592\textbf{内田百\kchar"9592}
+
+\UTF{9ad9}橋さん\textbf{\UTF{9ad9}橋さん}%
+\CID{8705}橋さん\textbf{\CID{8705}橋さん}\\%
+髙橋さん\textbf{髙橋さん}\char"9AD9橋さん\textbf{\char"9AD9橋さん}%
+\kchar"9AD9橋さん\textbf{\kchar"9AD9橋さん}
+
+鼻濁音「\CID{16382}」とか\textbf{「\CID{13706}野家」}とかも出せます。
+% set3対応フォント+dviwareなら、「𠮷野家」もUTF-8で直接書ける。
+%\textbf{𠮷野家\char"20BB7野家\kchar"20BB7野家}
+
+\CID{239}\CID{331}∀\CID{331}\CID{240}\CID{344}\CID{344}~~
+\CID{239}\CID{326}\CID{389}Д\CID{389}\CID{240}\CID{373}\CID{355}\CID{388}\CID{342}
+
+\CID{239}･∀･\CID{240}ｲｲ~~
+\CID{239}\CID{326}ﾟДﾟ\CID{240}ﾏｽﾞｰ
+
+(･∀･)ｲｲ~~
+(~ﾟДﾟ)ﾏｽﾞｰ
+
+アイウエオ\raisebox{-.12zh}{\frame{ア}\frame{イ}\frame{ウ}\frame{エ}\frame{オ}}~~
+ｱｲｳｴｵ\raisebox{-.12zh}{\frame{ｱ}\frame{ｲ}\frame{ｳ}\frame{ｴ}\frame{ｵ}}
+
+\vskip2zh
+\edef\bs{$\backslash$\kern0em}
+\begin{tabular}{c|ccc|cc|l}
+ & \multicolumn{3}{|c}{upTeX} & \multicolumn{2}{|c|}{UTF/OTF} & \\
+UCS & UTF-8 & \bs char & \bs kchar & \bs UTF & \bs CID & 備考 \\\hline
+U+9D0E & 鴎 & \char"9D0E & \kchar"9D0E & \UTF{9D0E} & \CID{1322} & メ鴎 \\
+U+9DD7 & 鷗 & \char"9DD7 & \kchar"9D0E & \UTF{9DD7} & \CID{7646} & 品鴎 \\
+U+9593 & 間 & \char"9593 & \kchar"9593 & \UTF{9593} & \CID{1554} & 日間 \\
+U+9592 & 閒 & \char"9592 & \kchar"9592 & \UTF{9592} & \CID{8685} & 月間 \\
+U+9AD8 & 高 & \char"9AD8 & \kchar"9AD8 & \UTF{9AD8} & \CID{2036} & 口高 \\
+U+9AD9 & 髙 & \char"9AD9 & \kchar"9AD9 & \UTF{9AD9} & \CID{8705} & 梯子高 \\
+%U+5409 & 吉 & \char"5409 & \kchar"5409 & \UTF{5409} & \CID{1634} & 士吉 \\
+%U+20BB7 & 𠮷 & \char"20BB7 & \kchar"20BB7 & --- & \CID{13706} & 土吉 \\
+\end{tabular}
+
+\vskip2zh
+\ajMaru{1}\ajMaru{2}\ajMaru{3}%
+\ajKuroMaru{1}\ajKuroMaru{2}\ajKuroMaru{3}%
+\ajKaku{1}\ajKaku{2}\ajKaku{3}%
+\ajKuroKaku{1}\ajKuroKaku{2}\ajKuroKaku{3}%
+\ajMaruKaku{1}\ajMaruKaku{2}\ajMaruKaku{3}%
+\ajKuroMaruKaku{1}\ajKuroMaruKaku{2}\ajKuroMaruKaku{3}%
+\ajKakko{1}\ajKakko{2}\ajKakko{3}%
+\ajRoman{1}\ajRoman{2}\ajRoman{3}%
+\ajroman{1}\ajroman{2}\ajroman{3}%
+\ajPeriod{1}\ajPeriod{2}\ajPeriod{3}
+
+①②③❶❷❸⑴⑵⑶ⅠⅡⅢⅰⅱⅲ⒈⒉⒊
+
+\ajLig{株式会社}\ajLig{有限会社}\ajLig{財団法人}
+\ajLig{明治}\ajLig{大正}\ajLig{昭和}\ajLig{平成}
+{\bfseries
+\ajLig{株式会社}\ajLig{有限会社}\ajLig{財団法人}
+\ajLig{明治}\ajLig{大正}\ajLig{昭和}\ajLig{平成}}
+
+㍿㍾㍽㍼㍻
+{\bfseries
+㍿㍾㍽㍼㍻}
+
+\ajClub\ajHeart\ajSpade\ajDiamond
+\ajvarClub\ajvarHeart\ajvarSpade\ajvarDiamond
+\ajPhone\ajPostal\ajvarPostal
+\ajSun\ajCloud\ajUmbrella\ajSnowman
+
+♣♡♠♢♧♥♤♦☎〠〶☀☁☂☃
+
+
+科学技術~
+\kchar"79D1\kchar"5B66\kchar"6280\kchar"8853~
+\UTF{79d1}\UTF{5b66}\UTF{6280}\UTF{8853}~
+\CID{1354}\CID{1462}\CID{1621}\CID{2395}
+
+\end{document}

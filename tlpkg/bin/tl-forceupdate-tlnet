@@ -1,0 +1,74 @@
+#!/bin/sh -e
+# Copyright 2011 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Update a TeX Live tlnet area, with testing.
+
+vc_id='$Id: tl-forceupdate-tlnet 22918 2011-06-11 21:11:04Z karl $'
+unset CDPATH
+unset LS_COLORS
+
+yyyy=2011
+
+chicken=false
+critical=
+pretest=false
+recreate=
+tlweb=/home/ftp/texlive/tlnet
+verbose=
+
+while test $# -gt 0; do
+  case $1 in
+  --critical)          critical=--all;;
+  --master)            shift; Master=$1;;
+  --pretest)           tlweb=/home/ftp/texlive/tlpretest;;
+  --recreate)          recreate=--recreate;;
+  -v|-vv|-vvv)	       verbose=$1;;
+  --help)              echo "ustl. sorry."; exit 0;;
+  --version)           echo "$vc_id"; exit 0;;
+  --*) echo "$0: unrecognized option \`$1'." >&2
+       exit 1;;
+  *) tlweb=$1;;
+  esac
+  shift
+done
+
+if test -z "$Master"; then
+  mydir=`dirname $0`
+  Master=`cd $mydir/../.. && pwd`
+fi
+
+if test ! -r "$tlweb/tlpkg/texlive.tlpdb"; then
+  cat <<END_NO_TLPDB >&2
+$0: fatal: no file $tlweb/tlpkg/texlive.tlpdb.
+$0: If you are setting up a new release, touch the file,
+$0: and then use --critical --recreate.
+$0: (Or otherwise set up the tlnet hierarchy manually.)
+$0: Goodbye.
+END_NO_TLPDB
+  # and typically we will fail because there are new messages
+  # in the installer.  move the trial dir by hand to avoid
+  # time-consuming full recreate more than once.
+  exit 1
+fi
+
+echo "$0: Using tlweb=$tlweb"         # top level network directory, mirrored
+
+# 
+# Update packages in our working dir.
+echo "$0: Updating $tlweb..."
+cd $tlweb
+echo "$0: Running tl-update-containers..."
+$Master/tlpkg/bin/tl-update-containers \
+  $verbose -location $tlweb $critical $recreate
+
+# It is scary, but I guess we should update the installer package every
+# day, partly for the sake of doc.html and partly so it actually gets
+# tested.  Hopefully we don't break the Perl modules very often.
+echo "$0: Running tl-update-install-pkg..."
+$Master/tlpkg/bin/tl-update-install-pkg -o $tlweb
+
+echo "$0: Done."
+
+exit 0

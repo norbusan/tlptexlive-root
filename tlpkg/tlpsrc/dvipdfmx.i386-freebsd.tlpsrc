@@ -1,0 +1,3 @@
+binpattern f/i386-freebsd bin/i386-freebsd/dvipdfmx
+binpattern f/i386-freebsd bin/i386-freebsd/ebb
+binpattern f/i386-freebsd bin/i386-freebsd/extractbb

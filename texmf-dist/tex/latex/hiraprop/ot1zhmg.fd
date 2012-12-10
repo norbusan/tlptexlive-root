@@ -1,0 +1,3 @@
+\DeclareFontFamily{OT1}{zhmg}{}
+\DeclareFontShape{OT1}{zhmg}{m}{n}{<-> s * [\utf@sc@le] zhmgs7t}{}
+\DeclareFontShape{OT1}{zhmg}{m}{it}{<-> s * [\utf@sc@le] zhmgsi7t}{}

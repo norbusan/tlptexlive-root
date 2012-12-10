@@ -1,0 +1,185 @@
+#!/usr/bin/env perl
+# $Id: tl-update-nsis 20338 2010-11-05 22:31:40Z karl $
+# Copyright 2008, 2009, 2010 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Create a .nsi file for the Windows updates.
+
+BEGIN {
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+our $mydir;
+
+use strict;
+
+use TeXLive::TLConfig;
+use TeXLive::TLUtils;
+use TeXLive::TLPOBJ;
+use TeXLive::TLPDB;
+use Getopt::Long;
+use Pod::Usage;
+use File::Path;
+use Cwd;
+
+my $opt_help = 0;
+
+TeXLive::TLUtils::process_logging_options();
+
+GetOptions("help|?"       => \$opt_help) or pod2usage(1);
+pod2usage(-exitstatus => 0, -verbose => 2) if $opt_help;
+
+exit (&main ());
+
+sub main
+{
+  # get the db.
+  chomp (my $Master = `cd $mydir/../.. && pwd`);
+  my $tlpdb = TeXLive::TLPDB->new ("root" => $Master);
+  die("Cannot find tlpdb in $Master\n") unless defined($tlpdb);
+  my $texliveinfra = $tlpdb->get_package("texlive.infra");
+  my $texliveinfraw32 = $tlpdb->get_package("texlive.infra.win32");
+  my @allfiles = ();
+  push @allfiles, $texliveinfra->all_files;
+  push @allfiles, $texliveinfraw32->all_files if defined $texliveinfraw32;
+  
+  # create the tlpobj files
+  my $tlpobjdir = "$InfraLocation/tlpobj";
+  my $removetlpobjdir = 0;
+  if (! -d "$Master/$tlpobjdir") {
+    &TeXLive::TLUtils::mkdirhier("$Master/$tlpobjdir");
+    $removetlpobjdir = 1;
+  }
+  my $rev = 0; # we want the highest rev all these packages.
+  for my $p ($texliveinfra, $texliveinfraw32) {
+    if (defined $p) {
+      if ($p->revision > $rev) {
+        $rev = $p->revision;
+      }
+      open(TMP,">$Master/$tlpobjdir/$p->{'name'}.tlpobj") or die "Cannot create $Master/$tlpobjdir/$p->{'name'}.tlpobj";
+      $p->writeout(\*TMP);
+      close(TMP);
+      push @allfiles, "$tlpobjdir/$p->{'name'}.tlpobj";
+    }
+  }
+
+  my %dirtofiles;
+  for my $f (@allfiles) {
+    if ($f !~ m!/!) {
+      $f = "./$f";
+    }
+    my ($dn, $fn) = TeXLive::TLUtils::dirname_and_basename($f);
+    if (!defined($dirtofiles{$dn})) {
+      @{$dirtofiles{$dn}} = ();
+    }
+    push @{$dirtofiles{$dn}}, $fn;
+  }
+  print <<'EOF';
+!include "FileFunc.nsh"
+!insertmacro GetParent
+
+EOF
+  print "!define REV \"r$rev\"\n";
+
+print <<'EOF';
+
+Page directory
+Page instfiles
+
+Name "TeX Live Manager Update ${REV}"
+OutFile "update-tlmgr-${REV}.exe"
+EOF
+print "InstallDir \"\$PROGRAMFILES\\texlive\\$TeXLive::TLConfig::ReleaseYear\"\n";
+
+print <<'EOF';
+
+RequestExecutionLevel "user"
+
+DirText "Setup will update the TeX Live Manager of your TeX Live installation in the following folder. \
+ To install in a different folder, click Browse and select another folder. \
+ Click Install to start the update."
+
+Function .onInit
+  SearchPath $0 tlmgr.bat
+  ${GetParent} $0 $1
+  ${GetParent} $1 $0
+  ${GetParent} $0 $1
+  ;MessageBox MB_OK "tlmgr=$1"
+  StrCpy $INSTDIR $1
+  ;SetOutPath $1
+FunctionEnd
+
+Function .onVerifyInstDir
+  IfFileExists $INSTDIR\tlpkg\texlive.tlpdb PathGood
+    Abort
+  PathGood:
+FunctionEnd
+
+Section "MainGroup"
+  #SetOutPath "$INSTDIR"
+  #File /r tlupdates\*.*
+EOF
+  my $mm = $Master;
+  $mm =~ s!/!\\!g;
+  for my $d (keys %dirtofiles) {
+    my $dd = $d;
+    $dd =~ s!/!\\!g;
+    print "  SetOutPath \"\$INSTDIR\\$dd\"\n";
+    for my $f (@{$dirtofiles{$d}}) {
+      $f =~ s!/!\\!g;
+      print "  File $mm\\$dd\\$f\n";
+    }
+  }
+  print "  ExecWait \'\"\$INSTDIR\\bin\\win32\\tlmgr.bat\" _include_tlpobj";
+  for my $p ($texliveinfra, $texliveinfraw32) {
+    if (defined $p) {
+      print " \"\$INSTDIR\\tlpkg\\tlpobj\\", $p->name, ".tlpobj\"";
+    }
+  }
+  print "'\nSectionEnd\n";
+  
+  return 0;
+}
+
+
+__END__
+
+=head1 NAME
+
+tl-update-nsis - creates a .nsi file for tlmgr packages
+
+=head1 SYNOPSIS
+
+tl-update-nsis [OPTION]...
+
+=head1 OPTIONS
+
+Only the standard options B<-help> and B<-q>, B<-v>, and
+B<-logfile>=I<file> are accepted; see the C<process_logging_options>
+function in L<TeXLive::TLUtils> for details.
+
+=head1 DESCRIPTION
+
+Creates a C<.nsi> file that can be used with NSIS to create an update
+executable for Windows, to work around Windows' inability to overwrite
+open files, and for disaster recovery.  It contains the tlmgr-related
+infrastructure files.  L<http://tug.org/texlive/tlmgr.html> explains
+more.
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2 expandtab: #

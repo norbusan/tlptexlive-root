@@ -1,0 +1,5 @@
+\DeclareFontFamily{OT1}{zhsf}{}
+\DeclareFontShape{OT1}{zhsf}{m}{n}{<-> s * [\utf@sc@le] zhsfr7t}{}
+\DeclareFontShape{OT1}{zhsf}{bx}{n}{<-> s * [\utf@sc@le] zhsfb7t}{}
+\DeclareFontShape{OT1}{zhsf}{m}{it}{<-> s * [\utf@sc@le] zhsfri7t}{}
+\DeclareFontShape{OT1}{zhsf}{bx}{it}{<-> s * [\utf@sc@le] zhsfbi7t}{}

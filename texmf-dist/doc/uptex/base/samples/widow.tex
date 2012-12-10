@@ -1,0 +1,109 @@
+\documentclass{article}
+\textheight240mm
+\topmargin-10mm
+\pagestyle{empty}
+\begin{document}
+\parindent0pt
+\kanjiskip=0zw plus .5zw minus -.05zw
+\edef\bs{$\backslash$\kern0em}
+
+\jcharwidowpenalty=10000
+
+(1) \bs jcharwidowpenalty→10000\\
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます。}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み，
+人の手の届かぬところに虫は棲みます．}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます}}
+
+\kcatcode`す=18% other_kchar
+
+(2) かな→other\_kchar\\
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます。}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み，
+人の手の届かぬところに虫は棲みます．}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます}}
+
+\kcatcode`す=16% kanji
+
+(3) かな→kanji\\
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます。}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み，
+人の手の届かぬところに虫は棲みます．}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます}}
+
+
+\kcatcode`す=17% kana
+\kcatcode`。=18% other_kchar
+\kcatcode`．=17% kana
+
+(4) かな→kana, 「。」→other\_kchar, 「．」→kana\\
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます。}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み，
+人の手の届かぬところに虫は棲みます．}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます}}
+
+
+\kcatcode`す=17% kana
+\kcatcode`。=17% kana
+\kcatcode`．=18% other_kchar
+
+(5) かな→kana, 「。」→kana, 「．」→other\_kchar\\
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます。}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み，
+人の手の届かぬところに虫は棲みます．}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます}}
+
+
+\jcharwidowpenalty=0
+\kcatcode`す=17% kana
+
+(6) \bs jcharwidowpenalty→0\\
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます。}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み，
+人の手の届かぬところに虫は棲みます．}}
+
+\fbox{\parbox{32.5zw}{%
+人の目の届かぬところに虫は潜み、
+人の手の届かぬところに虫は棲みます}}
+
+
+\end{document}

@@ -1,0 +1,3 @@
+\DeclareFontFamily{TS1}{zhmg}{}
+\DeclareFontShape{TS1}{zhmg}{m}{n}{<-> s * [\utf@sc@le] zhmgs8c}{}
+\DeclareFontShape{TS1}{zhmg}{m}{it}{<-> s * [\utf@sc@le] zhmgsi8c}{}

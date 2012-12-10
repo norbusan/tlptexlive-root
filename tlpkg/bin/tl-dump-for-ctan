@@ -1,0 +1,105 @@
+#!/usr/bin/env perl
+# Copyright 2010 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Output a dump of TL packages with one line per package, showing the
+# package name, collection it belongs to, and all its schemes.  This is
+# used on the CTAN web pages.  Run from cron.
+
+my $mydir;
+
+BEGIN {
+  $vc_id = '$Id: tl-dump-for-ctan 18169 2010-05-09 18:59:21Z karl $';
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+use TeXLive::TLPOBJ;
+use TeXLive::TLPDB;
+use TeXLive::TLUtils;
+
+exit (&main());
+
+
+sub main
+{
+  chomp(my $Master = `cd $mydir/../.. && pwd`);
+  my $tlpdb = TeXLive::TLPDB->new("root" => $Master);
+  die "Cannot init tlpdb from $Master ..." unless defined($tlpdb);
+
+  # first collect for each collection the set of schemes it is contained in
+  my @schemes = $tlpdb->schemes;
+  my %col_to_schemes;
+  foreach my $c ($tlpdb->collections) {
+    @{$col_to_schemes{$c}} = ();
+    for my $s ($tlpdb->needed_by($c)) {
+      if ($s =~ m/^scheme-/) {
+        push @{$col_to_schemes{$c}}, $s;
+      }
+    }
+  }
+  foreach my $pkg ($tlpdb->list_packages) {
+    next if ($pkg =~ m/^00texlive/);  # ignore internal pkgs.
+    # ignore *all* arch dep pacakges (also tlpsv etc.)
+    next if ($pkg =~ m/\./);
+
+    my $tlp = $tlpdb->get_package($pkg);
+    if (!defined($tlp)) {
+      warn "strange, $pkg not found but listed, continuing anyway";
+      next;
+    }
+    
+    # For schemes and collections, output their dependencies.
+    if ($tlp->category =~ /^(Scheme|Collection)$/) {
+      my @depends = $tlp->depends;
+      print "$pkg @depends\n";
+      next;
+    }
+
+    # For regular packages, output the collection/schemes which include them.
+    my @deps = $tlpdb->needed_by($pkg);
+    my @schemes;
+    my $collection = undef;
+    for my $p (@deps) {
+      my $tlpo = $tlpdb->get_package($p);
+      if (!defined($tlpo)) {
+        warn "$p seems to depend on $pkg, but $p cannot be found?";
+        next;
+      }
+      if ($tlpo->category eq "Scheme") {
+        push @schemes, $p;
+      } elsif ($tlpo->category eq "Collection") {
+        if (defined($collection)) {
+          warn "$pkg asked for in more than one collection: $collection, $p";
+          next;
+        } else {
+          $collection = $p;
+        }
+      }
+    }
+    if (!defined($collection)) {
+      # should not happen
+      $collection = "(undefined)";
+    } else {
+      push @schemes, @{$col_to_schemes{$collection}};
+    }
+    @schemes = TeXLive::TLUtils::sort_uniq(@schemes);
+    
+    my $catname = $tlp->catalogue;  # so ctan can map back to their names
+    print "($catname)" if $catname;
+    
+    print "$pkg $collection @schemes\n";
+  }
+}
+
+__END__
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2 expandtab: #

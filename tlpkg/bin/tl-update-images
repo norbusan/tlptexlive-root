@@ -1,0 +1,199 @@
+#!/bin/sh -e
+# $Id: tl-update-images 23047 2011-06-18 22:46:06Z karl $
+# Create the .iso image(s) for TeX Live.
+# 
+# Copyright 2007, 2008, 2009, 2010, 2011 Karl Berry.
+# Copyright 2003, 2004, 2005 Sebastian Rahtz.
+#
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+#
+# Send bug reports or suggestions to tex-live@tug.org.
+# Historical notes at the end of the script.
+
+NAME=texlive
+V=2011
+D=`date +%Y%m%d`
+target=/home/ftp/texlive/Images/test
+
+renice +19 -p $$ >/dev/null 2>&1
+umask 0
+unset CDPATH  # avoid output from cd
+XZ_OPT=-6; export XZ_OPT # compression level, -9 for slowest-but-most,
+                         # which is not worth the time.
+
+mydir=`cd \`dirname $0\` && /bin/pwd`
+cd $mydir || exit 1  # the Master/tlpkg/bin directory
+master=`cd ../.. && /bin/pwd`
+test -z "$master" && exit 1
+
+debug=${OVERRIDE_DEBUG-false}
+makeinst=true
+maketar=true
+mkisofs="xorriso -read_mkisofsrc -as mkisofs"   # mkisofs
+quiet=  # for passing to mkisofs
+
+while test $# -gt 0; do
+  case $1 in
+  --debug)     debug=true; quiet=;;
+  --help)      echo "$0: No help, use the source, sorry."; exit 0;;
+  --master=*)  master=`echo $1 | sed 's/.*=//'`;;
+  --mkisofs=*) mkisofs=`echo $1 | sed 's/.*=//'`;;
+  --noinst)    makeinst=false;;
+  --notar)     maketar=false;;
+  --quiet)     quiet=-quiet;;
+  --target=*)  target=`echo $1 | sed 's/.*=//'`;;
+  --version)   echo "$0 for $NAME-$V ($D)"; exit 0;;  # who cares ...
+  *) echo "$0: unknown option $1; try --help if you need it." >&2; exit 1;;
+  esac
+  shift
+done
+
+if $debug; then
+  echo "master = $master"
+  echo "target = $target"
+fi
+mkdir -p $target
+
+# From the days when we made multiple images.  Keep it factored out in
+# case they come back.
+common_mkisofs_options="$quiet -pad -J -dir-mode 0755 -r -x .svn"
+
+# 
+MAKEINST ()
+{
+  prefix=$target/$NAME$V # directory and prefix for our files within
+  iso=$prefix-$D.iso
+  echo "-- `date` Writing image to $iso"
+
+  # remove old images and checksums.
+  rm -f $prefix-*.iso* $prefix-*.md5 $prefix-*.sha256
+
+  # the image consists of the tlnet tree and the top-level files
+  # from master, more or less.
+  imgdir=${prefix}imgtmp
+  rm -rf $imgdir
+  mkdir $imgdir
+  
+  # files and a few dirs from master.
+  cp -p $master/.mkisofsrc $imgdir              # mkisofs control
+  cp -p $master/* $imgdir 2>/dev/null || true   # intentionally skip dirs
+  cp -pr $master/readme* $master/source $imgdir # do these few dirs
+  
+  # included preformatted doc in new dir for the DVD.
+  mkdir $imgdir/texlive-doc
+  (cd $master/texmf/doc/texlive && tar cf - \
+     index.html */*.html */*.pdf */*.png \
+   | (cd $imgdir/texlive-doc && tar xf -))
+  
+  # files from tlnet.
+  cd /home/ftp/texlive/tlpretest
+  if $debug; then
+    echo "source = `pwd`"
+  fi
+  cp -pr install-tl *.bat tlpkg archive $imgdir
+  
+  cd $imgdir || exit 1
+  # cleanups of files we didn't want after all.
+  rm doc.html tlpkg/texlive.tlpdb.xz
+  cmd="$mkisofs $common_mkisofs_options -o $iso ."
+  echo "-- `date` with: $cmd"
+  $cmd
+  chmod a+rw $iso
+  
+  rm -rf $imgdir
+
+  # make checksums
+  # and symlinks with short names (potentially used in /etc/fstab).
+  for ext in ""; do  # used to do .xz here too
+    rm -f $prefix.iso$ext $prefix.iso$ext.md5 $prefix.iso$ext.sha256
+    
+    (cd $target && md5sum `basename $iso$ext`) >$iso$ext.md5
+    (cd $target && sha256sum `basename $iso$ext`) >$iso$ext.sha256
+
+    ln -s `basename $iso$ext` $prefix.iso$ext
+    
+    # for md5 and sha256, have to adjust the filename embedded in the file.
+    sed s,-$D,, $iso$ext.md5 >$prefix.iso$ext.md5
+    sed s,-$D,, $iso$ext.sha256 >$prefix.iso$ext.sha256
+    #ln -s `basename $iso`$ext.md5 $prefix.iso$ext.md5
+    #ln -s `basename $iso`$ext.sha256 $prefix.iso$ext.sha256
+    
+    ls -l $iso$ext
+  done
+}
+
+
+# 
+# Make the tar files: the sources, the texmf trees, the binaries, the
+# minor "extra" files.  Each should unpack into its directory name.  We
+# use the GNU tar --transform option to avoid copying the whole
+# hierarchy to temp directory.  This auxiliary function takes that name
+# as its first argument, and the files to archive as the rest.
+# 
+do_tar ()
+{
+  if false; then # ddebug
+    verbose="-v --show-transformed-names"
+  else
+    verbose=
+  fi
+  compress=--xz
+  tar_common_opt="--exclude-vcs $compress $verbose"
+  #
+  name=$1
+  shift
+  tarfile=$target/$name.tar.xz
+  tar -cf "$tarfile" --owner=0 --group=0 \
+      --transform="s,^,$name/," $tar_common_opt \
+      "$@"
+  (cd $target && sha256sum `basename $tarfile`) >$tarfile.sha256
+  ls -l "$tarfile"
+}
+
+MAKETAR ()
+{
+  # remove old tarballs and checksums.
+  rm -f $target/$NAME-*.tar.*
+
+  cd $master
+  do_tar $NAME-$D-extra \
+         LICENSE* README* autorun.inf *.html install* re* tl-* \
+         tlpkg/TeXLive tlpkg/translations tlpkg/tlpostcode
+
+  do_tar $NAME-$D-texmf texmf* || return
+
+  cd $master/../Build/source
+  do_tar $NAME-$D-source * || return
+
+  cd $master/bin
+  do_tar $NAME-$D-bin *
+}
+
+
+#  main program.
+
+# Add our exact version to the release file.
+cp $master/release-texlive.txt /tmp/tluirt.txt
+printf "\ntexlive-$D\n" >>$master/release-texlive.txt
+
+$makeinst && MAKEINST
+$maketar && MAKETAR
+
+# Undo the version without using svn, in case it's been relocked.
+cp /tmp/tluirt.txt $master/release-texlive.txt
+
+exit 0
+
+# Until 2010, we also produced:
+# live: full live distribution which can be run as is (CD/DVD)
+# but this was dropped in 2010.  TeX Live is no longer live.  Oh well.
+#
+# From 2004-2007, we produced:
+# inst: compressed zip files and installer only (CD)
+# but this was dropped in 2008, and restored in a different form in 2010
+# for DVD.
+# 
+# In 2003, we produced:
+# demo: live subset which can be run as is (CD)
+# but this was dropped in 2004.

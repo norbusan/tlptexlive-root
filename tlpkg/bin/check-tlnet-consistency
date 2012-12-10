@@ -1,0 +1,304 @@
+#!/usr/bin/env perl
+# Copyright 2008, 2009 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# checks the consistency of a tlnet tlpkg/texlive.tlpdb and the .tlpobj
+# included in the packages. Takes quite some time.
+
+BEGIN {
+  $vc_id = '$Id: check-tlnet-consistency 14621 2009-08-12 00:49:01Z karl $';
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+use TeXLive::TLConfig;
+use TeXLive::TLPOBJ;
+use TeXLive::TLPDB;
+use TeXLive::TLUtils;
+use Getopt::Long;
+use Pod::Usage;
+use File::Path;
+
+our ($mydir, $vc_id);
+my $opt_location = "./tlnet";
+my $opt_nosetup = 0;
+my $opt_version = 0;
+my $opt_help = 0;
+my $opt_filelists = 0;
+
+TeXLive::TLUtils::process_logging_options();
+GetOptions(
+  "location=s"  => \$opt_location, 
+  "no-setup"    => \$opt_nosetup,
+  "filelists"   => \$opt_filelists,
+  "version"	=> \$opt_version,
+  "help|?"      => \$opt_help) or pod2usage(1);
+
+pod2usage("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
+if ($opt_version) { print "$vc_id\n"; exit 0; } 
+
+exit (&main());
+
+
+sub main
+{
+  chomp(my $Master = `cd $mydir/../.. && pwd`);
+  # set up the programs ...
+  if ($opt_nosetup) {
+    # do a minimal setup
+    $::progs{'xz'} = "xz";
+    $::progs{'tar'} = "tar";
+  } else {
+    # do a full setup
+    my $ret = &TeXLive::TLUtils::setup_programs("$Master/tlpkg/installer");
+    if ($ret == -1) {
+      tlwarn("no binary of xzdec for $::_platform_ detected, aborting.\n");
+      exit 1;
+    }
+    if (!$ret) {
+      tlwarn("binaries could not be set up, aborting.\n");
+      exit 1;
+    }
+  }
+
+  # get our db, same hierarchy from which we are being run.
+  my $tlpdb = TeXLive::TLPDB->new("root" => $opt_location);
+  die "Cannot init tlpdb from $opt_location ..." unless defined($tlpdb);
+  my $tempbase = "$opt_location/temp";
+  if (! -d $tempbase) {
+    mkdir($tempbase) or die "Cannot create $tempbase directory: $!";
+  }
+  my $temp = `mktemp -d -p \"$tempbase\"`;
+  chomp($temp);
+  die "Cannot create temporary directory in $tempbase: $!" if (! -d $temp);
+  my @notlpobj;
+  my @revisionerror;
+  my @missingsrccontainer;
+  my @missingdoccontainer;
+  my @sizeerror;
+  my %filedifferrors;
+  foreach my $pkg ($tlpdb->list_packages()) {
+    next if ($pkg =~ m/^00texlive/);
+    my $cont = "$opt_location/archive/$pkg.tar.xz";
+    my $srccont = "$opt_location/archive/$pkg.source.tar.xz";
+    my $doccont = "$opt_location/archive/$pkg.doc.tar.xz";
+    my $tlpdbtlpobj = $tlpdb->get_package($pkg);
+    my $dodoc = ($tlpdb->config_doc_container && $tlpdbtlpobj->docfiles);
+    my $dosrc = ($tlpdb->config_src_container && $tlpdbtlpobj->srcfiles);
+    if ($opt_filelists) {
+      system("cat $cont | $::progs{xzdec} | $::progs{tar} -C \"$temp\" -xf - ");
+    } else {
+      system("cat $cont | $::progs{xzdec} | $::progs{tar} -C \"$temp\" -xf - tlpkg/tlpobj");
+    }
+    if (! -r "$temp/tlpkg/tlpobj/$pkg.tlpobj") {
+      push @notlpobj, $pkg;
+    } else {
+      my $tartlpobj = TeXLive::TLPOBJ->new;
+      $tartlpobj->from_file("$temp/tlpkg/tlpobj/$pkg.tlpobj");
+      die "Cannot load tlpobj from $temp/$pkg.tlpobj: $!" unless defined($tartlpobj);
+      # get the src and doc containers unpacked and add the respective files
+      if ($dosrc) {
+        system("cat $srccont | $::progs{xzdec} | $::progs{tar} -C \"$temp\" -xf - tlpkg/tlpobj");
+        if (! -r "$temp/tlpkg/tlpobj/$pkg.source.tlpobj") {
+          push @missingsrccontainer, $pkg;
+        } else {
+          my $srctlpobj = TeXLive::TLPOBJ->new;
+          $srctlpobj->from_file("$temp/tlpkg/tlpobj/$pkg.source.tlpobj");
+          die "Cannot load tlpobj from $temp/$pkg.source.tlpobj: $!" unless defined($srctlpobj);
+          $tartlpobj->add_srcfiles($srctlpobj->srcfiles);
+        }
+      }
+      if ($dodoc) {
+        system("cat $doccont | $::progs{xzdec} | $::progs{tar} -C \"$temp\" -xf - tlpkg/tlpobj");
+        if (! -r "$temp/tlpkg/tlpobj/$pkg.doc.tlpobj") {
+          push @missingdoccontainer, $pkg;
+        } else {
+          my $doctlpobj = TeXLive::TLPOBJ->new;
+          $doctlpobj->from_file("$temp/tlpkg/tlpobj/$pkg.doc.tlpobj");
+          die "Cannot load tlpobj from $temp/$pkg.doc.tlpobj: $!" unless defined($doctlpobj);
+          $tartlpobj->add_docfiles($doctlpobj->docfiles);
+        }
+      }
+      # check the revisions
+      if ($tlpdbtlpobj->revision != $tartlpobj->revision) {
+        push @revisionerror, "$pkg (tlpdb: " . $tlpdbtlpobj->revision . ", tar: " . $tartlpobj->revision . ")";
+      }
+      # check that the files are the same
+      my @a = $tlpdbtlpobj->all_files;
+      my @b = $tartlpobj->all_files;
+      my @ret = compare_lists(\@a, \@b);
+      push @{$filedifferrors{$pkg}}, @ret if @ret;
+      # check the file sizes and md5sums
+      my $c = check_size_md($cont, $tlpdbtlpobj->containersize, 
+                                   $tlpdbtlpobj->containermd5);
+      push @sizeerror, "$pkg (" . ($c == 1 ? "size" : "md5") . ")"
+        if ($c > 0);
+      if ($dodoc) {
+        my $c = check_size_md($doccont, $tlpdbtlpobj->doccontainersize, 
+                                        $tlpdbtlpobj->doccontainermd5);
+        push @sizeerror, "$pkg.doc (" . ($c == 1 ? "size" : "md5") . ")"
+          if ($c > 0);
+      }
+      if ($dosrc) {
+        my $c = check_size_md($srccont, $tlpdbtlpobj->srccontainersize, 
+                                        $tlpdbtlpobj->srccontainermd5);
+        push @sizeerror, "$pkg.source (" . ($c == 1 ? "size" : "md5") . ")"
+          if ($c > 0);
+      }
+      # check the actually included files are correct
+      # TODO TODO TODO
+      #
+      #
+      # should we do more checks?
+      # unlink("$temp/tlpkg/tlpobj/$pkg.tlpobj");
+      # unlink("$temp/tlpkg/tlpobj/$pkg.source.tlpobj");
+      # unlink("$temp/tlpkg/tlpobj/$pkg.doc.tlpobj");
+      system("rm -rf \"$temp/tlpkg\"");
+      system("rm -rf \"$temp/texmf\"");
+      system("rm -rf \"$temp/texmf-dist\"");
+      system("rm -rf \"$temp/texmf-doc\"");
+      system("ls \"$temp\"");
+    }
+  }
+  # system("rmdir --ignore-fail-on-non-empty $temp/tlpkg/tlpobj");
+  # system("rmdir --ignore-fail-on-non-empty $temp/tlpkg");
+  system("rmdir --ignore-fail-on-non-empty $temp");
+  if (@notlpobj) {
+    print "packages without containing tlpobj file:\n";
+    for my $p (@notlpobj) {
+      print "$p\n";
+    }
+  }
+  if (@revisionerror) {
+    print "packages with revision discrepancy:\n";
+    for my $p (@revisionerror) {
+      print "$p\n";
+    }
+  }
+  if (@missingsrccontainer) {
+    print "packages with missing src containers:\n";
+    for my $p (@missingsrccontainer) {
+      print "$p\n";
+    }
+  }
+  if (@missingdoccontainer) {
+    print "packages with missing doc containers:\n";
+    for my $p (@missingdoccontainer) {
+      print "$p\n";
+    }
+  }
+  if (@sizeerror) {
+    print "packages with wrong container size/md5s:\n";
+    for my $p (@sizeerror) {
+      print "$p\n";
+    }
+  }
+  for my $pkg (keys %filedifferrors) {
+    print "file differences in $pkg:\n";
+    for my $l (@{$filedifferrors{$pkg}}) {
+      print "  $l\n";
+    }
+  }
+}
+
+
+sub compare_lists {
+  my ($la, $lb) = @_;
+  my @la = @$la;
+  my @lb = @$lb;
+  my %onlyfirst;
+  my %onlysecond;
+  my @ret;
+  for my $f (@la) { $onlyfirst{$f} = 1; }
+  for my $f (@lb) { delete($onlyfirst{$f}); $onlysecond{$f} = 1; }
+  for my $f (@la) { delete($onlysecond{$f}); }
+  for my $f (sort keys %onlyfirst) { push @ret, "-$f"; }
+  for my $f (sort keys %onlysecond) { push @ret, "+$f"; }
+  return(@ret);
+}
+
+sub check_size_md {
+  my ($cont, $size, $md) = @_;
+  my $sizeerror = 0;
+  my $mderror = 0;
+  if ($size > -1) {
+    my $s = (stat $cont)[7];
+    if ($s == $size) {
+      if ($md) {
+        if (TeXLive::TLUtils::tlmd5($cont) ne $md) {
+          $mderror = 1;
+        }
+      }
+    } else {
+      $sizeerror = 1;
+    }
+  } else {
+    if ($md) {
+      if (tlmd5($cont) ne $md) {
+        $mderror = 1;
+      }
+    }
+  }
+  return 1 if $sizeerror;
+  return 2 if $mderror;
+  return 0;
+}
+
+__END__
+
+=head1 NAME
+
+check-tlnet-consistency - check the consistency of the tlnet distribution
+
+=head1 SYNOPSIS
+
+check-tlnet-consistency [I<option>]...
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-location> I</container/dir>
+
+The location to find the previously generated containers;
+default is C<./tlnet>.  
+
+=item B<-no-setup>
+
+Does not try to setup the various programs, but uses I<xz> and I<tar>
+from path.
+
+=item B<-help>
+
+Print this documentation and exit.
+
+=back
+
+The standard options B<-q>, B<-v>, and B<-logfile>=I<file> are also
+accepted; see the C<process_logging_options> function in
+L<TeXLive::TLUtils> for details.
+
+=head1 DESCRIPTION
+
+This program compares the revisions as found in the C<texlive.tlpdb> of 
+the tlnet distributions with the revisions as specified in the included
+C<tlpobj> files in each package. In case there is a discrepancy this is
+reported to stdout.
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2 expandtab: #

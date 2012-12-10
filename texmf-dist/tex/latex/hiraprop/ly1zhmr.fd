@@ -1,0 +1,5 @@
+\DeclareFontFamily{LY1}{zhmr}{}
+\DeclareFontShape{LY1}{zhmr}{m}{n}{<-> s * [\utf@sc@le] zhmrr8y}{}
+\DeclareFontShape{LY1}{zhmr}{bx}{n}{<-> s * [\utf@sc@le] zhmrb8y}{}
+\DeclareFontShape{LY1}{zhmr}{m}{it}{<-> s * [\utf@sc@le] zhmrri8y}{}
+\DeclareFontShape{LY1}{zhmr}{bx}{it}{<-> s * [\utf@sc@le] zhmrbi8y}{}

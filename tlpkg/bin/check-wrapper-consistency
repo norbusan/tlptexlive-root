@@ -1,0 +1,128 @@
+#!/usr/bin/env perl
+# $Id: check-wrapper-consistency 20892 2010-12-30 23:49:01Z karl $
+# Copyright 2008, 2009, 2010 TeX Users Group.
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Check that the same set of files are wrappers on w32 and symlinks on
+# all others.
+
+BEGIN {
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use Getopt::Long;
+use Pod::Usage;
+
+our $mydir;
+my $help = 0;
+
+GetOptions("help|?"       => \$help) or pod2usage(1);
+pod2usage(-exitstatus => 0, -verbose => 2) if $help;
+
+exit (&main ());
+
+
+sub main
+{
+  my $err = 0;
+  
+  chomp (my $Master = `cd $mydir/../.. && pwd`);
+  my $bindir = "$Master/bin";
+  chdir ($bindir) || die "chdir($bindir) failed: $!";
+  
+  my %w = &unx_wrapper_entries ("i386-linux");
+
+  # add some additional wrappers which are not found 
+  # automatically since they are not .. symlinks on Unix.
+  $w{'updmap'} = 1;
+  $w{'updmap-sys'} = 1;
+
+  chomp (my $srcdir = `cd $Master/../Build/source/texk/texlive && pwd`);
+  $cww = "$srcdir/w32_wrapper/runscript.exe";
+  $err += &check_w32 ("win32", $cww, %w);
+  # extra check for fmtutil-sys.exe, which is now a copy of fmtutil.exe
+  $err += system ("cmp win32/fmtutil-sys.exe win32/fmtutil.exe");
+
+  return $err;
+}
+
+
+
+# return all symlinks starting with ".." in DIR as a hash, with symlink
+# targets as the values.  Check that targets are executable.
+# 
+sub unx_wrapper_entries
+{
+  my ($DIR) = @_;
+  my %ret;
+  
+  chomp (my $olddir = `pwd`);
+  chdir ($DIR) || die "chdir($DIR) failed: $!";
+
+  local *DIR;
+  opendir (DIR, ".") || die "opendir($DIR) failed: $!";
+  while (my $ent = readdir (DIR)) {
+    next unless -l $ent;  # skip all but symlinks
+
+    my $target = readlink ($ent);
+    die "readlink($ent) failed: $!" if !defined ($target);
+    next unless $target =~ /^\.\./;  # skip all but .. symlinks
+    
+    # the target of the symlink should be executable.
+    warn "$ent: target $target not executable\n" if ! -x $target;
+
+    $ret{$ent} = $target;  # remember name and link target
+  }
+  closedir (DIR) || warn "closedir($DIR) failed: $!";
+  chdir ($olddir) || die "chdir($olddir) failed: $!";
+
+  return %ret;
+}
+
+
+
+# Windows is special, as usual.  Given the list of wrappers in UW, check
+# that each of those entries (excluding various exceptions) exists in
+# W32DIR as a .exe, and is a copy of the canonical w32 wrapper exe
+# specified in W32CANONICAL.
+# 
+sub check_w32
+{
+  my ($w32dir, $w32canonical, %uw) = @_;
+  my $diff = 0;
+
+  for my $k (sort keys %uw) {
+    my $target = $uw{$k};
+    next if $target =~ /bibexport/;    # shell script
+    next if $target =~ /context/;      # does it its own way
+    next if $target =~ /dviout/;       # gui stub
+    next if $target =~ /installfont-tl/;# shell script
+    next if $target =~ /listings-ext/; # shell script
+    next if $target =~ /man/;          # no symlink
+    next if $target =~ /pdfjam/;       # shell scripts
+    next if $target =~ /psv/;          # gui stub
+    next if $target =~ /simpdftex/;    # shell script
+    next if $target =~ /texmfstart/;   # has its own binary
+    next if $target =~ /texdoc/;       # gui stub
+    next if $target =~ /texworks/;     # gui stub
+    next if $target =~ /tlmgr/;        # does things its own way
+    next if $target =~ /xasy/;         # no need
+    #print "$k -> $uw{$k}\n";
+    $diff += system ("cmp $w32dir/$k.exe $w32canonical");
+  }
+
+  opendir (DIR, $w32dir) || die "opendir($DIR) failed: $!";
+  my @binfiles = readdir (DIR);
+  closedir (DIR) || warn "closedir($DIR) failed: $!";
+  
+  foreach my $f (@binfiles) {
+    next unless ($f =~ s/\.(bat|cmd)$//); # only batch files
+    next if ($uw{$f});                    # already checked
+    $diff += system ("cmp $w32dir/$f.exe $w32canonical");
+  }
+  
+  return $diff;
+}

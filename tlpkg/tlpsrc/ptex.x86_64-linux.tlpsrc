@@ -1,0 +1,9 @@
+binpattern f/x86_64-linux bin/x86_64-linux/eptex
+binpattern f/x86_64-linux bin/x86_64-linux/makejvf
+binpattern f/x86_64-linux bin/x86_64-linux/mendex
+binpattern f/x86_64-linux bin/x86_64-linux/pbibtex
+binpattern f/x86_64-linux bin/x86_64-linux/pdvitype
+binpattern f/x86_64-linux bin/x86_64-linux/platex
+binpattern f/x86_64-linux bin/x86_64-linux/ppltotf
+binpattern f/x86_64-linux bin/x86_64-linux/ptex
+binpattern f/x86_64-linux bin/x86_64-linux/ptftopl

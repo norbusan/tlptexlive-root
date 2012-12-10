@@ -1,0 +1,9 @@
+binpattern f/amd64-freebsd bin/amd64-freebsd/eptex
+binpattern f/amd64-freebsd bin/amd64-freebsd/makejvf
+binpattern f/amd64-freebsd bin/amd64-freebsd/mendex
+binpattern f/amd64-freebsd bin/amd64-freebsd/pbibtex
+binpattern f/amd64-freebsd bin/amd64-freebsd/pdvitype
+binpattern f/amd64-freebsd bin/amd64-freebsd/platex
+binpattern f/amd64-freebsd bin/amd64-freebsd/ppltotf
+binpattern f/amd64-freebsd bin/amd64-freebsd/ptex
+binpattern f/amd64-freebsd bin/amd64-freebsd/ptftopl

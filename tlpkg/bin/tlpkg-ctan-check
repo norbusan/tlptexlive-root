@@ -1,0 +1,690 @@
+#!/usr/bin/env perl
+# $Id: tlpkg-ctan-check 24345 2011-10-20 22:34:32Z karl $
+# Public domain.  Originally written 2005, Karl Berry.
+# Check if a package in TL has any changes on CTAN.
+
+BEGIN {
+  chomp ($mydir = `dirname $0`);  # we are in Master/tlpkg/bin
+  unshift (@INC, "$mydir/..");
+}
+
+use TeXLive::TLConfig qw/$RelocPrefix $RelocTree/;
+use TeXLive::TLPOBJ;
+use TeXLive::TLPDB;
+
+use File::Basename;
+
+my $tlpdb;
+my $Master;
+our %OPT;
+
+my @TLP_working = qw(
+  12many 2up
+  ANUfinalexam AkkTeX Asana-Math ESIEEcv HA-prosper IEEEconf IEEEtran
+    SIstyle SIunits Tabbing Type1fonts
+  a0poster a2ping a4wide a5comb
+    aastex abbr abc abstract abstyles accfonts achemso
+    acmconf acronym acroterm
+    active-conf
+    addlines adforn adjmulticol adfsymbols adjustbox adobemapping
+    adrconv advdate
+    ae aeguill afthesis
+    aguplus aiaa aichej akletter
+    alg algorithm2e algorithmicx algorithms allrunes alnumsec alterqcm
+    altfont ametsoc amsaddr amscls amsfonts amslatex-primer
+    amsldoc-it amsldoc-vn
+    amsmath amsmath-it amsrefs amstex amsthdoc-it 
+    animate anonchap answers antiqua antomega antt anyfontsize anysize
+    aomart apa apa6e apacite apalike2 appendix apprends-latex
+    ar arabi arabtex arabxetex archaic arcs arev
+    around-the-bend arphic arrayjobx arsclassica
+    arydshln
+    asaetr ascelike ascii ascii-chart assignment astro asyfig
+    asymptote-faq-zh-cn asymptote-by-example-zh-cn asymptote-manual-zh-cn
+    attachfile
+    augie auncial-new aurical authoraftertitle authorindex
+    auto-pst-pdf autoarea automata avantgar
+  b1encoding babel babelbib background bangtex
+    barcodes bardiag barr bartel-chess-fonts bashful baskervald 
+    bbcard bbding bbm bbm-macros bbold bbold-type1 bclogo
+    beamer beamer2thesis beamer-FUBerlin beamer-tut-pt
+    beameraudience beamerposter
+    beamerthemejltree beamersubframe beamerthemenirma
+    beebe begriff bengali bera berenisadf betababel beton
+    bez123 bezos bgreek bhcexam
+    bib-fr bibarts biber bibhtml
+    biblatex biblatex-apa biblatex-chem biblatex-chicago
+    biblatex-dw biblatex-historian biblatex-ieee biblatex-juradiss
+    biblatex-mla biblatex-musuos biblatex-nature biblatex-nejm
+    biblatex-philosophy biblatex-science
+    bibleref bibleref-french bibleref-german bibleref-parse
+    biblist bibtex bibtopic
+    bibtopicprefix bibexport bibunits 
+    bidi bigfoot bigints binomexp biocon bizcard
+    blacklettert1 blindtext blkarray block blockdraw_mp bloques blowup
+    bodegraph boisik bold-extra
+    boites boldtensors bondgraph bookest bookhands booklet
+    booktabs booktabs-de booktabs-fr boolexpr boondox bophook
+    borceux bosisio
+    boxedminipage boxhandler bpchem bpolynomial
+    bracketkey braids braille braket breakcites breakurl
+    bullcntr bundledoc bussproofs bytefield 
+  c-pascal cachepic calctab
+    calligra calligra-type1 calrsfs cals calxxxx-yyyy cancel
+    canoniclayout cantarell
+    capt-of captcont captdef caption carlisle carolmin-ps
+    cascadilla cases casyl
+    catchfilebetweentags catechis catoptions
+    cbcoptic cbfonts
+    cc-pl ccaption ccfonts ccicons cclicenses
+    cd cd-cover cdpbundl
+    cell cellspace censor cfr-lm
+    changebar changelayout changepage changes chappg chapterfolder
+    chbibref chem-journal
+    chemarrow chembst chemcompounds chemcono chemexec chemfig chemmacros
+    chemnum chemstyle cherokee
+    chess chess-problem-diagrams chessboard chessfss chet chextras
+    chicago chicago-annote chletter chngcntr chronology chscite
+    circ circuitikz
+    cite cjhebrew cjk cjkpunct classicthesis
+    clefval cleveref
+    clock clrscode cm-super cm-unicode
+    cmap cmbright cmcyr cmdstring cmdtrack cmll cmpica cmpj cmsd cmtiup
+    codedoc codepage
+    collcell collectbox collref colordoc colorinfo colorsep colortab
+    colortbl colorwav colourchange
+    combelow combine combinedgraphics comfortaa comma commath comment
+    compactbib
+    complexity comprehensive computational-complexity
+    concmath concmath-fonts concprog confproc constants
+    context-account context-algorithmic context-bnf context-chromato 
+    context-construction-plan context-degrade context-filter context-fixme
+    context-french context-fullpage
+    context-games context-gantt context-gnuplot
+    context-letter context-lettrine context-lilypond context-mathsets
+    context-notes-zh-cn context-rst context-ruby
+    context-simplefonts context-simpleslides
+    context-typearea context-typescripts context-vim
+    contour
+    cooking cookybooky cool coollist coolstr cooltooltips
+    coordsys coseoul
+    courier-scaled courseoutline coursepaper coverpage covington
+    cprotect
+    crop crossreference crossword crosswrd cryst csbulletin
+    csquotes csquotes-de csvsimple csvtools
+    ctanify ctanupload ctable ctex ctex-faq
+    cursolatex cuisine
+    currfile currvita curve curve2e curves
+    custom-bib cutwin cv cweb-latex cyklop cyrillic
+  dancers dashbox dashrule dashundergaps datatool
+    dateiliste datenumber datetime
+    dblfloatfix dcpic de-macro decimal decorule dehyph-exptl dejavu
+    delim delimtxt dfgproposal dhua
+    diagmac2 diagnose dichokey dictsym digiconfigs din1505
+    dinat dinbrief dingbat directory dirtree dirtytalk disser dk-bib dlfltxb
+    dnaseq doc-pictex docmfp docmute doi doipubmed
+    dot2texi dotarrow dotseqn dottex
+    doublestroke dox dozenal dpfloat dprogress drac draftcopy
+    draftwatermark dramatist dratex drawstack droid drs drv dtk dtxgallery
+    dtxtut duerer duerer-latex duotenzor dutchcal
+    dvdcoll dviasm dviincl dvipdfmx-def
+    dvipsconfig dyntree
+  ean ean13isbn easy easy-todo easylist
+    ebezier ebong ebsthesis ecc ecclesiastic ecltree economic
+    ecv ed edfnotes edmac edmargin ednotes eemeir eepic egameps
+    egplot eiad eiad-ltx eijkhout
+    elbioimp electrum ellipsis elmath elpres elsarticle
+    elteikthesis eltex elvish
+    emptypage emulateapj emp encxvlna endfloat endheads endnotes
+    engpron engrec engtlc enumitem enumitem-zref envbig environ envlab
+    epigrafica epigram epigraph epiolmec eplain
+    epsdice epsf epsincl epslatex-fr epspdf epspdfconversion epstopdf
+    eqell eqlist eqname eqnarray eqparbox errata es-tex-faq
+    erdc esdiff esint esint-type1 esk eskd eskdx eso-pic esstix esvect
+    estcpmm
+    etaremune etex-pkg etextools ethiop ethiop-t1 etoolbox etoolbox-de
+    euenc eukdate
+    euler eulervm euproposal euro europecv eurosym
+    everyhook everypage
+    exam examdesign examplep excludeonly exercise exp-testopt
+    expdlist export expressg extarrows exteps
+    extpfeil extract extsizes
+  facsimile facture faktor
+    fancybox fancyhdr fancyhdr-it fancynum fancypar
+    fancyref fancytabs fancytooltips fancyvrb
+    FAQ-en fbithesis fbs fdsymbol featpost fenixpar
+    feyn feynmf fge fifinddo-info fig4latex figbas figbib figflow figsize
+    filecontents filehook fileinfo filemod
+    findhyph fink finstrut first-latex-doc
+    fix2col fixfoot fixlatvian fixme fixpdfmag
+    fjodor
+    flabels flacards flagderiv flashcards flashmovie flippdf
+    float floatflt floatrow
+    flowfram fltpage fltpoint
+    fmp fmtcount
+    fn2end fnbreak fncychap fncylab fnpara fntproof
+    foekfont foilhtml fonetika
+    font-change fontaxes fontbook fontch fontinst fontools
+    fontspec fonttable fontwrap
+    footbib footmisc footnpag forarray forloop formlett formular
+    fouridx fourier fouriernc
+    fp fpl
+    fragmaster fragments frame framed frankenstein frcursive
+    free-math-font-survey
+    frenchle frletter frontespizio ftcap ftnxtra
+    fullblck functan fundus fwlw
+  g-brief gaceta galois garrigues gastex gatech-thesis gauss
+    gb4e gcard gchords gcite gene-logic
+    genmisc genmpage gentium gentle geometry geometry-de
+    german germbib germkorr getfiledate getoptk
+    gfsartemisia gfsbaskerville gfsbodoni gfscomplutum gfsdidot gfsneohellenic
+    gfsporson gfssolomos
+    gillcm gincltex ginpenc gitinfo
+    gloss glossaries gmdoc gmdoc-enhance gmeometric
+    gmiflink gmp gmutils gmverb gmverse gnu-freefont gnuplottex gost
+    gradientframe grafcet graphics graphics-pln
+    graphicx-psmin greek-inputenc greekdates greenpoint grfpaste
+    grid gridset grverb gu guitar guitlogo
+  hands hanging har2nat hardwrap harmony harpoon
+    harvard harvmac hatching
+    hc he-she hep hepnames
+    hepparticles hepthesis hepunits here hexgame
+    hhtensor histogr historische-zeitschrift hitec
+    hpsdiss hrefhide hrlatex hvfloat hvindex
+    hypdvips hyper hypernat hyperref hyperxmp hyph-utf8 hyphen-base 
+    hyphenat hyphenex hyplain
+  ibygrk icsv idxlayout ieeepes
+    ifmslide ifmtarg ifnextok ifoddpage ifplatform iftex ifxetex
+    ijmart ijqc
+    imac image-gallery imakeidx impatient impatient-fr
+    impnattypo import imtekda
+    inconsolata index inlinebib inlinedef inputtrc insbox installfont
+    interactiveworkbook interfaces interpreter intro-scientific
+    inversepath invoice
+    ionumbers iopart-num iso
+    iso10303 isodate isodoc isomath isonums isorot isotope itnumpar
+    iwhdp iwona
+  jablantile jamtimes jeopardy jknapltx jlabels jmlr jneurosci jpsj junicode
+    jura juraabbrev jurabib juramisc jurarsp js-misc jvlisting
+  kalender karnaugh kastrup kerkis kerntest
+    keycommand keystroke keyval2e kix kixfont
+    knitting knittingpattern knuth
+    koma-moderncvclassic koma-script kpfonts ksfh_nat kurier
+  l2picfaq l2tabu l2tabu-english l2tabu-french l2tabu-it l2tabu-spanish
+    l3kernel l3packages l3experimental
+    labbook labelcas labels lapdf lastpage
+    latex latex-bib-ex latex-course latex-doc-ptr latex-notes-zh-cn
+    latex-referenz latex-tabellen
+    latex-tds latex-veryshortguide
+    latex2e-help-texinfo latex2e-help-texinfo-spanish latex2man
+    latex4wp latex4wp-it
+    latexcheat latexcheat-esmx latexcheat-ptbr latexdiff latexmk latexmp
+    lato layaureo layouts lazylist
+    lcd lcg lcyw leading leaflet lecturer ledmac leftidx lettre lettrine
+    levy lewis lexikon lfb lgreek lh lhelp
+    libertine libgreek librarian libris limap linearA linegoal lineno linguex
+    lipsum listbib listing listings listings-ext listliketab listofsymbols
+    lithuanian liturg lkproof lm
+    locality localloc logical-markup-utils logpap logreq lpic lps lsc
+    lshort-bulgarian lshort-chinese lshort-czech lshort-dutch lshort-english
+    lshort-finnish lshort-french lshort-german lshort-italian
+    lshort-japanese lshort-korean lshort-mongol lshort-persian
+    lshort-polish lshort-portuguese lshort-russian lshort-slovak
+    lshort-slovenian lshort-spanish lshort-thai lshort-turkish lshort-ukr
+    lshort-vietnamese ltabptch
+    ltxdockit ltxindex ltxkeys ltxmisc ltxnew ltxtools
+    lua-alt-getopt luabibentry luacode
+    luaindex luainputenc lualatex-doc lualatex-math lualibs luamplib luaotfload
+    luapersian luasseq luatexbase luatextra
+    lxfonts ly1
+  macqassign macros2e mafr magaz magyar mailing mailmerge
+    makebarcode makebox makecell makecirc makecmds makedtx makeglos makeplot
+    manuscript margbib
+    marginfix marginnote marvosym
+    match_parens math-e mathabx mathabx-type1 mathalfa mathastext
+    mathcomp mathdesign mathdots mathexam
+    mathmode mathspec mathspic mattens maybemath mbenotes
+    mcaption mceinleger mcite mciteplus
+    mdframed mdputu mdwtools memdesign memexsupp
+    memoir MemoirChapStyles mentis
+    menu
+    metafont-beginners metago metalogo metaobj metaplot metatex metauml
+    method metre
+    mf2pt1 mfnfss mfpic mfpic4ode mftinc mh mhchem
+    mhequ microtype microtype-de midnight midpage mil3 miller
+    minibox minipage-marginpar miniplot minitoc
+    minted minutes
+    mkgrkindex mkjobtexmf mkpattern
+    mla-paper mlist mmap mnsymbol
+    moderncv moderntimeline modiagram modref modroman mongolian-babel montex
+    moreenum morefloats morehype moresize
+    moreverb morewrites movie15 mp3d mparhack mpcolornames mpgraphics
+    mpman-ru ms msc msg mslapa msu-thesis mtgreek
+    multenum multibbl multibib multicap multirow
+    multido multiobjective munich musixguit musixtex musuos muthesis
+    mversion mwcls mxedruli
+    mychemistry mylatexformat
+  nag namespc natbib nath nature navigator ncclatex ncctools
+    nddiss needspace
+    newcommand newfile newlfm newsletr newspaper newunicodechar newvbtm
+    newverbs nextpage
+    nfssext-cfr niceframe nicetext nih nkarta nlctdoc
+    noitcrul nolbreaks
+    nomencl nomentbl nonfloat nonumonpart nopageno nostarch notes
+    notes2bib notoccite nowidow
+    nrc ntgclass ntheorem ntheorem-vn nuc numericplots numname numprint
+  oberdiek objectz ocgtools ocr-b ocr-b-outline ocr-latex octavo ofs ogham
+    oldlatin oldstandard oldstyle
+    onlyamsmath onrannual opcit opensans optional
+    ordinalpt orkhun ot-tableau othello othelloboard
+    oubraces outline outliner overpic
+  pagecolor pagecont pagenote pagerange pageslts
+    paper papercdcase papermas papertex
+    paracol paralist parallel paratype
+    paresse parrun parselines parskip passivetex 
+    patch patchcmd patgen2-tutorial path pauldoc pawpict pax pbox pb-diagram
+    pdf14 pdf-forms-tutorial-de pdf-forms-tutorial-en
+    pdf-trans pdfcomment pdfcprot pdfcrop pdfjam pdfmarginpar
+    pdfpages pdfscreen pdfslide pdfsync pdftex-def pdftricks pdfx
+    pecha perception perltex
+    permute persian-bib persian-modern petiteannonce petri-nets
+    pgf pgf-soroban pgf-umlsd pgfgantt pgfmolbio pgfopts pgfplots
+    phaistos philex philosophersimprint
+    phonetic photo physymb piano picinpar pict2e pictex pictex2 piff pigpen
+    pinlabel pitex pittetd pkfix pkfix-helper placeins placeins-plain
+    plari plantslabels plates play
+    plnfss plweb pmgraph pnas2009
+    poemscol polski poltawski
+    polyglossia polynom polynomial
+    polytable postcards poster-mac powerdot powerdot-FUBerlin
+    ppr-prv pracjourn preprint prerex present presentations
+    prettyref preview printlen proba probsoln procIAGssymp
+    prodint productbox program
+    progress progressbar properties protex protocol przechlewski-book
+    psbao pseudocode psfrag psfrag-italian psgo pslatex psnfss pspicture
+    pst-2dplot pst-3d pst-3dplot pst-abspos pst-am pst-asr pst-bar
+    pst-barcode pst-bezier pst-blur pst-bspline
+    pst-calendar pst-circ pst-coil pst-cox pst-dbicons pst-diffraction
+    pst-electricfield pst-eps pst-eucl pst-eucl-translation-bg pst-exa
+    pst-fill pst-fr3d pst-fractal pst-fun pst-func
+    pst-gantt pst-geo pst-grad pst-graphicx
+    pst-infixplot pst-jtree pst-knot pst-labo pst-layout
+    pst-lens pst-light3d pst-magneticfield pst-math pst-mirror pst-node
+    pst-ob3d pst-optexp pst-optic
+    pst-osci pst-pad pst-pdgr pst-platon pst-plot pst-poly pst-pdf
+    pst-qtree pst-rubans
+    pst-sigsys pst-solides3d pst-soroban pst-spectra
+    pst-slpe pst-stru pst-support pst-text pst-thick pst-tree pst-tvz pst-uml
+    pst-vowel pst-vue3d
+    pst2pdf pstool pstricks pstricks-add pstricks-examples pstricks-examples-en
+    psu-thesis ptptex punknova purifyeps
+    pxfonts pxgreeks pxtxalfa
+  qcm qobitree quoting qstest qsymbols qtree quotchap quotmark
+  r_und_s randbild randomwalk randtext rccol rcs rcs-multi rcsinfo
+    realboxes realscripts rec-thy recipe recipecard recycle rectopma
+    refcheck refman refstyle regcount register regstats
+    relenc relsize repeatindex resumemac revtex
+    rjlparshap rlepsf rmpage
+    robustcommand robustindex romande romanneg romannum rotating
+    rotfloat rotpages
+    roundbox rsc rsfs rsfso
+    rtkinenc rtklage russ rviewport rvwrite ryethesis
+  sageep sansmath sapthesis sauerj sauterfonts
+    savefnmark savesym savetrees scale
+    scalebar schemabloc schwalbe-chess scientificpaper sciposter screenplay
+    sdrt
+    secdot section sectionbox sectsty selectp semantic semaphor
+    seminar semioneside sepnum seqsplit
+    serbian-apostrophe serbian-date-lat serbian-def-cyr serbian-lig serbianc
+    setspace seuthesis
+    sf298 sffms sfg
+    sfmath sgame shade shadethm shadow shapepar
+    shipunov shorttoc show2e showexpl showhyphens showlabels showtags shuffle
+    sidecap sidenotes sides silence
+    simplecd simplecv simplewick simplified-latex
+    sitem siunitx
+    skak skaknew skb skeycommand skeyval
+    slantsc slideshow smalltableof smartref
+    snapshot songbook sort-by-letters soton soul
+    spanglish spanish spanish-mx sparklines spie
+    sphack splines splitbib splitindex spot spotcolor spreadtab spverbatim
+    srbook-mem srcltx sseq
+    stack stage standalone starfont statistik statex statex2 staves
+    stdclsdv stdpage steinmetz
+    stellenbosch stex stix stmaryrd storebox storecmd stringstrings struktex
+    sttools stubs sty2dtx suanpan subdepth subeqn subeqnarray
+    subfig subfigmat subfigure subfloat substr subsupscripts sudoku
+    sudokubundle suftesi sugconf
+    supertabular susy svg-inkscape svgcolor svn svn-multi svn-prov svninfo
+    swebib swimgraf syllogism syntax synproof syntrace synttree
+    systeme
+  t-angles t2
+    tabfigures tableaux tablists tablor tabls tabto-generic tabto-ltx
+    tabu tabularborder tabularcalc tabularew
+    tabulars-e tabulary tabvar tagging talk
+    tamethebeast tapir tcldoc tdclock tdsfrmath
+    technics ted templates-fenn templates-sommer tengwarscript
+    tensor termcal termlist teubner
+    tex-ewd tex-font-errors-cheatsheet tex-gyre tex-label tex-overview
+    texapi texcount
+    texdef texdiff texdirflatten texilikechaps texilikecover
+    texliveonfly texloganalyser texlogos texmate texments
+    texpower texshade
+    textcase textfit textgreek textmerg textopo textpath textpos tfrupee
+    thailatex theoremref thesis-titlepage-fhac
+    thinsp thmbox thmtools threeddice threeparttable threeparttablex
+    thumb thumbpdf thumbs thumby thuthesis
+    ticket tikz-cd tikz-3dplot tikz-inet tikz-qtree tikz-timing
+    tikzpagenodes
+    timetable tipa tipa-de
+    titlefoot titlepages titlepic titleref titlesec titling
+    tkz-base tkz-berge tkz-doc tkz-euclide tkz-fct tkz-graph
+    tkz-linknodes tkz-orm tkz-tab
+    tocbibind tocloft tocvsec2 todo todonotes
+    tokenizer toolbox tools topfloat totcount totpages toptesi
+    tqft
+    trajan
+    translation-array-fr
+    translation-arsclassica-de translation-biblatex-de translation-chemsym-de
+    translation-dcolumn-fr
+    translation-enumitem-de translation-europecv-de translation-evc-de
+    translation-filecontents-de translation-moreverb-de translation-tabbing-fr
+    tree-dvips trfsigns trimspaces trivfloat trsym truncate
+    tsemlines
+    tucv tufte-latex tugboat tugboat-plain turkmen turnstile turnthepage
+    twoinone twoup
+    txfonts txfontsb txgreeks type1cm typehtml typogrid
+  uaclasses uafthesis ucdavisthesis ucs
+    ucthesis uebungsblatt uiucthesis
+    ulem ulqda
+    umich-thesis uml umlaute umoline
+    umthesis umtypewriter
+    unamthesis underlin underscore undolabl
+    uni-wtal-ger unicode-math unisugar units unitsdef universa
+    uothesis uowthesis upca upmethodology upquote
+    uri url urlbst urwchancal ushort ut-thesis uwthesis
+  vak vancouver variations varindex varisize
+    varsfromjobname varwidth vaucanson-g
+    velthuis venn venturisadf verbasef verbatimbox verbatimcopy verbdef
+    verbments verse version versions vertbars
+    vhistory visualfaq vmargin vntex volumes vpe vruler vwcol
+  wadalab wallpaper warning warpcol was widetable williams
+    wnri wnri-latex wordlike
+    wrapfig wsuipa
+  xargs xcite xcolor xcomment xdoc
+    xecjk xecolor xecyr xeindex xepersian xesearch
+    xetex-def xetex-devanagari xetex-itrans xetex-pstricks xetexfontinfo
+    xetexref xfor xgreek xhfill
+    xifthen xits
+    xkeyval xlop xltxtra xmpincl xnewcommand xoptarg
+    xq xskak xstring xtab xunicode
+    xwatermark xyling xypic xypic-tut-pt xytree
+  yafoot yagusylo yannisgr yax ydoc york-thesis youngtab yplan ytableau
+  zed-csp ziffer zhmetrics zhspacing zwgetfdate zwpagelayout
+); 
+
+
+# these packages we do not expect to check.  Once this list is complete,
+# we can start working on tlmgr list | grep shortdesc.
+my @TLP_no_check = (
+  "afm2pl",		# not on CTAN
+  "aleph",		# binary
+  "asymptote",		# binary
+  "bibtex",		# binary
+  "bibtex8",		# binary
+  "bibtexu",		# binary
+  "c90",		# part of cjk
+  "chktex",		# binary
+  "cjkutils",		# binary
+  "context",		# binary+taco
+  "ctib",		# binary
+  "ctie",		# binary
+  "cweb",		# binary
+  "detex",		# binary
+  "devnag",		# binary
+  "dnp",		# part of cjk
+  "dvi2tty",		# binary
+  "dvicopy",		# binary
+  "dvidvi",		# binary
+  "dviljk",		# binary
+  "dvipdfm",		# binary
+  "dvipdfmx",		# binary
+  "dvipng",		# binary
+  "dvipos",		# binary
+  "dvips",		# binary
+  "dvisvgm",		# binary
+  "enctex",		# binary
+  "etex",		# binary
+  "finbib",		# missing on CTAN
+  "fontname",		# tl-update-auto
+  "garuda-c90",		# part of cjk
+  "groff",		# binary
+  "gsftopk",		# binary
+  "ifluatex",		# part of oberdiek
+  "kpathsea",		# binary
+  "lacheck",		# binary
+  "latex-bin",		# binary
+  "latexconfig",	# we maintain
+  "lcdftypetools",	# binary
+  "luatex",		# binary
+  "makeindex",		# binary
+  "metafont",		# binary
+  "metapost",		# binary
+  "mfware",		# binary
+  "mltex",		# binary
+  "norasi-c90",		# part of cjk
+  "omega",		# binary
+  "omegaware",		# binary
+  "patgen",		# binary
+  "pdftex",		# binary
+  "powerdot",		# stale generated files on CTAN
+  "synctex",		# binary
+  "t1utils",		# binary
+  "tetex",		# our sources
+  "tex",		# binary
+  "tex4ht",		# binary
+  "texconfig",		# our sources
+  "texdoc",		# binary
+  "texinfo",		# tl-update-auto
+  "texlive.infra",	# binary
+  "texware",		# binary
+  "texworks",		# binary
+  "tie",		# binary
+  "ttfutils",		# binary
+  "xdvi",		# binary
+  "xetex",		# binary
+  "xetexconfig",	# our sources
+  "xindy",		# binary
+);
+
+exit (&main ());
+
+
+sub main {
+  chomp ($Master = `cd $mydir/../.. && pwd`);
+  $tlpdb = TeXLive::TLPDB->new ("root" => $Master);
+  die "Cannot find tlpdb in $Master!" unless defined $tlpdb;
+
+  $OPT{"verbose"} = 0;
+  if ($ARGV[0] eq "--verbose") {
+    $OPT{"verbose"} = 1;
+    shift @ARGV;
+  }
+  
+  $OPT{"all"} = 0;
+  if ($ARGV[0] eq "--all") {
+    $OPT{"all"} = 1;
+    shift @ARGV;
+  }
+  
+  if ($ARGV[0] eq "--list-not-treated") {
+    my @not_checked = ();
+    for my $b (&normal_tlps ()) {
+      if (! grep ($b eq $_, @TLP_working, @TLP_no_check)) {
+        push (@not_checked, $b);
+      }
+    }
+    print "" . (@not_checked+0) . " TL packages not checked against CTAN:\n";
+    print "@not_checked\n";
+    @ARGV = (); # no normal checks
+
+  } elsif ($ARGV[0] eq "--check") {
+    # check all/only those packages we have actually run through this mill.
+    @ARGV = @TLP_working;
+  } elsif ($ARGV[0] eq "--check-all") {
+    @ARGV = &normal_tlps ();
+  }
+
+  my $errcount = 0;
+  for my $tlp (@ARGV) {
+    print "checking $tlp..." if $OPT{"verbose"};
+    $errcount += &do_tlp ($tlp);
+  }
+  return $errcount;
+}
+
+# gives a list with only the 'normal' packages,
+# that is, excluding meta-packages and binary packages
+# (and hyphen for the moment)
+# 
+sub normal_tlps {
+  my @normal;
+  my $non_normal = `ls $Master/bin`;
+  $non_normal =~ s/\n/\$|/g;
+  $non_normal .= '^0+texlive|^bin-|^collection-|^scheme-|^texlive-|^hyphen-';
+  foreach ($tlpdb->list_packages) {
+    push (@normal, $_) unless (/$non_normal/);
+  }
+  return @normal;
+}
+
+
+# Return 1 if package needs updating, 0 if ok.
+# 
+sub do_tlp {
+  my ($tlpn) = @_;
+  my $needed = 0;
+  
+  my $tlp = $tlpdb->get_package($tlpn);
+  if (!defined($tlp)) {
+    warn "$0: no package $tlpn\n";
+    return 1;
+  }
+
+  chomp (my $ctan_dir = `$mydir/tlpkginfo --prepare '$tlpn'`);
+  if (! $ctan_dir) {
+    warn "$0: oops, no CTAN directory for $tlpn, fix fix\n";
+    return ();
+  }
+  my @tl_files = ();
+  push @tl_files, $tlp->runfiles;
+  push @tl_files, $tlp->docfiles;
+  push @tl_files, $tlp->srcfiles;
+  if ($tlp->relocated) { for (@tl_files) { s:^$RelocPrefix/:$RelocTree/:; } }
+  # we don't push bin files.
+  my @tl_basefiles = ();  # compare with CTAN after the loop
+    
+  my @compared = ();
+  for my $file (@tl_files) {
+    (my $basefile = $file) =~ s,^.*/,,;
+    
+    # if file exists by multiple names in TL (e.g., README), only check
+    # the first one we come across, since we'll only find the first one
+    # on CTAN and we don't want to try to match subdir suffixes.
+    next if grep { $_ eq "$basefile" } @tl_basefiles;
+#warn "checking tl file $file -> $basefile\n";
+    push (@tl_basefiles, $basefile);
+
+    # No point in comparing our pdfs now, too many are different.
+    # However, for lshort translations and mathdesign, pdf can be
+    # all we have to compare.
+    next if $file =~ /\.pdf$/ && $file !~ /short|mathdesign/;
+    
+    my $tl_file = "$Master/$file";
+    if (! -e $tl_file) {
+      warn "$tl_file: TL file missing\n";
+      next;
+    }
+    
+    chomp (my @ctan_files = `find $ctan_dir/ -name $basefile`);
+#warn "ctan find $basefile: @ctan_files\n";
+    # the trailing / is so if we happen to hit a symlink on CTAN, it'll
+    # go through.
+    next if @ctan_files > 1; # if more than one file by same name, skip
+
+    my $ctan_file = $ctan_files[0];
+#warn "ctan file is $ctan_file\n";
+    if (! -e $ctan_file) {
+      # maybe it'll be there with a case change in the name
+      chomp (@ctan_files = `find $ctan_dir/ -iname $basefile`);
+      next if @ctan_files > 1; # if more than one file by same name, skip
+      $ctan_file = $ctan_files[0];
+      
+      if (! -e $ctan_file) {
+        # we generate lots of files, eg perlmacros.sty, so might skip.
+        warn "$ctan_file: CTAN file missing\n"
+          if $ctan_file && $ctan_file !~ /(cfg|dvi|sty|tex)$/;
+        next;
+      }
+    }
+
+    push (@compared, $basefile);
+    if (&files_differ ($tl_file, $ctan_file)) {
+      print "# $tlpn\ndiff $ctan_file $tl_file\n";
+      $needed = 1;
+      last unless $OPT{"all"};
+    }
+  }
+  
+  # unfortunately, we cannot do this.  There are many PDF's on CTAN
+  # which have no sources or otherwise problematic for TL.  Perhaps one
+  # day we could use the %moreclean hash from ctan2tds as an additional
+  # filter, i.e., put all those ctan2tds tables in an external file.
+  # 
+  # # check for PDF files on CTAN that we don't have.
+  # my @ctan_pdf_needed = ();
+  # chomp (my @ctan_files = `find $ctan_dir -name \*.pdf`);
+  # for my $cfile (@ctan_files) {
+  #   (my $base_cfile = $cfile) =~ s,^.*/,,;
+  #   if (! grep { $_ eq $base_cfile } @tl_basefiles) {
+  #     push (@ctan_pdf_needed, $base_cfile);
+  #   }
+  # }
+  # if (@ctan_pdf_needed) {
+  #   if (! $needed) {
+  #     # if this is the first thing needed (no diffs), print package name.
+  #     print "# $tlpn\n";
+  #     $needed = 1;
+  #   }
+  #   print "# new on ctan: @ctan_pdf_needed\n";
+  # }
+  
+  if (@compared == 0) {
+    warn "\n$tlpn: no files to compare in $ctan_dir, fixme!\n";
+    warn "  (tl_files = @tl_files)\n";
+    warn "  (ctan_files = @ctan_files)\n";
+  } elsif ($needed == 0) {
+    print "ok\n" if $OPT{"verbose"};
+  }
+  print ((@compared + 0) . " compared (@compared)\n") if $OPT{"verbose"};
+
+  # clean up the tmpdir possibly created from tlpkginfo --prepare.
+  chomp (my $ctan_root = `$mydir/tlpkginfo --ctan-root`);
+  if ($ctan_dir !~ m,^$ctan_root, && ! $OPT{"no-clean"}) {
+    system ("rm -rf $ctan_dir");
+  }
+
+  return $needed;
+}
+
+
+
+# 0 if files are the same, 1 if they are different.
+# 
+sub files_differ {
+  my ($tl_file,$ctan_file) = @_;
+#warn "comparing $ctan_file $tl_file\n";
+  return system ("$mydir/cmp-textfiles $ctan_file $tl_file");
+}
+
+# vim: set ts=8 sw=2 expandtab:

@@ -1,0 +1,309 @@
+#!/usr/bin/env perl
+# $Id: tl-update-keywords 22918 2011-06-11 21:11:04Z karl $
+# parse a TeXCatalogue v2 .xml dump containing keywords and
+# characterizations 
+# 
+# Copyright 2010, 2011 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+
+BEGIN {
+  $^W = 1;
+  chomp ($mydir = `dirname $0`);
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+
+use XML::Parser;
+use XML::XPath;
+use XML::XPath::XMLParser;
+use Text::Unidecode;
+use Data::Dumper;
+use Getopt::Long;
+use Pod::Usage;
+use TeXLive::TLUtils;
+
+my %taxonomy;
+
+my $tcfile;
+my $output;
+my $help = 0;
+
+TeXLive::TLUtils::process_logging_options();
+GetOptions(
+  "input|catalogue=s" => \$tcfile,
+  "output=s"          => \$output,
+  "help|?"            => \$help) or pod2usage(1);
+pod2usage(-exitstatus => 0, -verbose => 2) if $help;
+
+my $progname = TeXLive::TLUtils::basename($0);
+
+exit (&main());
+
+
+sub main
+{
+  my $io;
+  if (!defined($tcfile)) {
+    $io = \*STDIN;
+  } else {
+    -f $tcfile || die "$progname: argument to --input is not a file: $!\n";
+    open($io, "<", $tcfile) || die "Cannot open input file $tcfile: $!";
+  }
+
+  parse_texcatalogue($io);
+  $Data::Dumper::Indent = 1;
+
+  my $out;
+  if (!defined($output)) {
+    $out = \*STDOUT;
+  } else {
+    open($out, ">$output") || die "Cannot open output file $output: $!";
+  }
+  chomp (my $date = `LC_ALL=C date`);
+  chomp (my $progname = `basename $0`);
+  print $out "# Generated $date by $progname.\n";
+  print $out Data::Dumper->Dump([\%taxonomy], ["taxonomy"]), $/;
+}
+
+
+
+# how to read in!!!
+#my $taxonomy;
+#my $foo = `cat tc-dump`;
+# the no strict "vars" is *ABSOLUT* necessary otherwise the file is not
+# evaluated, no idea why!
+#no strict "vars";
+#eval "$foo";
+#use strict "vars";
+#
+#print_keywords($taxonomy->{'by-taxonomy'}{'keywords'});
+#print "\n===================\nprimary characterizations\n";
+#walk_cz_tree($taxonomy->{'by-taxonomy'}{'primary'}, "PRIM");
+#print "\n===================\nsecondary characterizations\n";
+#walk_cz_tree($taxonomy->{'by-taxonomy'}{'secondary'}, "SEC");
+#print "\n===================\nfunctionality characterizations\n";
+#walk_cz_tree($cz_pkg->{'by-taxonomy'}{'functionality'}, "BFUNC");
+
+##### only subs from here ##########
+
+sub parse_texcatalogue {
+  my $io = shift;
+  my $_parser = XML::Parser->new(
+    ErrorContext => 2,
+    ParseParamEnt => 1,
+    NoLWP => 0
+  );
+  my $parser = new XML::XPath->new(ioref => $io, parser => $_parser) ||
+    die "Failed to parse input file $tcfile: $!";
+
+  # format of the data
+  # $taxonomy{'by-package'}{'keyword'}{$package} = [ $kwi, $kwii,...];
+  # $taxonomy{'by-package'}{'primary'}{$package} = $primchar;
+  # $taxonomy{'by-package'}{'secondary'}{$package'} = $secchar;
+  # $taxonomy{'by-package'}{'functionality'}{$package} = [ $bfi, $bfii, ...];
+  #
+  # post processing gives
+  # $taxonomy{'by-taxonomy'}{'keyword'}{$keyword} = [ $pkg1, $pkg2, ...];
+  # $taxonomy{'by-taxonomy'}{'primary'}{$level1}{$level2}...{'_packages_'} = [ $pkg1, $pkg2, ...];
+  # $taxonomy{'by-taxonomy'}{'secondary'}{$level1}{$level2}...{'_packages_'} = [ $pkg1, $pkg2, ...];
+  # $taxonomy{'by-taxonomy'}{'functionality'}{$level1}{$level2}...{'_packages_'} = [ $pkg1, $pkg2, ...];
+
+
+  foreach my $e ($parser->find('/fullcat/catalogue/entry')->get_nodelist) {
+    my $pkg = $parser->findvalue('./name',$e)->value();
+    #print "FOUND: $pkg\n";
+    my $n = $parser->find('./keyword',$e);
+    for my $kw ($n->get_nodelist) {
+      my $kwval = $parser->find('./@keyword',$kw)->string_value();
+      push @{$taxonomy{'by-package'}{'keyword'}{$pkg}}, $kwval;
+      #print "keyword = $kwval\n";
+    }
+    $n = $parser->find('./characterization',$e);
+    for my $cz ($n->get_nodelist) {
+      my $czdimnl = $parser->find('./@dimension',$cz);
+      my $czdim = $czdimnl->string_value();
+      my $czvalnl = $parser->findvalue('.',$cz);
+      my $czval = $czvalnl->value();
+      if (($czdim eq "primary") || ($czdim eq "secondary")) {
+        # assume only one primary and one secondary function
+        $taxonomy{'by-package'}{$czdim}{$pkg} = $czval;
+      } else {
+        # assume that it is always "functionality"
+        push @{$taxonomy{'by-package'}{'functionality'}{$pkg}}, $czval;
+      }
+      #print "char dim = $czdim val=$czval\n";
+    }
+  }
+
+
+  #
+  # do the keyword reshuffling
+  for my $pkg (keys %{$taxonomy{'by-package'}{'keyword'}}) {
+    for my $kw (@{$taxonomy{'by-package'}{'keyword'}{$pkg}}) {
+      push @{$taxonomy{'by-taxonomy'}{'keyword'}{$kw}}, $pkg;
+    }
+  }
+
+  parse_characterizations('primary');
+  parse_characterizations('secondary');
+  parse_characterizations('functionality');
+}
+
+sub parse_characterizations {
+  my $what = shift;
+  $taxonomy{'by-taxonomy'}{$what} = {};
+  for my $pkg (keys %{$taxonomy{'by-package'}{$what}}) {
+    my $value = $taxonomy{'by-package'}{$what}{$pkg};
+    my @charlist;
+    if (!ref($value)) {
+      @charlist = ($value);
+    } else {
+      @charlist = @$value;
+    }
+    for my $prim (@charlist) {
+      # split the primary into levels sep by >
+      my @levels = split(' > ', $prim);
+      my $currentpointer;
+      $currentpointer = $taxonomy{'by-taxonomy'}{$what};
+      for my $l (@levels) {
+        if (!defined($currentpointer->{$l})) {
+          $currentpointer->{$l} = {};
+        }
+        $currentpointer = $currentpointer->{$l}
+      }
+      push @{$currentpointer->{'_packages_'}}, $pkg;
+    }
+  }
+}
+
+
+sub print_keywords {
+  my $kw_pkg = shift;
+  for my $k (keys %$kw_pkg) {
+    my @pkgl = @{$kw_pkg->{$k}};
+    if (@pkgl) {
+      print "keyword = $k\n  package = @pkgl\n";
+    } else {
+      print "keyword = $k\n  package = NO PACKAGE FOUND!\n";
+    }
+  }
+}
+
+
+sub walk_cz_tree {
+  my $cp = shift;
+  my $prestring = shift;
+  if (defined($cp->{'_packages_'})) {
+    my @pkgs = sort @{$cp->{'_packages_'}};
+    print "$prestring\n";
+    print "--> @pkgs\n";
+  }
+  for my $cz (keys %$cp) {
+    if ($cz ne '_packages_') {
+      my $nextstring = "$prestring > $cz";
+      my $np = $cp->{$cz};
+      &walk_cz_tree($np,$nextstring);
+    }
+  }
+}
+
+__END__
+
+=head1 NAME
+
+parse-texcatalogue-keywords - parse the experimental TeX Catalogue
+
+=head1 SYNOPSIS
+
+parse-texcatalogue-keywords [--input ....] [--output ...] [--help|-h|-?]
+
+=head1 DESCRIPTION
+
+This program parses the XML data dump of the experimental new
+TeX Catalogue which includes various characterizations of packages,
+into keywords, functionalities, and classifications.
+
+It dumps this data in a textual representation of a perl hash, which
+can very easily be read back into a perl program.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-input>
+
+from where to read the XML dump of the TeX Catalogue, defaults to STDIN.
+
+=item B<-output>
+
+where to write the data dump to, defaults to STDOUT.
+
+=item B<-help>, B<-h>, B<-?>
+
+prints out this help text.
+
+=back
+
+=head1 FORMAT OF THE DATA DUMP
+
+The following Perl expression explain in which way the data is saved into
+the dumped hash:
+
+  $taxonomy{'by-package'}{'keyword'}{$package} = [ $kwi, $kwii,...];
+
+List of keywords
+
+  $taxonomy{'by-package'}{'primary'}{$package} = $primchar;
+
+Scalar containing the primary characterization.
+
+  $taxonomy{'by-package'}{'secondary'}{$package'} = $secchar;
+
+Scalar containing the secondary characterization.
+
+  $taxonomy{'by-package'}{'functionality'}{$package} = [ $bfi, $bfii, ...];
+
+List of functionalities.
+
+Both the characterizations and functionalites are themselves subdivided into
+levels by the string separator " > " (without the quotes). To make
+these information more accessible the data is presented in a reverse
+way, too:
+
+  $taxonomy{'by-taxonomy'}{'keyword'}{$keyword} = [ $pkg1, $pkg2, ...];
+
+List of packages with that keyword
+
+  $taxonomy{'by-taxonomy'}{'primary'}{$level1}{$level2}...{'_packages_'} = [ $pkg1, $pkg2, ...];
+  $taxonomy{'by-taxonomy'}{'secondary'}{$level1}{$level2}...{'_packages_'} = [ $pkg1, $pkg2, ...];
+  taxonomy{'by-taxonomy'}{'functionality'}{$level1}{$level2}...{'_packages_'} = [ $pkg1, $pkg2, ...];
+
+The B<_packages_> is literal and contains the list of packages for all the
+previous levels.
+
+The following code allows to read back the array into the hash referenced
+by C<$taxonomy> (attention, in this code this is a B<reference> to a hash!
+  my $taxonomy;
+  my $taxtext = `cat $path_to_data_dump`;
+  no strict "vars";
+  eval "$taxtext";
+  use strict "vars";
+  return $taxonomy;
+
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2 expandtab: #

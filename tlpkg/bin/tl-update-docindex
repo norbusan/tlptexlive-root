@@ -1,0 +1,124 @@
+#!/usr/bin/env perl
+# $Id: tl-update-docindex 15712 2009-10-09 01:22:26Z mpg $
+# Make index file of all HTML and PDF documentation (printed on stdout).
+# Originally written 2009, Manuel Pégourié-Gonnard. WTFPL v2.
+
+BEGIN {
+    $0 =~ m#(.*)/(.*)#; ($progdir, $progname) = ($1, $2);
+    unshift @INC, "$progdir/..";
+}
+
+use warnings FATAL => 'all';
+use Fatal qw(:void open close opendir closedir chdir mkdir);
+
+use TeXLive::TLPDB;
+use File::Basename;
+
+exit(main());
+
+sub main {
+    my $tlpdb = TeXLive::TLPDB->new('root' => "$progdir/../..");
+    die "$progname: unable to load TLPDB\n" unless defined $tlpdb;
+
+    print <<END_HEADER;
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+ <title>TeX Live documentation</title>
+ <style type="text/css"> ol { padding-left: 4em } </style>
+</head>
+<body>
+<h1>TeX Live documentation</h1>
+
+<p>This document lists links to all HTML and PDF files for packages and guides
+contained in TeX Live, sorted by package name.</p>
+END_HEADER
+
+    print_all_pkg($tlpdb);
+
+    # print footer
+    chomp (my $date = `LC_ALL=C date`);
+    print <<END_TRAILER;
+<hr />
+<small>Generated $date by $progname.</small>
+</body></html>
+END_TRAILER
+
+    return 0;
+}
+
+# print the links for letters, then packages
+sub print_all_pkg {
+    my ($tlpdb) = @_;
+
+    # @lines is the big list, @letters the list of initials of package names
+    local (@lines, @letters, $current_letter, $n);
+    $current_letter = "\0";
+
+    # first build the output and the list of initials
+    for my $tlpn (sort {lc $a cmp lc $b} $tlpdb->list_packages) {
+        my $tlpkg = $tlpdb->get_package($tlpn);
+        push_pkg_list($tlpkg);
+    }
+    push @lines, "\n</ol>\n\n";
+
+    # then actually print them
+    my $access = "\n<p>" . join(" - ", @letters) . "</p>\n";
+    print $access;
+    print @lines;
+    print $access;
+}
+
+# push the content for a package to the list of lines
+sub push_pkg_list {
+    my ($tlpkg) = @_;
+    my $name = $tlpkg->name;
+    my @docfiles = $tlpkg->docfiles;
+
+    # if no adequate documentation is found, print nothing
+    @docfiles = grep { m/\.(html|pdf)/ } @docfiles;
+    return if @docfiles == 0;
+    $n++; # list counter
+
+    # check initial
+    my $init = uc substr $name, 0, 1;
+    unless ($init eq $current_letter) {
+        $current_letter = $init;
+        # put header in the big list...
+        push @lines, "\n</ol>\n" unless $n == 1;
+        push @lines, qq#\n<h2 id="letter-$init">$init</h2>\n#;
+        push @lines, qq#\n<ol start="$n">\n#;
+        # ... and a reference in quick access list
+        push @letters, qq!<a href="#letter-$init">$init</a>!;
+    }
+
+    # if there is an index.html file, drop the rest
+    # currently (2009-10-07) catches: FAQ-en bosisio epspdf fontname jadetex
+    # metapost ppower4 sttools tds tex4ht
+    my @index = grep /\/index\.html/, @docfiles;
+    if (@index == 1) {
+        #warn "Using index.html for $name\n";
+        @docfiles = @index;
+    }
+
+    # print package name with shortdesc
+    my $dir = dirname($docfiles[0]);
+    push @lines, qq#\n<li><b><a href="$dir">$name</a></b>:<small>\n#;
+    my $shortdesc = $tlpkg->shortdesc;
+    push @lines, "$shortdesc\n" if defined $shortdesc;
+    #warn "$name\n" if not defined $shortdesc;
+
+    # now the list of docfiles
+    my $list;
+    for my $file (@docfiles) {
+        my $name = basename($file);
+        $list .= qq#<a href="$file">$name</a>#;
+        my $dflanguage = $tlpkg->{'docfiledata'}{$file}{'language'};
+        $list .= " ($dflanguage)" if defined $dflanguage;
+        $list .= ",\n";
+    }
+    $list =~ s/,\n$/./;
+    push @lines, "$list\n</small></li>\n";
+}
+

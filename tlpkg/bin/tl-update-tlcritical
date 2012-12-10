@@ -1,0 +1,71 @@
+#!/bin/sh -e
+# $Id: tl-update-tlcritical 19872 2010-09-24 09:18:07Z preining $
+# Public domain.  Originally written 2008, Karl Berry.
+# Update the tlcritical mini-repository on tug with the critical
+# packages.  Also listed in tl-update-containers, unfortunately.
+
+tlcrit=/home/ftp/texlive/tlcritical
+recreate=
+
+while test $# -gt 0; do
+  case $1 in
+  --tlcrit)         shift; tlcrit=$1;;
+  --recreate)       recreate=--recreate;;
+  --help)           echo "Please read the script, sorry."; exit 0;;
+  --*) echo "$0: unrecognized option: $1" >&2; exit 1;;
+    *) echo "$0: too many parameters: $1" >&2; exit 1;;
+  esac
+  shift
+done
+
+if test -d "$tlcrit"; then :; else
+  echo "$0: tlcrit directory must exist: $tlcrit" >&2
+  exit 1
+fi
+
+mydir=`cd \`dirname $0\` && pwd`
+PATH=$mydir:/usr/local/gnu/bin:/usr/local/bin:$PATH # sha256sum+makensis on tug
+
+TMPDIR=${TMPDIR-/tmp}
+
+cd $TMPDIR
+
+# function to update one of recovery scripts (sh or exe) in tlcritical.
+# 
+do_updater ()
+{
+  type=$1  # sh or exe
+  newfile=`ls update-*.$type`
+  if test -z "$newfile"; then
+    echo "$0: no new file update-*.$type in `pwd`" >&2
+    exit 1
+  fi
+  rm -f $tlcrit/update-*.$type*  # rm old file and checksum
+  mv $newfile $tlcrit            # move new file
+  #
+  # make checksum for new file
+  (cd $tlcrit && sha256sum $newfile >$newfile.sha256)
+  #
+  # link to generic names
+  (cd $tlcrit && ln -s $newfile update-tlmgr-latest.$type)
+  (cd $tlcrit && ln -s $newfile.sha256 update-tlmgr-latest.$type.sha256)
+}
+
+# update normal containers.
+echo "$0: running tl-update-containers (for critical packages)..."
+tl-update-containers -location $tlcrit $recreate -all \
+  00texlive.installation 00texlive.config texlive.infra tlperl.win32
+
+# update Unix disaster recovery.
+echo "$0: running tl-makeself-from-tlnet..."
+tl-makeself-from-tlnet $tlcrit
+do_updater sh
+
+# update the Windows updater executable.
+echo "$0: running tl-update-nsis... (logfile: $TMPDIR/makensis.log)"
+tl-update-nsis >$TMPDIR/updater.nsi
+makensis $TMPDIR/updater.nsi >$TMPDIR/makensis.log
+rm -f $TMPDIR/updater.nsi
+do_updater exe
+
+ls -lt $tlcrit

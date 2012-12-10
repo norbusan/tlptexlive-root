@@ -1,0 +1,20 @@
+Index: TLUtils.pm
+===================================================================
+--- TLUtils.pm	(revision 23130)
++++ TLUtils.pm	(working copy)
+@@ -1887,6 +1887,15 @@
+     chomp (@files = `ls "$from"`);
+     my $ret = 1;
+     for my $f (@files) {
++      my $target = "$to/$f";
++      if (-e $target) {
++        if (-L $target) {
++          unlink($target);
++        } else {
++          tlwarn("link target $target already exists and is not a link, skipping!\n");
++          next;
++        }
++      }
+       unlink("$to/$f");
+       if (system("ln -s \"$from/$f\" \"$to\"")) {
+         tlwarn("Linking $f from $from to $to failed: $!\n");

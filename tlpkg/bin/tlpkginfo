@@ -1,0 +1,356 @@
+#!/usr/bin/env perl
+# $Id: tlpkginfo 24315 2011-10-18 22:26:36Z karl $
+# Public domain.  Originally written 2005, Karl Berry.
+# 
+# Return information given a TL package name (i.e., a tlpsrc file name).
+# We require local copies of CTAN and the TeX Catalogue.
+
+exit (&main ());
+
+sub main {
+  $CTAN = $ENV{"CTAN"} || "/home/ftp/tex-archive";
+  $TMPDIR = $ENV{"TMPDIR"} || "/tmp";
+  $CATALOGUE = $ENV{"TEX_CATALOGUE"} || "/home/httpd/html/catalogue/entries";
+  -d "$CATALOGUE/k"
+    || die "$0: TEX_CATALOGUE ($CATALOGUE) must point to entries/ subdir"
+           . " of a TeX Catalogue checkout.\n";
+  
+  # erroneous or problematic tds files (warn Robin about them)
+  # list format: pkg1|pkg2|etc
+  $erroneous_tds = join ("|",
+    qw(ccaption engpron fmtcount imtekda purifyeps spanish svn-multi
+       thailatex tugboat tufte-latex xetexref xtab),
+    qw(lastpage papermas papertex undolabl));
+  
+  # Heiko's tds files (don't propagate through CTAN fast enough).
+  $oberdiek_tds = "hyperref|oberdiek";
+
+  # special packages from latex-tds project; used by prepare()
+  $corelatex_tds_pkgs = "babel|cyrillic|graphics|latex|psnfss|tools";
+  $amslatex_tds_pkgs = "amscls|amsmath|amsrefs"; # tlpsrc_find_catalogue() too
+  $latex_tds_pkgs = "latex-tds|knuth|$amslatex_tds_pkgs|$corelatex_tds_pkgs";
+  $latex_tds_dir = "$CTAN/macros/latex/contrib/latex-tds";
+  # (amsfonts and amstex are handled from the originals.)
+  
+  # the CJK material is split into several packages.
+  $cjk_pkgs = "bin-(cjk|ttf)utils|dnp|(|garuda-|norasi-)c90";
+
+  if ($ARGV[0] eq "--ctan-dir") {
+    my $output = &find_ctan_dir ($ARGV[1]);
+    print "$output\n";
+    return $output ? 0 : 1;
+
+  } elsif ($ARGV[0] eq "--prepare") {
+    my $output = &prepare ($ARGV[1]);
+    print "$output\n";
+    return $output ? 0 : 1;
+
+  } elsif ($ARGV[0] eq "--ctan-root") {
+    print "$CTAN\n";
+    return 0;
+
+  } else {
+    die "Usage: $0 --ctan-dir PKGNAME  or  --prepare PKGNAME
+      or --ctan-root  (not \"@ARGV\").\n";
+  }
+}
+
+# 
+# Return 0 for success if we find a path (and print it on stdout), else
+# return 1.
+# 
+sub find_ctan_dir {
+  my ($pkgname) = @_;
+  return 1 unless $pkgname;  
+  
+  # use explicit catalogue name if given in tlpsrc.
+  my $me = &tlpsrc_find_catalogue ($pkgname);
+  if (! $me) {
+    if ($pkgname =~ /^($amslatex_tds_pkgs)$/) {
+      # ctan (and latex-tds) bundles all ams packages together,
+      # but we use separate tlp names.
+      $me = "amslatex" ;
+    } elsif ($pkgname =~ /^($cjk_pkgs)$/) {
+      $me = "cjk";  # likewise CJK
+    } elsif ($pkgname eq "mkgrkindex") {
+      $me = "greek-makeindex";  # use directory name
+    } else {
+      $me = $pkgname;  # usually the same
+    }
+  }
+
+  # The CTAN path to a package is sometimes stored in the TeX Catalogue,
+  # but old entries don't have it, etc.  Still, we want to use it if present.
+  my $ctan_dir = &catalogue_find_ctan_path ($me);
+  if (! $ctan_dir) {
+    # fall back on many special cases
+    (my $menobin = $me) =~ s,^bin-,,;
+    (my $menopowerdot = $me) =~ s,^powerdot-,,;
+    (my $menotype1 = $me) =~ s,-type1$,,;
+
+    for my $dir (
+      "macros/latex/contrib/$me",		# most everything
+      "macros/latex/contrib/biblatex/$me",	# authoryear-icomp-tt
+      "macros/latex/contrib/biblatex-contrib/$me", # biblatex-*
+      "macros/latex/contrib/gene/$me",		# eqname
+      "macros/latex/contrib/\L$me",		# HA-prosper
+      "macros/latex/contrib/powerdot/contrib/$menopowerdot", # powerdot-doc-vn
+      "macros/latex/exptl/$me",			# semioneside
+      "macros/latex/required/$me",		# babel
+      "macros/plain/$me",			# plnfss
+      "macros/plain/contrib/$me",		# timetable
+      "macros/context/contrib/$me",		# context
+      "macros/xetex/latex/$me",			# xetex
+      "macros/xetex/generic/$me",		# harvardkyoto
+      "macros/generic/$me",			# abbr
+      "macros/generic/diagrams/$me",		# circ
+      "macros/$me",				# eplain
+      "support/$me",				# thumbpdf
+      "support/$menobin",			# bin-thumbpdf
+      "language/vietnamese/$me/unpacked",	# vntex
+      "language/polish/$me",			# cc-pl
+      "language/hyphenation/$me",		# bghyphen
+      "language/hebrew/$me",			# cjhebrew
+      "language/greek/package-babel/$me",	# ibycus-babel
+      "language/devanagari/$me",		# velthuis
+      "language/croatian/$me",			# hrlatex
+      "language/coptic/$me",			# cbcoptic
+      "info/spanish/$me",			# guia-bibtex
+      "info/symbols/$me",			# comprehensive
+      "info/math/voss/$me",			# mathmode
+      "info/challenges/$me",			# AroBend
+      "info/bibtex/$me",			# tamethebeast
+      "info/$me",				# Type1fonts
+      "help/$me",				# es-tex-faq
+      "graphics/$me",				# sparklines
+      "graphics/metapost/contrib/tools/$me",	# mptopdf
+      "graphics/metapost/contrib/macros/$me",	# mpattern
+      "graphics/pictex/addon/$me",		# autoarea
+      "graphics/pstricks/contrib/pedigree/$me",	# pst-pdgr
+      "graphics/pstricks/contrib/$me",		# pstricks-add
+      "fonts/$me",				# MnSymbol
+      "fonts/utilities/$me",			# accfonts
+      "fonts/ps-type1/$me",			# cm-super
+      "fonts/ps-type1/$menotype1",		# esint-type1
+      "fonts/greek/$me",				# lfb
+      "fonts/gothic/$me",				# blacklettert1
+      "fonts/cyrillic/$me/texmf",			# lh
+      "fonts/chess/$me",				# skaknew
+      "biblio/bibtex/contrib/$me",		# dk-bib
+                 ) {
+      if (-d "$CTAN/$dir") {
+        $ctan_dir = $dir;
+        last;
+      }
+    }
+
+    # names totally dissimilar
+    $ctan_dir = "fonts/fourier-GUT" if $me eq "fourier";
+    $ctan_dir = "graphics/pdftex" if $me eq "pdftex-def";
+    $ctan_dir = "info/biblio" if $me eq "beebe";
+    $ctan_dir = "info/epslatex/french" if $me eq "epslatex-fr";
+    $ctan_dir = "info/impatient/fr" if $me eq "impatient-fr";
+    $ctan_dir = "info/italian/amsldoc" if $me eq "amsldoc-it";
+    $ctan_dir = "info/italian/amsthdoc" if $me eq "amsthdoc-it";
+    $ctan_dir = "info/l2tabu/italian" if $me eq "l2tabu-it";
+    $ctan_dir = "info/latex2e-help-texinfo/spanish" if $me eq "latex2e-help-texinfo-spanish";
+    $ctan_dir = "info/lshort/chinese" if $me eq "lshort-chinese";
+    $ctan_dir = "info/tex-references" if $me eq "tex-refs";
+    $ctan_dir = "info/translations/vn" if $me eq "ntheorem-vn";
+    $ctan_dir = "language/armenian/armtex" if $me eq "armenian";
+    $ctan_dir = "language/basque" if $me eq "hyphen-basque";
+    $ctan_dir = "language/hungarian/babel" if $me eq "magyar";
+    $ctan_dir = "language/hyphenation/dehyph" if $me eq "hyphen-german";
+    $ctan_dir = "language/hyphenation/elhyphen" if $me eq "hyphen-greek";
+    $ctan_dir = "macros/generic" if $me eq "genmisc";
+    $ctan_dir = "macros/latex/contrib/misc" if $me eq "ltxmisc";
+
+    # do last, for sake of subdirs above.
+    $ctan_dir = "language/hyphenation"
+      if $me =~ /^hyphen-/ && ! $ctan_dir;
+  }
+
+  # In the case of mathspic, we cannot use the catalogue directory,
+  # since we want to ignore the dos/ subdir and just go with the perl/.
+  if ($me eq "mathspic") {
+    $ctan_dir .= "/perl";
+  }                         
+  
+  # prepend ctan root if not an absolute dir (this happens when we make
+  # a temp dir).
+  $ctan_dir = "$CTAN/$ctan_dir" if $ctan_dir =~ m,^[^/],;
+  return $ctan_dir;
+}
+
+
+
+# If the .tlpsrc file for ME has a catalogue entry, return it.
+# Else return empty string.
+# 
+sub tlpsrc_find_catalogue {
+  my ($me) = @_;
+  
+  chomp (my $mydir = `dirname $0`);
+  chomp (my $tlpsrcdir = `cd $mydir/../tlpsrc && /bin/pwd`);
+  my $tlpsrc = "$tlpsrcdir/$me.tlpsrc";
+  if (! -r $tlpsrc) {
+    warn "$0: no tlpsrc $tlpsrc\n";
+    return "";
+  }
+
+  chomp (my $cat = `awk '\$1 == "catalogue" {print \$2}' $tlpsrc`);
+  return $cat;
+}
+
+
+
+# look up ctan path for given package name in catalogue entry.
+# xml is too hard to parse, so just look for the <ctan path...> entry.
+# 
+# Return the ctan path if found (without leading /), or undef.
+# 
+sub catalogue_find_ctan_path {
+  my ($pkgname) = @_;
+  
+  # catalogue uses all-lowercase file/directory names.
+  my $firstchar = substr (lc ($pkgname), 0, 1);
+  my $catfile =  "$CATALOGUE/$firstchar/$pkgname.xml";
+  return undef unless -r $catfile;
+
+  # get the raw tag from the catalogue file.
+  open (CATFILE, "<$catfile") || die "Cannot read $catfile: $!\nFix me!\n";
+  while ($ctan_path = <CATFILE>) {
+    last if $ctan_path =~ /<ctan /;
+  }
+  if (! $ctan_path) { # give up if the tag wasn't there.
+    close CATFILE;
+    return undef;
+  } 
+  # if we found the tag, read more lines until we get to the end of the value.
+  while ($ctan_path !~ m,/>,) {
+    $ctan_path .= <CATFILE>;
+  }
+  close CATFILE;
+  $ctan_path =~ s/\n/ /g;
+  ($ctan_path) = ($ctan_path =~ m,(<.*?/>),);
+  return undef unless $ctan_path;  # in case it's not present at all
+
+  # extract just the dir or file name, without options, etc.
+  $ctan_path =~ m,path=(["'])/(.*?)\1,;
+  $ctan_loc = $2;
+  return undef unless $ctan_loc; # should never happen, but who knows
+
+  # if the Catalogue lists the path as a single file, there are two
+  # possibilities: (1) it really is a single file, e.g., texilikecover,
+  # in which case we copy that file into a temp dir and return that temp
+  # dir; (2) it is actually in its own directory, e.g., ifxetex, in
+  # which case we return undef here and let the code above find it.
+  # (The Catalogue maintainers do not consider this a problem.)
+  # 
+  if ($ctan_path =~ /file='true'/) {
+    if ($ctan_path =~ m,/$pkgname/,) {  # pkg dir somewhere in path?
+      return undef;
+    } else {
+      return $do_copy # are we called by prepare() or not? 
+        ? &copy_to_tmpdir ($pkgname, "$CTAN/$ctan_loc")
+        : "$CTAN/$ctan_loc";
+    }
+  }
+  
+  # not a single file, so use the regular ctan location.  
+  return $ctan_loc;
+}
+
+# 
+# Create a tmpdir with the tds-ready tree unpacked if any,
+# else return the normal ctan dir.
+#
+sub prepare {
+  my ($pkg) = @_;
+  return undef unless $pkg;
+
+  # find the real ctan dir and return it if our tds is erroneous
+  $do_copy = 1; # ask find_catalogue() to copy single files, too
+  my $ctan_loc = &find_ctan_dir ($pkg);
+  return $ctan_loc if $pkg =~ /^($erroneous_tds)$/;
+
+  # tds path is usually in ctan/install...
+  my $tds_path = "$ctan_loc.tds.zip";
+  $tds_path =~ s,^$CTAN,$CTAN/install,;
+
+  # ...except for heiko, when running on tug.org...
+  if ($pkg =~ /^($oberdiek_tds)$/) {
+    $tds_path = "/home/ftp/tex/$pkg/$pkg.tds.zip";
+    # will be ignored below if it doesn't exist.
+
+  # ...and except for amsfonts ...
+  } elsif ($pkg eq "amsfonts") {
+    # CTAN apparently doesn't want to put this in install:
+    $tds_path = "$CTAN/fonts/amsfonts/amsfonts.zip";
+
+  # ...and except for koma-script ...
+  } elsif ($pkg eq "koma-script") {
+    # CTAN apparently doesn't want to put this in install:
+    $tds_path = "$CTAN/macros/latex/contrib/koma-script/komascript.tds.zip";
+
+  # ...and except for files in latex-tds...
+  } elsif ($pkg =~ /^($latex_tds_pkgs)$/) {
+    if ($pkg =~ /^($amslatex_tds_pkgs)$/) {
+      $tds_path = "$latex_tds_dir/amslatex.tds.zip" ;
+    } else {
+      $tds_path = "$latex_tds_dir/$pkg.tds.zip";
+    }
+    # and more exceptions to the exceptions:
+    $tds_path = "$latex_tds_dir/source.tds.zip" if $pkg eq "latex-tds";
+    $tds_path = "$latex_tds_dir/base.tds.zip" if $pkg eq "latex";
+  }
+
+  return $ctan_loc unless (-s $tds_path);
+  
+  # now we have a tds, so unzip it in a tmpdir and be sure it's readable.
+  my $tmpdir = &copy_to_tmpdir ($pkg);
+  system ("unzip -q $tds_path -d $tmpdir");
+  system ("chmod -R a+rX $tmpdir");
+  
+  # put a flag for ctan2tds' donormal() to work
+  system ("echo $tds_path >$tmpdir/TDS_READY");
+
+  # problems with amslatex packages: they are all bundled together,
+  # we now have to remove the unwanted ones.
+  if ($pkg =~ /^($amslatex_tds_pkgs)$/) {
+    chdir ($tmpdir) || die "chdir($tmpdir) failed: $!";
+    my @deldir = ();
+    # List of subsubdirectories, at the package level.
+    chomp (my @dirlist = `find */*/* -type d | sort -u`);
+    for my $dir (@dirlist) {
+      next if $dir =~ m!$pkg$!;  # keep matching directories
+      next if $pkg eq "amscls" && $dir =~ m,bst/ams$,;  # ams{alpha,plain}.bst
+      push (@deldir, $dir);
+    }
+    system ("rm -rf @deldir");       # discard the rest
+  }
+
+  return $tmpdir;
+}
+
+# copy file to temp dir and return that for ctan2tl to use.
+#
+sub copy_to_tmpdir {
+  my ($pkgname,$src) = @_;
+  
+  my $pkgdir = "$TMPDIR/tl.$pkgname";
+  system ("rm -rf $pkgdir");
+  mkdir ($pkgdir, 0777) || die "mkdir($pkgdir) failed: $!";
+
+  # copying single file $src ...
+  system ("cp -p '$src' '$pkgdir/'")
+    if $src;
+
+  # special cases
+  if ($pkgname eq "cc-pl") {
+    # there's no real ctan dir for this package, just a zip
+    system ("cd $pkgdir && unzip -q cc-pl.zip && rm cc-pl.zip");
+  }
+  
+  return $pkgdir;
+}

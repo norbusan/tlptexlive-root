@@ -1,0 +1,41 @@
+category TLCore
+shortdesc Defines category patterns used by tlpsrc-to-tlpdb conversion
+longdesc As can be seen, the syntax here is slightly different than a
+longdesc normal tlpsrc file: an additional first argument specifies the
+longdesc category for this pattern, and a final %NAME% is replaced with
+longdesc the package.  Defining new categories merely by adding them
+longdesc here is not currently implemented, though it could be done if
+longdesc it proves useful.  See the TeXLive::TLPSRC documentation for more.
+
+# auto patterns for category Package
+runpattern Package t texmf-dist bibtex %NAME%
+runpattern Package t texmf-dist context %NAME%
+runpattern Package t texmf-dist dvips %NAME%
+runpattern Package t texmf-dist fonts %NAME%
+runpattern Package t texmf-dist makeindex %NAME%
+runpattern Package t texmf-dist metafont %NAME%
+runpattern Package t texmf-dist metapost %NAME%
+runpattern Package t texmf-dist mft %NAME%
+runpattern Package t texmf-dist omega %NAME%
+runpattern Package t texmf-dist scripts %NAME%
+runpattern Package t texmf-dist tex %NAME%
+srcpattern Package t texmf-dist source %NAME%
+docpattern Package t texmf-dist doc %NAME%
+docpattern Package f texmf/doc/man/man1/%NAME%.*
+
+# auto patterns for category TLCore
+docpattern TLCore t texmf doc %NAME%
+
+# auto patterns for category ConTeXt, with special expansion type:
+# general form:   %[str:]NAME[:str]%
+# - initial str deletes str at the beginning of pkg name (if matches)
+# - terminal str deletes str at then end of pkg name (if matches)
+# Example:
+#    pkg name:   context-foobar
+#    %context-:NAME%   expands to     foobar
+runpattern ConTeXt f texmf-dist/tex/context/interface/third/*%context-:NAME%.xml
+runpattern ConTeXt d texmf-dist/tex/context/third/%context-:NAME%
+runpattern ConTeXt d texmf-dist/scripts/context/lua/third/%context-:NAME%
+runpattern ConTeXt d texmf-dist/metapost/context/third/%context-:NAME%
+docpattern ConTeXt d texmf-dist/doc/context/third/%context-:NAME%
+srcpattern ConTeXt d texmf-dist/source/context/third/%context-:NAME%

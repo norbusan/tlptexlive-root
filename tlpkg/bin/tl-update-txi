@@ -1,0 +1,94 @@
+#!/bin/sh -e
+# $Id: tl-update-txi 24109 2011-09-27 00:50:06Z karl $
+# Public domain.  Originally written 2008, Karl Berry.
+# 
+# From the Texinfo manuals in TeX Live, simplistically build html/pdf,
+# install info/html/pdf.  Don't delete info files since they are in the
+# dist's.  Unfortunately no easy way to do the same for pdf.
+
+: ${CTAN=/home/ftp/tex-archive}
+
+texihtml="makeinfo --html --no-split"
+texipdf="texi2pdf --quiet --clean"
+
+# Convenience variables.
+mydir=`dirname $0`
+Master=`cd $mydir/../.. && pwd`
+docdir=$Master/texmf/doc
+infodir=$docdir/info  
+
+Build=`cd $Master/../Build && pwd`
+xk=$Build/source/texk
+xu=$Build/source/utils
+
+# 
+do_dvipng() {
+  mypkg=dvipng
+  cd $xk/$mypkg/doc || exit 1
+  MV=cp mvcp-if-change $mypkg.info $infodir/
+  $texihtml $mypkg.texi && mvcp-if-change $mypkg.html $docdir/$mypkg/
+  $texipdf $mypkg.texi && mv -v $mypkg.pdf $docdir/$mypkg/
+}
+
+# 
+do_dvips() {
+  mypkg=dvips
+  cd $xk/${mypkg}k || exit 1
+  MV=cp mvcp-if-change $mypkg.info $infodir/
+  $texihtml $mypkg.texi && mvcp-if-change $mypkg.html $docdir/$mypkg/
+  if texi2dvi --quiet --clean $mypkg.texi; then
+    # raw PostScript examples
+    mainmap=$Master/texmf/fonts/map/dvips/updmap/psfonts.map
+    dvips -q -t letter -u $mainmap $mypkg.dvi
+    /usr/bin/ps2pdf $mypkg.ps
+    mv -v $mypkg.pdf $docdir/$mypkg/
+    rm $mypkg.dvi $mypkg.ps
+  fi
+}
+
+# 
+do_fontname() {
+  mypkg=fontname
+  cd $CTAN/info/fontname
+  MV=cp mvcp-if-change $mypkg.info $infodir/
+}
+
+# 
+do_kpathsea() {
+  mypkg=kpathsea
+  cd $xk/$mypkg/doc || exit 1
+  MV=cp mvcp-if-change $mypkg.info $infodir/
+  $texihtml $mypkg.texi && mvcp-if-change $mypkg.html $docdir/$mypkg/
+  $texipdf $mypkg.texi && mv -v $mypkg.pdf $docdir/$mypkg/
+}
+
+# 
+do_mf2pt1() {
+  mypkg=mf2pt1
+  cd $Master/texmf-dist/doc/support/$mypkg
+  makeinfo --no-split $mypkg.texi
+  mvcp-if-change $mypkg.info $infodir/
+}
+
+# 
+do_web2c() {
+  mypkg=web2c
+  cd $xk/$mypkg/doc || exit 1
+  MV=cp mvcp-if-change $mypkg.info $infodir/
+  $texihtml $mypkg.texi && mvcp-if-change $mypkg.html $docdir/$mypkg/
+  $texipdf $mypkg.texi && mv -v $mypkg.pdf $docdir/$mypkg/
+}
+
+do_mf2pt1
+exit $?
+
+do_dvipng
+do_dvips
+do_fontname
+do_kpathsea
+do_web2c
+
+exit $?
+
+# static: tds, texdraw.
+# done as part of package update: epspdf, latex2e[-es], latex2man.

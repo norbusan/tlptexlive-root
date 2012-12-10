@@ -1,0 +1,13 @@
+#!/bin/sh
+# $Id: tlpkg-by-size 13054 2009-05-12 15:53:11Z preining $
+# Public domain.  Originally written 2008, Karl Berry.
+# If it ever matters, we can do this right by reading tlpdb.
+
+test $# -eq 0 && set - /home/ftp/texlive/tlnet/2008/archive
+cd "$1" || exit 1
+for pkgtar in `ls *.tar.xz | egrep -v '\..*\.tar\.xz$'`; do
+  pkg=`echo $pkgtar | sed 's/\.tar\.xz$//'`
+  size=`cat $pkg.*tar.xz | wc -c`
+  size=`expr $size / 1024`
+  printf "%6d %s\n" $size "$pkg"
+done | sort -nr

@@ -1,0 +1,8 @@
+- when TL2012 is in freeze:
+  move uptex package over to TL
+- remove/make unnecessary texmf-dist/tex/ptexgeneric/config/language.ptx
+- include patches for dvipdfmx upstream "dtou" feature
+  will maybe included in dvipdfmx proper
+- pxdvi ??? 
+  rebuild from all the new patches for other archs
+- missing binary: upmetapost

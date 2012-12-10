@@ -1,0 +1,236 @@
+\documentclass{ujarticle}
+\usepackage[uplatex,noreplace]{otf}
+\usepackage{color}
+\oddsidemargin-15mm
+\evensidemargin-15mm
+\topmargin-20mm
+\textheight255mm
+\textwidth180mm
+
+\font\jismin = jis at 10pt
+
+\newcommand{\MKTx}[2]{%
+ \textcolor{yellow}{\frame{\textcolor{blue}{{\jismin\kchar"#1}}}}%
+ \textcolor{yellow}{\frame{\textcolor{blue}{{\kchar\jis"#1}}}}%
+ {\small(#2)}
+}
+\newcommand{\UTFx}[1]{%
+ \textcolor{yellow}{\frame{\textcolor{blue}{{\kchar\ucs"#1}}}}%
+ \textcolor{yellow}{\frame{\textcolor{blue}{\UTF{#1}}}}{\small U+#1}}
+\newcommand{\CIDx}[1]{%
+ \textcolor{yellow}{\frame{\textcolor{blue}{\CID{#1}}}}{\small cid#1}}
+
+\edef\bs{$\backslash$\kern0em}
+
+
+\begin{document}
+\begin{center}
+{\large upTeX用JIS→Unicode変換に関する調査}
+\end{center}
+
+\section{variation tableの実状}
+ptexencでは、JIS←Unicodeの変換の際に、JIS--Unicode間での変換表のばらつき
+を吸収するための多対一変換を行うテーブルを持っている。
+実用的に用いられている変換表はほぼこれでカバーできていると思う。
+upTeXで、JIS→Unicodeの変換を行う場合は、
+JISで書かれたファイルの入力と\bs jis, \bs kuten などのプリミティヴを
+使用した場合に行われる。
+この場合に、実装依存ではなく安定した変換を行いたい。
+この際の対応関係を
+どうすべきか検討するため、現状を調査する。
+
+\parindent0mm
+\begin{tabular}{l@{~}l|l@{~}l@{~}|l@{~}c@{~}|l}\hline
+JIS & H, V & UCS2 & UniJIS-UTF16 & 実装例 & upTeX & 備考\\\hline
+\MKTx{2126}{1-1-6} & \CIDx{638}
+   & \UTFx{2022} & \CIDx{119} & ※ & & BULLET \\\cline{3-7}
+ & & \UTFx{2219} & \CIDx{117} & ※ & & BULLET OPERATOR\\\cline{3-7}
+ & & \UTFx{22C5} & 該当なし   & ※ & & DOT OPERATOR\\\cline{3-7}
+ & & \UTFx{30FB} & \CIDx{638} & [g][J][W][M] & (1) & KATAKANA MIDDLE DOT\\\hline\hline
+
+\MKTx{2131}{1-1-17} & \CIDx{649}
+   & \UTFx{203E} & \CIDx{226} & [M98] & & OVERLINE\\\cline{3-7}
+ & & \UTFx{FFE3} & \CIDx{649} & [g][J][W][M99] & (1) & FULLWIDTH MACRON\\\hline\hline
+
+\MKTx{213D}{1-1-29} & \CIDx{661}
+   & \UTFx{2012} & \CIDx{114} & ※ & & FIGURE DASH \\\cline{3-7}
+ & & \UTFx{2013} & \CIDx{114} & ※ & & EN DASH \\\cline{3-7}
+ & & \UTFx{2014} & \CIDx{138} & [J][Ja140][M] & & EM DASH  \\\cline{3-7}
+ & & \UTFx{2015} & \CIDx{661} & [g][W][Ja131] & (2) & HORIZONTAL BAR \\\hline\hline
+
+\MKTx{2141}{1-1-33} & \CIDx{665}
+   & \UTFx{223C} & \CIDx{100} &  ※ & & TILDE OPERATOR \\\cline{3-7}
+ & & \UTFx{223E} & 該当なし   &  ※ & & INVERTED LASY S\\\cline{3-7}
+ & & \UTFx{301C} & \CIDx{665} & [J][M] & (3) &WAVE DASH  \\\cline{3-7}
+ & & \UTFx{FF5E} & \CIDx{665} & [g][W] & & FULLWIDTH TILDE  \\\hline\hline
+
+\MKTx{2142}{1-1-34} & \CIDx{666}
+   & \UTFx{2016} & \CIDx{666} & [J][M] & (4) & DOUBLE VERTICAL LINE \\\cline{3-7}
+ & & \UTFx{2225} & \CIDx{15489}{\small(\#)} & [g][W] & & PARALLEL TO (X0213:1-2-52)\\\hline\hline
+
+\MKTx{2143}{1-1-35} & \CIDx{667}
+   & \UTFx{2223} & 該当なし   &  ※  & & DIVIDES\\\cline{3-7}
+ & & \UTFx{FF5C} & \CIDx{667} & [g][J][W][M] & (1) & FULLWIDTH VERTICAL LINE \\\hline\hline
+
+\MKTx{2144}{1-1-36} & \CIDx{668}
+   & \UTFx{2026} & \CIDx{668} & [g][J][W][M99] & (1) & HORIZONTAL ELLIPSIS  \\\cline{3-7}
+ & & \UTFx{22EF} & 該当なし   & [M98]& & MIDLINE HORIZONTAL ELLIPSIS \\\hline\hline
+
+\MKTx{215D}{1-1-61} & \CIDx{693}
+   & \UTFx{2212} & \CIDx{693} & [J][M] & (3) & MINUS SIGN \\\cline{3-7}
+ & & \UTFx{FF0D} & \CIDx{693} & [g][W] & & FULLWIDTH HYPHEN-MINUS \\\hline\hline
+
+\MKTx{216F}{1-1-79} & \CIDx{711}
+   & \UTFx{00A5} & \CIDx{61}  & [J] & & YEN SIGN\\\cline{3-7}
+ & & \UTFx{FFE5} & \CIDx{711} & [g] (J)[W][M] & (5) & FULLWIDTH YEN SIGN\\\hline\hline
+
+\MKTx{2171}{1-1-81} & \CIDx{713}
+   & \UTFx{00A2} & \CIDx{102} & [J][M] & & CENT SIGN \\\cline{3-7}
+ & & \UTFx{FFE0} & \CIDx{713} & [g][W] & (5) & FULLWIDTH CENT SIGN  \\\hline\hline
+
+\MKTx{2172}{1-1-82} & \CIDx{714}
+   & \UTFx{00A3} & \CIDx{103} & [J][M] & & POUND SIGN \\\cline{3-7}
+ & & \UTFx{FFE1} & \CIDx{714} & [g][W] & (5) & FULLWIDTH POUND SIGN  \\\hline\hline
+
+\MKTx{224C}{1-2-44} & \CIDx{751}
+   & \UTFx{00AC} & \CIDx{153} & [J][M] & & NOT SIGN \\\cline{3-7}
+ & & \UTFx{FFE2} & \CIDx{751} & [g][W] & (5) & FULLWIDTH NOT SIGN  \\\hline\hline
+
+\MKTx{227E}{1-2-94} & \CIDx{779}
+   & \UTFx{20DD} & \CIDx{16328}{\small(\#)} &  ※ & & COMBINING ENCLOSING CIRCLE\\\cline{3-7}
+ & & \UTFx{25EF} & \CIDx{779} & [g][J][W][M] & (1) & LARGE CIRCLE\\\hline
+
+\end{tabular}\\
+
+\parindent1zw
+\baselineskip10pt
+
+※: 実装未確認、[J](J): JISの変換表、[W]: Windows CP932の変換表、
+[M98]: Mac OSの1998年8月版までの変換表、[M99]: Mac OSのそれ以降の変換表、
+[M]: Mac OSの変換表、
+[Ja131]: Java, JRE1.3.1までの変換表、[Ja140]: Java, JRE1.4.0以降の変換表。
+Javaの表は、EUC/Shift\_JIS/JISで微妙に異なっている。
+[g]: libs/gd/jisx0208.hの変換表(ptexencでiconv不使用時に利用)。
+(\#): AJ1-5。
+JIS1-1-79の[J](J): JISでは、JIS X 0201ローマ字の円記号(いわゆる半角の円記号)と
+区別する必要がある場合は後者、特に区別する必要がない場合は
+前者ということになっているらしいが、
+前者を採用している実装はかなり少数派と思われる。
+
+参考: {\tt http://euc.jp/i18n/ucsnote.ja.html}, 
+{\tt http://hp.vector.co.jp/authors/VA010341/unicode/}, \\
+{\tt http://www.ingrid.org/java/i18n/unicode.html}, 
+{\tt http://www.asahi-net.or.jp/~hc3j-tkg/unicode/}, \\
+{\tt http://www.y-adagio.com/public/standards/tr\_xml\_jpf/kaisetsu.htm}
+
+\vspace{3mm}
+\baselineskip15pt
+
+上記の※は主に
+``http://euc.jp/i18n/ucsnote.ja.html''から採用されたものと思うが、
+この表はかなり広く似た文字を拾い集めたものであって、
+実装例が稀な例を含んでいる。実装例の稀なものまで考慮する必然性はない。
+
+gdの変換表は、Windows CP932と同等と思われる。
+Java, Macの変換表は
+旧いものを除くと、(この表に含まれている文字の範囲では)JISと同等と
+思われる。JIS X 0201ローマ字のいわゆる半角円記号(0x5c)をUnicodeの
+どこに対応付けるかで若干異なっているそうだが、
+pTeX/upTeXでは、JIS X 0201の半角円記号(0x5c)は
+ASCIIのバックスラッシュ(0x5c)と区別することが不可能であるため、
+0x5c→U+005Cの変換を採用する他ない。
+
+以上のような状況からすると、upTeXでのJIS→Unicode変換表の影響については
+[W][J]の二者を考慮しておけば問題ないと思われる。
+なお、JISの変換表は、規格上では規定ではなく参考扱いであり、
+この変換表に従わなくとも規格違反にはならないそうだ。
+
+
+\section{upTeXでのJIS→Unicode変換表の好ましい形態}
+upTeXでは、「JISで書かれたpTeX用のソースを
+非常に少ない変更でupTeXでも同等にタイプセットできる」
+という方針にしている。
+また
+「pTeXでは、min10.\{tfm,vf\}→rml.\{tfm,vf\}→CMapのH→dvipsまたは
+dvipdfmx出力」
+「upTeXでは、upjisr-h.\{tfm,vf\}→uprml-h.\{tfm,vf\}→CMapのUniJIS-UTF16-H→
+dvipsまたはdvipdfmx出力」
+を基本に考えている。
+同様の最終出力を想定した場合に、文字コード→CIDのマッピングの変更は
+vfや、新規のCMapの利用などでも可能であるが、
+既存のCMap(HやUniJIS-UTF16-H)で出来るだけ可能にしておきたい(2)(4)(5)。
+
+また、Windowsの変換表は文字の意味上JISやUnicodeの規定から
+かけはなれた変換を行っているものがある。
+組版上の副作用がない範囲内ではJISの変換表を優先させたい(3)。
+
+また、JIS X 0213で区別されている文字は、
+この対応表の結果でも区別できるようにしておきたい(4)。
+
+
+\parindent0mm
+\begin{tabular}{ccp{145mm}}
+分類 & 実装例 & upTeXでの採用の理由\\\hline
+(1) & [J][W] & 対抗の候補の実装例が稀で、考慮に値しないと思われる。\\
+(2) & [W] & [J]に従うと、JIS\&HとUnicode\&UniJIS-UTF16-Hで異なる結果
+ になってしまう。[W]では、JISの規定上文字の意味を変更していることに
+ になってしまうが、やむを得ない。\\
+(3) & [J] & CMapの結果上差異はないが、文字の意味としては[W]の変換は
+ 誤っていると思われる。\\
+(4) & [J] & [W]に従うと、JIS\&HとUnicode\&UniJIS-UTF16-Hで異なる結果
+ になる上AJ1-4外になりしかも変換の文字の意味として
+ 誤っていると思われる。[W]のUnicodeの値は、JIS X 0213で別字に割り当てられ
+ ており整合性が悪い。\\
+(5) & [W] & [J]に従うと、JIS+CMapのHとUnicode+CMapのUniJIS-UTF16-Hで異なる結果
+ になってしまうが、[W]でも``FULLWIDTH''の差のみで文字の意味を変更していることにはならない。\\
+(6) & [J][W] & 下記。JIS→Unicodeの変換表には揺らぎがないが、CIDとの対応では互換性が無い。
+ 文字コード変換部分以外 (vf, CMapなど) に別途要対策。\\\hline
+\end{tabular}
+
+\parindent1zw
+
+結果的には、[J]でも[W]でもない変換表がupTeXにとっては好ましい。
+「変換表の乱立に拍車を掛ける」という批判もあるかもしれないので、
+副作用について考えてみる。
+upTeX(内部Unicode動作)でJIS→Unicodeの変換をした場合、
+再度Unicode→JISに変換することは、わずかな例外
+(端末への出力で、端末の環境がEUCなどJIS系であった場合)のみであり、
+ファイル出力などでUnicode→JIS変換が利用されることはない。
+JIS→Unicode→JISのラウンドトリップは保証されている。
+副作用があるとすれば、
+JIS→Unicodeの変換したファイル出力(logやauxなど)を、
+例えばWindowsで入出力がUTF-8だが内部がCP932で動作しているような
+ソフトで編集をすると、
+文字欠けなどの危険がある。
+しかし、そのようなケースは稀だと思われるし、
+考慮しなくていいだろう。
+JIS→Unicodeの変換が安定であることのメリットの方が
+大きいと判断する。
+
+\section{upTeXでのUnicode→CID変換}
+下記の例は、JIS→Unicodeの変換については疑義がなく明解だが、
+CIDとの対応を含めて考えると、
+「pTeXでは、min10.\{tfm,vf\}→rml.\{tfm,vf\}→CMapのH→dvipsまたは
+dvipdfmx出力」
+「upTeXでは、upjisr-h.\{tfm,vf\}→uprml-h.\{tfm,vf\}→CMapのUniJIS-UTF16-H→
+dvipsまたはdvipdfmx出力」
+という方針では対応できず、別途対策が必要。
+UniJIS-UTF16-Hの代わりにUniJIS-UCS2-HでOKという話ならAdobe標準CMapの切り替えで対応可能であるが。
+文字コード変換部分ではどうにもならないので、
+vfかCMapの機能を使わざるを得ない。
+現在、「upjisr-h.vf → JISコード\&rml.\{tfm,vf\} →CMapのH」の
+対応付けを行うコースを最有力と考えている。
+
+\parindent0mm
+\begin{tabular}{l@{~}l|l@{~}l@{~}|l@{~}c@{~}|l}\hline
+JIS & H, V & UCS2 & UniJIS-UTF16 & 実装例 & upTeX & 備考\\\hline
+\MKTx{2148}{1-1-40} & \CIDx{672}
+   & \UTFx{201C} & \CIDx{108} & [g][J][W][M] & (6) & LEFT DOUBLE QUOTATION MARK\\\cline{3-7}
+ & & 該当なし & \CIDx{672} &  &  &   \\\hline\hline
+
+\MKTx{2149}{1-1-41} & \CIDx{673}
+   & \UTFx{201D} & \CIDx{122} & [g][J][M][W] & (6) & RIGHT DOUBLE QUOTATION MARK \\\cline{3-7}
+ & & 該当なし & \CIDx{673} &  &  &   \\\hline
+\end{tabular}
+
+\end{document}

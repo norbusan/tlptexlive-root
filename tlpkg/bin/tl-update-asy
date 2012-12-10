@@ -1,0 +1,119 @@
+#!/bin/sh
+# $Id: tl-update-asy 23155 2011-06-28 00:43:01Z karl $
+# Public domain.  Originally written 2008, Karl Berry.
+# Info about updating asymptote.
+# 
+# Do not run this script.  It won't work.  It is necessary to run the
+# commands one at a time and think about what is being done.  It's
+# checked in so that when I get hit by a truck, at least the procedure I
+# used will be there as a starting point.
+# 
+# The script uses various paths and convenience variables that I define
+# for myself; feel free to peruse tug.org:~karl/.bash_login, etc.
+# --karl
+
+ver=...   # the newly-released version
+
+test "x$1" = x--build || exit 1
+
+# 
+if false && $update_sources_from_ctan; then
+  # this part is about copying the sources from CTAN to TL.
+  cd $B/source/utils/
+  edit README for asymptote$ver
+  (cd asymptote && make distclean; sup && sat)  # be sure no dregs
+  \cp -arf /home/ftp/tex-archive/graphics/asymptote/ .
+
+  cd asymptote
+  # get list of new files to add:
+  svn status | sed -n 's/^\?//p' | fgrep -v binaries
+  svn add `!!`
+  
+  # get list of files to remove:
+  diff -qr . /home/ftp/tex-archive/graphics/asymptote/ \
+  | egrep -v ' differ' | egrep -v '\.svn|gc-'
+  svn rm ...
+
+  # final check and commit:
+  svn status
+  svn commit -m"asy $ver sources" . ../README
+  exit $?
+
+# 
+elif test "x$1" = x--build; then
+  # this part is about building the i386-linux asymptote on tug.org.
+  # Despite all the dire warnings above, this part actually can be run
+  # as a script, because it's so often necessary to run and rerun (and
+  # rerun) the build.
+  set -e
+  PATH=/usr/bin:/bin:/sbin; export PATH  # system gcc for sake of shared libs
+  unset GREP_OPTIONS
+  
+  cd /home/texlive/karl/Build/source/utils/asymptote
+  /usr/local/bin/svn update
+  /usr/local/bin/svn revert asy-keywords.el
+  mv .svn dot.svn
+  if test -f Makefile; then
+    make clean
+    rm -f Makefile config.h config.log config.status errors.temp
+    rm -rf autom4te.cache
+  fi
+  rm -rf /tmp/ainst
+  ./configure --with-latex=/tmp/ainst/latex --with-context=/tmp/ainst/context \
+              --enable-texlive-build --prefix=/tmp/ainst #CFLAGS=-g
+  nice make
+  make install-prebuilt
+  mv dot.svn .svn
+  exit 0
+
+
+# 
+elif false && $update_runtime_from_ainst; then
+  # this part is about copying the results of a successful build 
+  # and install (from the previous section) into the Master/texmf runtime.
+  cp="cp -af"
+
+  xu=$B/source/utils
+  xy=$xu/asymptote
+  cd $xy
+  $cp binaries/i386-win32/texlive/asy.exe $cb/
+  $cp binaries/i386-win32/texlive/asy.exe $pg/asymptote/
+
+  cd /tmp/ainst
+  $cp share/info/{*/,}*.info $xmf/doc/info
+  $cp share/man/man1/asy.1 $xmf/doc/man/man1/asy.1
+  $cp share/man/man1/xasy.1x $xmf/doc/man/man1/xasy.1
+  $cp -r share/doc/asymptote $xmf/doc
+  #
+  $cp -r share/asymptote $xmf
+  #
+  $cp latex/asymptote/* $xmf/tex/latex/asymptote/
+  $cp context*/asymptote/* $xmf/tex/context/asymptote/
+  #
+  $cp bin/asy $lb/
+  strip $lb/asy
+
+  cd $xmf/doc/man
+  make
+  
+  ci="$xu/README \
+    $xy \
+    $cb \
+    $lb/asy \
+    $pg/asymptote/ \
+    $xmf/asymptote/ \
+    $xmf/doc \
+    $xmf/tex/*/asymptote"
+
+  svn status $ci | sed -n 's/^\?//p' | fgrep -v binaries
+  svn add `!!`
+
+  cd /tmp/ainst
+  diff -qr share/asymptote/ /home/texlive/karl/Master/texmf/asymptote/ | fgrep -v .svn
+  #svn rm ...
+
+  diff -qr share/doc/asymptote/ /home/texlive/karl/Master/texmf/doc/asymptote/ | fgrep -v .svn
+  #svn rm ...
+
+  scom -m"asymptote $ver" $ci
+fi

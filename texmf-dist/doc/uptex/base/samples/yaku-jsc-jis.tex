@@ -1,0 +1,69 @@
+\makeatletter
+\def\@default{default}
+\def\jsbook{jsbook}
+\ifx\class\@undefined
+ \def\class{jsarticle}
+\fi
+\ifx\option\@undefined
+ \def\option{default}
+\fi
+\ifx\option\@default
+ \documentclass{\class}
+\else
+ \documentclass[\option]{\class}
+\fi
+\makeatother
+
+\DeclareFontFamily{JY1}{min}{}
+\DeclareFontFamily{JY1}{jis}{}
+\DeclareFontShape{JY1}{min}{m}{n}{<->s*[0.961]min10}{}
+\DeclareFontShape{JY1}{jis}{m}{n}{<->s*[0.961]jis}{}
+\DeclareRobustCommand\minten{\kanjifamily{min}\selectfont}
+\DeclareRobustCommand\jis{\kanjifamily{jis}\selectfont}
+
+\begin{document}
+option: \option
+\ifx\class\jsbook
+\chapter{新ドキュメントクラス}
+\fi
+\section{拗音、句読点など}
+\xdef\testtext{%
+カムチャッカ．
+ちょっと、待って。きっと，ショック．~~
+‘回’ “回” }%
+\begin{tabular}{rl}\hline
+default & \testtext\\\hline
+
+min10.tfm &
+{\minten \testtext}\\\hline
+
+jis.tfm &
+{\jis \testtext}\\\hline
+
+\end{tabular}
+
+\section{文字のサイズなど}
+\xdef\testtext{%
+\frame{：}~~\frame{“}\frame{回}\frame{：}\frame{回}\frame{”}~~“回：回”}%
+
+{\huge
+\begin{tabular}{rl}
+default & \testtext\\
+
+min10.tfm &
+{\minten \testtext}\\
+
+jis.tfm &
+{\jis \testtext}\\
+
+\end{tabular}
+}
+
+\section{括弧類}
+\subsection{JIS X 0208にあるもの}
+‘回’ “回” （回） 〔回〕 ［回］ ｛回｝ 〈回〉 《回》 「回」 『回』 【回】
+
+{\gt
+‘回’ “回” （回） 〔回〕 ［回］ ｛回｝ 〈回〉 《回》 「回」 『回』 【回】
+}
+\end{document}

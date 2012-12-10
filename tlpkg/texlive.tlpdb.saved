@@ -1,0 +1,1640 @@
+name 00texlive.config
+category TLCore
+revision 1
+depend container_format/xz
+depend release/2011-ptexlive
+depend container_format/xz
+depend container_split_doc_files/1
+depend container_split_src_files/1
+depend minrelease/2010
+depend release/2011
+depend revision/1
+
+name 00texlive.installation
+category TLCore
+depend setting_available_architectures:i386-linux x86_64-darwin i386-netbsd i386-freebsd universal-darwin win32 amd64-freebsd x86_64-linux i386-cygwin
+depend opt_autobackup:1
+depend opt_backupdir:tlpkg/backups
+depend opt_create_formats:1
+depend opt_desktop_integration:1
+depend opt_file_assocs:1
+depend opt_generate_updmap:0
+depend opt_install_docfiles:1
+depend opt_install_srcfiles:1
+depend opt_location:__MASTER__
+depend opt_post_code:1
+depend opt_sys_bin:/usr/local/bin
+depend opt_sys_info:/usr/local/info
+depend opt_sys_man:/usr/local/man
+depend opt_w32_multi_user:0
+
+name dvipdfmx.amd64-freebsd
+category Package
+revision 25001
+binfiles arch=amd64-freebsd size=199
+ bin/amd64-freebsd/dvipdfmx
+ bin/amd64-freebsd/ebb
+ bin/amd64-freebsd/extractbb
+binfiles arch=i386-cygwin size=199
+ bin/amd64-freebsd/dvipdfmx
+ bin/amd64-freebsd/ebb
+ bin/amd64-freebsd/extractbb
+binfiles arch=i386-freebsd size=199
+ bin/amd64-freebsd/dvipdfmx
+ bin/amd64-freebsd/ebb
+ bin/amd64-freebsd/extractbb
+binfiles arch=i386-linux size=199
+ bin/amd64-freebsd/dvipdfmx
+ bin/amd64-freebsd/ebb
+ bin/amd64-freebsd/extractbb
+binfiles arch=i386-netbsd size=199
+ bin/amd64-freebsd/dvipdfmx
+ bin/amd64-freebsd/ebb
+ bin/amd64-freebsd/extractbb
+binfiles arch=universal-darwin size=199
+ bin/amd64-freebsd/dvipdfmx
+ bin/amd64-freebsd/ebb
+ bin/amd64-freebsd/extractbb
+binfiles arch=win32 size=199
+ bin/amd64-freebsd/dvipdfmx
+ bin/amd64-freebsd/ebb
+ bin/amd64-freebsd/extractbb
+binfiles arch=x86_64-darwin size=199
+ bin/amd64-freebsd/dvipdfmx
+ bin/amd64-freebsd/ebb
+ bin/amd64-freebsd/extractbb
+binfiles arch=x86_64-linux size=199
+ bin/amd64-freebsd/dvipdfmx
+ bin/amd64-freebsd/ebb
+ bin/amd64-freebsd/extractbb
+
+name dvipdfmx.i386-cygwin
+category Package
+revision 25001
+binfiles arch=amd64-freebsd size=183
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
+binfiles arch=i386-cygwin size=183
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
+binfiles arch=i386-freebsd size=183
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
+binfiles arch=i386-linux size=183
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
+binfiles arch=i386-netbsd size=183
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
+binfiles arch=universal-darwin size=183
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
+binfiles arch=win32 size=183
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
+binfiles arch=x86_64-darwin size=183
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
+binfiles arch=x86_64-linux size=183
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
+
+name dvipdfmx.i386-freebsd
+category Package
+revision 25001
+binfiles arch=amd64-freebsd size=179
+ bin/i386-freebsd/dvipdfmx
+ bin/i386-freebsd/ebb
+ bin/i386-freebsd/extractbb
+binfiles arch=i386-cygwin size=179
+ bin/i386-freebsd/dvipdfmx
+ bin/i386-freebsd/ebb
+ bin/i386-freebsd/extractbb
+binfiles arch=i386-freebsd size=179
+ bin/i386-freebsd/dvipdfmx
+ bin/i386-freebsd/ebb
+ bin/i386-freebsd/extractbb
+binfiles arch=i386-linux size=179
+ bin/i386-freebsd/dvipdfmx
+ bin/i386-freebsd/ebb
+ bin/i386-freebsd/extractbb
+binfiles arch=i386-netbsd size=179
+ bin/i386-freebsd/dvipdfmx
+ bin/i386-freebsd/ebb
+ bin/i386-freebsd/extractbb
+binfiles arch=universal-darwin size=179
+ bin/i386-freebsd/dvipdfmx
+ bin/i386-freebsd/ebb
+ bin/i386-freebsd/extractbb
+binfiles arch=win32 size=179
+ bin/i386-freebsd/dvipdfmx
+ bin/i386-freebsd/ebb
+ bin/i386-freebsd/extractbb
+binfiles arch=x86_64-darwin size=179
+ bin/i386-freebsd/dvipdfmx
+ bin/i386-freebsd/ebb
+ bin/i386-freebsd/extractbb
+binfiles arch=x86_64-linux size=179
+ bin/i386-freebsd/dvipdfmx
+ bin/i386-freebsd/ebb
+ bin/i386-freebsd/extractbb
+
+name dvipdfmx.i386-linux
+category Package
+revision 25001
+binfiles arch=amd64-freebsd size=181
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+binfiles arch=i386-cygwin size=181
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+binfiles arch=i386-freebsd size=181
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+binfiles arch=i386-linux size=181
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+binfiles arch=i386-netbsd size=181
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+binfiles arch=universal-darwin size=181
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+binfiles arch=win32 size=181
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+binfiles arch=x86_64-darwin size=181
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+binfiles arch=x86_64-linux size=181
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+
+name dvipdfmx.i386-netbsd
+category Package
+revision 25001
+binfiles arch=amd64-freebsd size=171
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+binfiles arch=i386-cygwin size=171
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+binfiles arch=i386-freebsd size=171
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+binfiles arch=i386-linux size=171
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+binfiles arch=i386-netbsd size=171
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+binfiles arch=universal-darwin size=171
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+binfiles arch=win32 size=171
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+binfiles arch=x86_64-darwin size=171
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+binfiles arch=x86_64-linux size=171
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+
+name dvipdfmx.universal-darwin
+category Package
+revision 25001
+binfiles arch=amd64-freebsd size=544
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+binfiles arch=i386-cygwin size=544
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+binfiles arch=i386-freebsd size=544
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+binfiles arch=i386-linux size=544
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+binfiles arch=i386-netbsd size=544
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+binfiles arch=universal-darwin size=544
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+binfiles arch=win32 size=544
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+binfiles arch=x86_64-darwin size=544
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+binfiles arch=x86_64-linux size=544
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+
+name dvipdfmx.win32
+category Package
+revision 25001
+binfiles arch=win32 size=194
+ bin/win32/dvipdfmx.dll
+ bin/win32/dvipdfmx.exe
+ bin/win32/ebb.exe
+ bin/win32/extractbb.exe
+
+name dvipdfmx.x86_64-darwin
+category Package
+revision 25001
+binfiles arch=amd64-freebsd size=215
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+binfiles arch=i386-cygwin size=215
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+binfiles arch=i386-freebsd size=215
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+binfiles arch=i386-linux size=215
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+binfiles arch=i386-netbsd size=215
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+binfiles arch=universal-darwin size=215
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+binfiles arch=win32 size=215
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+binfiles arch=x86_64-darwin size=215
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+binfiles arch=x86_64-linux size=215
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+
+name dvipdfmx.x86_64-linux
+category Package
+revision 25437
+binfiles arch=amd64-freebsd size=205
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+binfiles arch=i386-cygwin size=205
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+binfiles arch=i386-freebsd size=205
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+binfiles arch=i386-linux size=205
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+binfiles arch=i386-netbsd size=205
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+binfiles arch=universal-darwin size=205
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+binfiles arch=win32 size=205
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+binfiles arch=x86_64-darwin size=205
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+binfiles arch=x86_64-linux size=205
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+
+name pmetapost
+category Package
+revision 3
+depend pmetapost.ARCH
+runfiles size=1
+ texmf-dist/metapost/pmetapost/pmpost.mp
+
+name pmetapost.amd64-freebsd
+category Package
+revision 5
+shortdesc amd64-freebsd files of pmetapost
+binfiles arch=amd64-freebsd size=139
+ bin/amd64-freebsd/pdvitomp
+ bin/amd64-freebsd/pmpost
+
+name pmetapost.i386-cygwin
+category Package
+revision 5
+shortdesc i386-cygwin files of pmetapost
+binfiles arch=i386-cygwin size=128
+ bin/i386-cygwin/pdvitomp
+ bin/i386-cygwin/pmpost.exe
+
+name pmetapost.i386-freebsd
+category Package
+revision 5
+shortdesc i386-freebsd files of pmetapost
+binfiles arch=i386-freebsd size=130
+ bin/i386-freebsd/pdvitomp
+ bin/i386-freebsd/pmpost
+
+name pmetapost.i386-linux
+category Package
+revision 5
+shortdesc i386-linux files of pmetapost
+binfiles arch=i386-linux size=129
+ bin/i386-linux/pdvitomp
+ bin/i386-linux/pmpost
+
+name pmetapost.i386-netbsd
+category Package
+revision 5
+shortdesc i386-netbsd files of pmetapost
+binfiles arch=i386-netbsd size=123
+ bin/i386-netbsd/pdvitomp
+ bin/i386-netbsd/pmpost
+
+name pmetapost.universal-darwin
+category Package
+revision 5
+shortdesc universal-darwin files of pmetapost
+binfiles arch=universal-darwin size=398
+ bin/universal-darwin/pdvitomp
+ bin/universal-darwin/pmpost
+
+name pmetapost.win32
+category Package
+revision 4
+shortdesc win32 files of pmetapost
+binfiles arch=win32 size=136
+ bin/win32/pmpost.exe
+
+name pmetapost.x86_64-darwin
+category Package
+revision 5
+shortdesc x86_64-darwin files of pmetapost
+binfiles arch=x86_64-darwin size=163
+ bin/x86_64-darwin/pdvitomp
+ bin/x86_64-darwin/pmpost
+
+name pmetapost.x86_64-linux
+category Package
+revision 6
+shortdesc x86_64-linux files of pmetapost
+binfiles arch=x86_64-linux size=142
+ bin/x86_64-linux/pdvitomp
+ bin/x86_64-linux/pmpost
+
+name ptex.amd64-freebsd
+category Package
+revision 25000
+binfiles arch=amd64-freebsd size=511
+ bin/amd64-freebsd/eptex
+ bin/amd64-freebsd/makejvf
+ bin/amd64-freebsd/mendex
+ bin/amd64-freebsd/pbibtex
+ bin/amd64-freebsd/pdvitype
+ bin/amd64-freebsd/platex
+ bin/amd64-freebsd/ppltotf
+ bin/amd64-freebsd/ptex
+ bin/amd64-freebsd/ptftopl
+binfiles arch=i386-cygwin size=511
+ bin/amd64-freebsd/eptex
+ bin/amd64-freebsd/makejvf
+ bin/amd64-freebsd/mendex
+ bin/amd64-freebsd/pbibtex
+ bin/amd64-freebsd/pdvitype
+ bin/amd64-freebsd/platex
+ bin/amd64-freebsd/ppltotf
+ bin/amd64-freebsd/ptex
+ bin/amd64-freebsd/ptftopl
+binfiles arch=i386-freebsd size=511
+ bin/amd64-freebsd/eptex
+ bin/amd64-freebsd/makejvf
+ bin/amd64-freebsd/mendex
+ bin/amd64-freebsd/pbibtex
+ bin/amd64-freebsd/pdvitype
+ bin/amd64-freebsd/platex
+ bin/amd64-freebsd/ppltotf
+ bin/amd64-freebsd/ptex
+ bin/amd64-freebsd/ptftopl
+binfiles arch=i386-linux size=511
+ bin/amd64-freebsd/eptex
+ bin/amd64-freebsd/makejvf
+ bin/amd64-freebsd/mendex
+ bin/amd64-freebsd/pbibtex
+ bin/amd64-freebsd/pdvitype
+ bin/amd64-freebsd/platex
+ bin/amd64-freebsd/ppltotf
+ bin/amd64-freebsd/ptex
+ bin/amd64-freebsd/ptftopl
+binfiles arch=i386-netbsd size=511
+ bin/amd64-freebsd/eptex
+ bin/amd64-freebsd/makejvf
+ bin/amd64-freebsd/mendex
+ bin/amd64-freebsd/pbibtex
+ bin/amd64-freebsd/pdvitype
+ bin/amd64-freebsd/platex
+ bin/amd64-freebsd/ppltotf
+ bin/amd64-freebsd/ptex
+ bin/amd64-freebsd/ptftopl
+binfiles arch=universal-darwin size=511
+ bin/amd64-freebsd/eptex
+ bin/amd64-freebsd/makejvf
+ bin/amd64-freebsd/mendex
+ bin/amd64-freebsd/pbibtex
+ bin/amd64-freebsd/pdvitype
+ bin/amd64-freebsd/platex
+ bin/amd64-freebsd/ppltotf
+ bin/amd64-freebsd/ptex
+ bin/amd64-freebsd/ptftopl
+binfiles arch=win32 size=511
+ bin/amd64-freebsd/eptex
+ bin/amd64-freebsd/makejvf
+ bin/amd64-freebsd/mendex
+ bin/amd64-freebsd/pbibtex
+ bin/amd64-freebsd/pdvitype
+ bin/amd64-freebsd/platex
+ bin/amd64-freebsd/ppltotf
+ bin/amd64-freebsd/ptex
+ bin/amd64-freebsd/ptftopl
+binfiles arch=x86_64-darwin size=511
+ bin/amd64-freebsd/eptex
+ bin/amd64-freebsd/makejvf
+ bin/amd64-freebsd/mendex
+ bin/amd64-freebsd/pbibtex
+ bin/amd64-freebsd/pdvitype
+ bin/amd64-freebsd/platex
+ bin/amd64-freebsd/ppltotf
+ bin/amd64-freebsd/ptex
+ bin/amd64-freebsd/ptftopl
+binfiles arch=x86_64-linux size=511
+ bin/amd64-freebsd/eptex
+ bin/amd64-freebsd/makejvf
+ bin/amd64-freebsd/mendex
+ bin/amd64-freebsd/pbibtex
+ bin/amd64-freebsd/pdvitype
+ bin/amd64-freebsd/platex
+ bin/amd64-freebsd/ppltotf
+ bin/amd64-freebsd/ptex
+ bin/amd64-freebsd/ptftopl
+
+name ptex.i386-cygwin
+category Package
+revision 25000
+binfiles arch=amd64-freebsd size=456
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
+binfiles arch=i386-cygwin size=456
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
+binfiles arch=i386-freebsd size=456
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
+binfiles arch=i386-linux size=456
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
+binfiles arch=i386-netbsd size=456
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
+binfiles arch=universal-darwin size=456
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
+binfiles arch=win32 size=456
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
+binfiles arch=x86_64-darwin size=456
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
+binfiles arch=x86_64-linux size=456
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
+
+name ptex.i386-freebsd
+category Package
+revision 25000
+binfiles arch=amd64-freebsd size=472
+ bin/i386-freebsd/eptex
+ bin/i386-freebsd/makejvf
+ bin/i386-freebsd/mendex
+ bin/i386-freebsd/pbibtex
+ bin/i386-freebsd/pdvitype
+ bin/i386-freebsd/platex
+ bin/i386-freebsd/ppltotf
+ bin/i386-freebsd/ptex
+ bin/i386-freebsd/ptftopl
+binfiles arch=i386-cygwin size=472
+ bin/i386-freebsd/eptex
+ bin/i386-freebsd/makejvf
+ bin/i386-freebsd/mendex
+ bin/i386-freebsd/pbibtex
+ bin/i386-freebsd/pdvitype
+ bin/i386-freebsd/platex
+ bin/i386-freebsd/ppltotf
+ bin/i386-freebsd/ptex
+ bin/i386-freebsd/ptftopl
+binfiles arch=i386-freebsd size=472
+ bin/i386-freebsd/eptex
+ bin/i386-freebsd/makejvf
+ bin/i386-freebsd/mendex
+ bin/i386-freebsd/pbibtex
+ bin/i386-freebsd/pdvitype
+ bin/i386-freebsd/platex
+ bin/i386-freebsd/ppltotf
+ bin/i386-freebsd/ptex
+ bin/i386-freebsd/ptftopl
+binfiles arch=i386-linux size=472
+ bin/i386-freebsd/eptex
+ bin/i386-freebsd/makejvf
+ bin/i386-freebsd/mendex
+ bin/i386-freebsd/pbibtex
+ bin/i386-freebsd/pdvitype
+ bin/i386-freebsd/platex
+ bin/i386-freebsd/ppltotf
+ bin/i386-freebsd/ptex
+ bin/i386-freebsd/ptftopl
+binfiles arch=i386-netbsd size=472
+ bin/i386-freebsd/eptex
+ bin/i386-freebsd/makejvf
+ bin/i386-freebsd/mendex
+ bin/i386-freebsd/pbibtex
+ bin/i386-freebsd/pdvitype
+ bin/i386-freebsd/platex
+ bin/i386-freebsd/ppltotf
+ bin/i386-freebsd/ptex
+ bin/i386-freebsd/ptftopl
+binfiles arch=universal-darwin size=472
+ bin/i386-freebsd/eptex
+ bin/i386-freebsd/makejvf
+ bin/i386-freebsd/mendex
+ bin/i386-freebsd/pbibtex
+ bin/i386-freebsd/pdvitype
+ bin/i386-freebsd/platex
+ bin/i386-freebsd/ppltotf
+ bin/i386-freebsd/ptex
+ bin/i386-freebsd/ptftopl
+binfiles arch=win32 size=472
+ bin/i386-freebsd/eptex
+ bin/i386-freebsd/makejvf
+ bin/i386-freebsd/mendex
+ bin/i386-freebsd/pbibtex
+ bin/i386-freebsd/pdvitype
+ bin/i386-freebsd/platex
+ bin/i386-freebsd/ppltotf
+ bin/i386-freebsd/ptex
+ bin/i386-freebsd/ptftopl
+binfiles arch=x86_64-darwin size=472
+ bin/i386-freebsd/eptex
+ bin/i386-freebsd/makejvf
+ bin/i386-freebsd/mendex
+ bin/i386-freebsd/pbibtex
+ bin/i386-freebsd/pdvitype
+ bin/i386-freebsd/platex
+ bin/i386-freebsd/ppltotf
+ bin/i386-freebsd/ptex
+ bin/i386-freebsd/ptftopl
+binfiles arch=x86_64-linux size=472
+ bin/i386-freebsd/eptex
+ bin/i386-freebsd/makejvf
+ bin/i386-freebsd/mendex
+ bin/i386-freebsd/pbibtex
+ bin/i386-freebsd/pdvitype
+ bin/i386-freebsd/platex
+ bin/i386-freebsd/ppltotf
+ bin/i386-freebsd/ptex
+ bin/i386-freebsd/ptftopl
+
+name ptex.i386-linux
+category Package
+revision 25000
+binfiles arch=amd64-freebsd size=463
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+binfiles arch=i386-cygwin size=463
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+binfiles arch=i386-freebsd size=463
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+binfiles arch=i386-linux size=463
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+binfiles arch=i386-netbsd size=463
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+binfiles arch=universal-darwin size=463
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+binfiles arch=win32 size=463
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+binfiles arch=x86_64-darwin size=463
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+binfiles arch=x86_64-linux size=463
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+
+name ptex.i386-netbsd
+category Package
+revision 25000
+binfiles arch=amd64-freebsd size=434
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+binfiles arch=i386-cygwin size=434
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+binfiles arch=i386-freebsd size=434
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+binfiles arch=i386-linux size=434
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+binfiles arch=i386-netbsd size=434
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+binfiles arch=universal-darwin size=434
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+binfiles arch=win32 size=434
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+binfiles arch=x86_64-darwin size=434
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+binfiles arch=x86_64-linux size=434
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
+
+name ptex.universal-darwin
+category Package
+revision 25000
+binfiles arch=amd64-freebsd size=1370
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+binfiles arch=i386-cygwin size=1370
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+binfiles arch=i386-freebsd size=1370
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+binfiles arch=i386-linux size=1370
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+binfiles arch=i386-netbsd size=1370
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+binfiles arch=universal-darwin size=1370
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+binfiles arch=win32 size=1370
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+binfiles arch=x86_64-darwin size=1370
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+binfiles arch=x86_64-linux size=1370
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+
+name ptex.win32
+category Package
+revision 25000
+binfiles arch=win32 size=633
+ bin/win32/eptex.dll
+ bin/win32/eptex.exe
+ bin/win32/kpathsea610.dll
+ bin/win32/makejvf.exe
+ bin/win32/mendex.exe
+ bin/win32/pbibtex.exe
+ bin/win32/pdvitype.exe
+ bin/win32/platex.exe
+ bin/win32/ppltotf.exe
+ bin/win32/ptex.dll
+ bin/win32/ptex.exe
+ bin/win32/ptftopl.exe
+
+name ptex.x86_64-darwin
+category Package
+revision 25000
+binfiles arch=amd64-freebsd size=584
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
+binfiles arch=i386-cygwin size=584
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
+binfiles arch=i386-freebsd size=584
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
+binfiles arch=i386-linux size=584
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
+binfiles arch=i386-netbsd size=584
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
+binfiles arch=universal-darwin size=584
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
+binfiles arch=win32 size=584
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
+binfiles arch=x86_64-darwin size=584
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
+binfiles arch=x86_64-linux size=584
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
+
+name ptex.x86_64-linux
+category Package
+revision 25437
+binfiles arch=amd64-freebsd size=493
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
+binfiles arch=i386-cygwin size=493
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
+binfiles arch=i386-freebsd size=493
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
+binfiles arch=i386-linux size=493
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
+binfiles arch=i386-netbsd size=493
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
+binfiles arch=universal-darwin size=493
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
+binfiles arch=win32 size=493
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
+binfiles arch=x86_64-darwin size=493
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
+binfiles arch=x86_64-linux size=493
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
+
+name pxdvi
+category TLCore
+revision 5
+depend pxdvi.ARCH
+docfiles size=31
+ texmf/doc/man/man1/pxdvi.1
+runfiles size=5
+ texmf/fonts/map/pxdvi/xdvi-ptex.map
+ texmf/xdvi/pxdvi.cfg
+ texmf/xdvi/xdvi-ptex.map.sample
+
+name pxdvi.amd64-freebsd
+category TLCore
+revision 7
+shortdesc amd64-freebsd files of pxdvi
+binfiles arch=amd64-freebsd size=366
+ bin/amd64-freebsd/pxdvi
+ bin/amd64-freebsd/pxdvi-xaw
+
+name pxdvi.i386-cygwin
+category TLCore
+revision 7
+shortdesc i386-cygwin files of pxdvi
+binfiles arch=i386-cygwin size=330
+ bin/i386-cygwin/pxdvi
+ bin/i386-cygwin/pxdvi-xaw.exe
+
+name pxdvi.i386-freebsd
+category TLCore
+revision 7
+shortdesc i386-freebsd files of pxdvi
+binfiles arch=i386-freebsd size=330
+ bin/i386-freebsd/pxdvi
+ bin/i386-freebsd/pxdvi-xaw
+
+name pxdvi.i386-linux
+category TLCore
+revision 7
+shortdesc i386-linux files of pxdvi
+binfiles arch=i386-linux size=336
+ bin/i386-linux/pxdvi
+ bin/i386-linux/pxdvi-xaw
+
+name pxdvi.i386-netbsd
+category TLCore
+revision 7
+shortdesc i386-netbsd files of pxdvi
+binfiles arch=i386-netbsd size=305
+ bin/i386-netbsd/pxdvi
+ bin/i386-netbsd/pxdvi-xaw
+
+name pxdvi.universal-darwin
+category TLCore
+revision 7
+shortdesc universal-darwin files of pxdvi
+binfiles arch=universal-darwin size=973
+ bin/universal-darwin/pxdvi
+ bin/universal-darwin/pxdvi-xaw
+
+name pxdvi.x86_64-darwin
+category TLCore
+revision 7
+shortdesc x86_64-darwin files of pxdvi
+binfiles arch=x86_64-darwin size=390
+ bin/x86_64-darwin/pxdvi
+ bin/x86_64-darwin/pxdvi-xaw
+
+name pxdvi.x86_64-linux
+category TLCore
+revision 8
+shortdesc x86_64-linux files of pxdvi
+binfiles arch=x86_64-linux size=373
+ bin/x86_64-linux/pxdvi
+ bin/x86_64-linux/pxdvi-xaw
+
+name uptex
+category Package
+revision 11
+depend ptex
+depend hyph-utf8
+depend adobemapping
+depend ipaex
+depend japanese
+depend japanese-otf
+depend uptex.ARCH
+execute AddFormat name=uptex   engine=uptex options="uptex.ini"
+execute AddFormat name=euptex  engine=euptex options="*euptex.ini"                                patterns=language.def
+execute AddFormat name=uplatex engine=euptex options="*uplatex.ini"                                patterns=language.dat
+execute addKanjiMap uptex-@kanjiEmbed@@kanjiVariant@.map
+docfiles size=178
+ texmf-dist/doc/uplatex/base/README_uplatex.txt
+ texmf-dist/doc/uptex/base/00reaadme_uptex.txt
+ texmf-dist/doc/uptex/base/01uptex_doc_utf8.txt
+ texmf-dist/doc/uptex/base/02uptex_changelog_utf8.txt
+ texmf-dist/doc/uptex/base/README_uptex.txt
+ texmf-dist/doc/uptex/base/samples/00readme_uptex_samples.txt
+ texmf-dist/doc/uptex/base/samples/Makefile
+ texmf-dist/doc/uptex/base/samples/adobe-cid.tex
+ texmf-dist/doc/uptex/base/samples/adobe-cns-utf8.tex
+ texmf-dist/doc/uptex/base/samples/adobe-gb-utf8.tex
+ texmf-dist/doc/uptex/base/samples/adobe-jp-utf8.tex
+ texmf-dist/doc/uptex/base/samples/adobe-kr-utf8.tex
+ texmf-dist/doc/uptex/base/samples/aozora-ujarticle-utf8.tex
+ texmf-dist/doc/uptex/base/samples/aozora-ujbook-utf8.tex
+ texmf-dist/doc/uptex/base/samples/aozora-ujreport-utf8.tex
+ texmf-dist/doc/uptex/base/samples/aozora-utarticle-utf8.tex
+ texmf-dist/doc/uptex/base/samples/aozora-utbook-utf8.tex
+ texmf-dist/doc/uptex/base/samples/aozora-utf8.tex
+ texmf-dist/doc/uptex/base/samples/aozora-utreport-utf8.tex
+ texmf-dist/doc/uptex/base/samples/area-euc-incl.tex
+ texmf-dist/doc/uptex/base/samples/area-euc.mp
+ texmf-dist/doc/uptex/base/samples/area-jis-incl.tex
+ texmf-dist/doc/uptex/base/samples/area-jis.mp
+ texmf-dist/doc/uptex/base/samples/area-sjis-incl.tex
+ texmf-dist/doc/uptex/base/samples/area-sjis.mp
+ texmf-dist/doc/uptex/base/samples/area-uptex-incl.tex
+ texmf-dist/doc/uptex/base/samples/area-uptex.mp
+ texmf-dist/doc/uptex/base/samples/area-utf8-incl.tex
+ texmf-dist/doc/uptex/base/samples/area-utf8.mp
+ texmf-dist/doc/uptex/base/samples/bkmk-jis.tex
+ texmf-dist/doc/uptex/base/samples/bkmk-utf8.tex
+ texmf-dist/doc/uptex/base/samples/box-euc.eps
+ texmf-dist/doc/uptex/base/samples/box-jis.eps
+ texmf-dist/doc/uptex/base/samples/box-sjis.eps
+ texmf-dist/doc/uptex/base/samples/box-utf8.eps
+ texmf-dist/doc/uptex/base/samples/check_enc.pl
+ texmf-dist/doc/uptex/base/samples/cjk_babel.tex
+ texmf-dist/doc/uptex/base/samples/console_io.tex
+ texmf-dist/doc/uptex/base/samples/greek-uplatex.tex
+ texmf-dist/doc/uptex/base/samples/iotext.txt
+ texmf-dist/doc/uptex/base/samples/jbib1-jis.tex
+ texmf-dist/doc/uptex/base/samples/jbib2-utf8.tex
+ texmf-dist/doc/uptex/base/samples/jbtest.bib
+ texmf-dist/doc/uptex/base/samples/jis_uni_variation.tex
+ texmf-dist/doc/uptex/base/samples/jstr-euc-incl.tex
+ texmf-dist/doc/uptex/base/samples/jstr-euc.mp
+ texmf-dist/doc/uptex/base/samples/jstr-jis-incl.tex
+ texmf-dist/doc/uptex/base/samples/jstr-jis.mp
+ texmf-dist/doc/uptex/base/samples/jstr-sjis-incl.tex
+ texmf-dist/doc/uptex/base/samples/jstr-sjis.mp
+ texmf-dist/doc/uptex/base/samples/jstr-uptex-incl.tex
+ texmf-dist/doc/uptex/base/samples/jstr-uptex.mp
+ texmf-dist/doc/uptex/base/samples/jstr-utf8-incl.tex
+ texmf-dist/doc/uptex/base/samples/jstr-utf8.mp
+ texmf-dist/doc/uptex/base/samples/kinsoku-chk-utf8.tex
+ texmf-dist/doc/uptex/base/samples/linebreak.bib
+ texmf-dist/doc/uptex/base/samples/min10x.tfm
+ texmf-dist/doc/uptex/base/samples/misc-check-h-utf8.tex
+ texmf-dist/doc/uptex/base/samples/misc-check-v-utf8.tex
+ texmf-dist/doc/uptex/base/samples/otfsmpl-uplatex.tex
+ texmf-dist/doc/uptex/base/samples/sangoku-uplatex.tex
+ texmf-dist/doc/uptex/base/samples/sangoku-uptex.tex
+ texmf-dist/doc/uptex/base/samples/set3-check-h-utf8.tex
+ texmf-dist/doc/uptex/base/samples/simple-euc.tex
+ texmf-dist/doc/uptex/base/samples/simple-jis.tex
+ texmf-dist/doc/uptex/base/samples/simple-sjis.tex
+ texmf-dist/doc/uptex/base/samples/simple-u-jis.tex
+ texmf-dist/doc/uptex/base/samples/simple-u-utf8.tex
+ texmf-dist/doc/uptex/base/samples/simple-utf8.tex
+ texmf-dist/doc/uptex/base/samples/testrun.bat
+ texmf-dist/doc/uptex/base/samples/texxet-jis.tex
+ texmf-dist/doc/uptex/base/samples/umin10x.tfm
+ texmf-dist/doc/uptex/base/samples/uotftest-utf8.tex
+ texmf-dist/doc/uptex/base/samples/uotftest.tex
+ texmf-dist/doc/uptex/base/samples/utfsmpl-uplatex.tex
+ texmf-dist/doc/uptex/base/samples/widow.tex
+ texmf-dist/doc/uptex/base/samples/yaku-jsc-jis.tex
+ texmf-dist/doc/uptex/base/samples/yaku-jsc-utf8.tex
+srcfiles size=83
+ texmf-dist/source/fonts/uptex/Makefile
+ texmf-dist/source/fonts/uptex/README_ASCII_Corp.txt
+ texmf-dist/source/fonts/uptex/README_uptex_font.txt
+ texmf-dist/source/fonts/uptex/makepl.perl
+ texmf-dist/source/fonts/uptex/upjisr-h-hk.pl
+ texmf-dist/source/fonts/uptex/upjisr-h.pl
+ texmf-dist/source/fonts/uptex/upjisr-v.pl
+ texmf-dist/source/fonts/uptex/uprml-h-hk.pl
+ texmf-dist/source/fonts/uptex/uprml-h.pl
+ texmf-dist/source/uplatex/base/ujclasses.dtx
+ texmf-dist/source/uplatex/base/ukinsoku.dtx
+ texmf-dist/source/uplatex/base/uplatex.dtx
+ texmf-dist/source/uplatex/base/uplcls.ins
+ texmf-dist/source/uplatex/base/uplfmt.ins
+ texmf-dist/source/uplatex/base/uplfonts.dtx
+ texmf-dist/source/uplatex/base/uplvers.dtx
+runfiles size=6278
+ texmf-dist/fonts/map/dvipdfmx/uptex/uptex-noEmbed.map
+ texmf-dist/fonts/tfm/uptex/jis/upgbm-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upgbm-hq.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upgbm-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uphygt-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uphygt-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uphysmjm-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uphysmjm-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjisg-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjisg-hq.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjisg-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjisr-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjisr-hq.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjisr-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjpngt-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjpngt-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjpnrm-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upjpnrm-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upkorgt-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upkorgt-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upkorrm-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upkorrm-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upmhm-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upmhm-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upmsl-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upmsl-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uprml-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uprml-hq.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uprml-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upschgt-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upschgt-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upschrm-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upschrm-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upstht-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upstht-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upstsl-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/upstsl-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uptchgt-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uptchgt-v.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uptchrm-h.tfm
+ texmf-dist/fonts/tfm/uptex/jis/uptchrm-v.tfm
+ texmf-dist/fonts/tfm/uptex/min/ugbm.tfm
+ texmf-dist/fonts/tfm/uptex/min/ugbmv.tfm
+ texmf-dist/fonts/tfm/uptex/min/ugoth10.tfm
+ texmf-dist/fonts/tfm/uptex/min/umin10.tfm
+ texmf-dist/fonts/tfm/uptex/min/urml.tfm
+ texmf-dist/fonts/tfm/uptex/min/urmlv.tfm
+ texmf-dist/fonts/tfm/uptex/min/utgoth10.tfm
+ texmf-dist/fonts/tfm/uptex/min/utmin10.tfm
+ texmf-dist/fonts/vf/uptex/jis/upjisg-h.vf
+ texmf-dist/fonts/vf/uptex/jis/upjisg-hq.vf
+ texmf-dist/fonts/vf/uptex/jis/upjisg-v.vf
+ texmf-dist/fonts/vf/uptex/jis/upjisr-h.vf
+ texmf-dist/fonts/vf/uptex/jis/upjisr-hq.vf
+ texmf-dist/fonts/vf/uptex/jis/upjisr-v.vf
+ texmf-dist/fonts/vf/uptex/jis/upjpngt-h.vf
+ texmf-dist/fonts/vf/uptex/jis/upjpngt-v.vf
+ texmf-dist/fonts/vf/uptex/jis/upjpnrm-h.vf
+ texmf-dist/fonts/vf/uptex/jis/upjpnrm-v.vf
+ texmf-dist/fonts/vf/uptex/jis/upkorgt-h.vf
+ texmf-dist/fonts/vf/uptex/jis/upkorgt-v.vf
+ texmf-dist/fonts/vf/uptex/jis/upkorrm-h.vf
+ texmf-dist/fonts/vf/uptex/jis/upkorrm-v.vf
+ texmf-dist/fonts/vf/uptex/jis/upschgt-h.vf
+ texmf-dist/fonts/vf/uptex/jis/upschgt-v.vf
+ texmf-dist/fonts/vf/uptex/jis/upschrm-h.vf
+ texmf-dist/fonts/vf/uptex/jis/upschrm-v.vf
+ texmf-dist/fonts/vf/uptex/jis/uptchgt-h.vf
+ texmf-dist/fonts/vf/uptex/jis/uptchgt-v.vf
+ texmf-dist/fonts/vf/uptex/jis/uptchrm-h.vf
+ texmf-dist/fonts/vf/uptex/jis/uptchrm-v.vf
+ texmf-dist/fonts/vf/uptex/min/ugoth10.vf
+ texmf-dist/fonts/vf/uptex/min/umin10.vf
+ texmf-dist/fonts/vf/uptex/min/utgoth10.vf
+ texmf-dist/fonts/vf/uptex/min/utmin10.vf
+ texmf-dist/scripts/uptex/convbkmk.rb
+ texmf-dist/tex/uplatex/base/jt2gt.fd
+ texmf-dist/tex/uplatex/base/jt2mc.fd
+ texmf-dist/tex/uplatex/base/jy2gt.fd
+ texmf-dist/tex/uplatex/base/jy2mc.fd
+ texmf-dist/tex/uplatex/base/ujarticle.cls
+ texmf-dist/tex/uplatex/base/ujbk10.clo
+ texmf-dist/tex/uplatex/base/ujbk11.clo
+ texmf-dist/tex/uplatex/base/ujbk12.clo
+ texmf-dist/tex/uplatex/base/ujbook.cls
+ texmf-dist/tex/uplatex/base/ujreport.cls
+ texmf-dist/tex/uplatex/base/ujsize10.clo
+ texmf-dist/tex/uplatex/base/ujsize11.clo
+ texmf-dist/tex/uplatex/base/ujsize12.clo
+ texmf-dist/tex/uplatex/base/ukinsoku.tex
+ texmf-dist/tex/uplatex/base/uplatex.ltx
+ texmf-dist/tex/uplatex/base/uplcore.ltx
+ texmf-dist/tex/uplatex/base/upldefs.ltx
+ texmf-dist/tex/uplatex/base/uplpatch.ltx
+ texmf-dist/tex/uplatex/base/uptrace.sty
+ texmf-dist/tex/uplatex/base/utarticle.cls
+ texmf-dist/tex/uplatex/base/utbk10.clo
+ texmf-dist/tex/uplatex/base/utbk11.clo
+ texmf-dist/tex/uplatex/base/utbk12.clo
+ texmf-dist/tex/uplatex/base/utbook.cls
+ texmf-dist/tex/uplatex/base/utreport.cls
+ texmf-dist/tex/uplatex/base/utsize10.clo
+ texmf-dist/tex/uplatex/base/utsize11.clo
+ texmf-dist/tex/uplatex/base/utsize12.clo
+ texmf-dist/tex/uplatex/config/uplatex.ini
+ texmf-dist/tex/uptex/base/euptex.src
+ texmf-dist/tex/uptex/base/ukinsoku.tex
+ texmf-dist/tex/uptex/base/uptex.tex
+ texmf-dist/tex/uptex/config/euptex.ini
+ texmf-dist/tex/uptex/config/uptex.ini
+
+name uptex.amd64-freebsd
+category Package
+revision 8
+shortdesc amd64-freebsd files of uptex
+binfiles arch=amd64-freebsd size=488
+ bin/amd64-freebsd/convbkmk
+ bin/amd64-freebsd/euptex
+ bin/amd64-freebsd/upbibtex
+ bin/amd64-freebsd/updvitype
+ bin/amd64-freebsd/uplatex
+ bin/amd64-freebsd/uppltotf
+ bin/amd64-freebsd/uptex
+ bin/amd64-freebsd/uptftopl
+ bin/amd64-freebsd/wovp2ovf
+
+name uptex.i386-cygwin
+category Package
+revision 8
+shortdesc i386-cygwin files of uptex
+binfiles arch=i386-cygwin size=424
+ bin/i386-cygwin/convbkmk
+ bin/i386-cygwin/euptex.exe
+ bin/i386-cygwin/upbibtex.exe
+ bin/i386-cygwin/updvitype.exe
+ bin/i386-cygwin/uplatex
+ bin/i386-cygwin/uppltotf.exe
+ bin/i386-cygwin/uptex.exe
+ bin/i386-cygwin/uptftopl.exe
+ bin/i386-cygwin/wovp2ovf.exe
+
+name uptex.i386-freebsd
+category Package
+revision 8
+shortdesc i386-freebsd files of uptex
+binfiles arch=i386-freebsd size=450
+ bin/i386-freebsd/convbkmk
+ bin/i386-freebsd/euptex
+ bin/i386-freebsd/upbibtex
+ bin/i386-freebsd/updvitype
+ bin/i386-freebsd/uplatex
+ bin/i386-freebsd/uppltotf
+ bin/i386-freebsd/uptex
+ bin/i386-freebsd/uptftopl
+ bin/i386-freebsd/wovp2ovf
+
+name uptex.i386-linux
+category Package
+revision 8
+shortdesc i386-linux files of uptex
+binfiles arch=i386-linux size=424
+ bin/i386-linux/convbkmk
+ bin/i386-linux/euptex
+ bin/i386-linux/upbibtex
+ bin/i386-linux/updvitype
+ bin/i386-linux/uplatex
+ bin/i386-linux/uppltotf
+ bin/i386-linux/uptex
+ bin/i386-linux/uptftopl
+ bin/i386-linux/wovp2ovf
+
+name uptex.i386-netbsd
+category Package
+revision 8
+shortdesc i386-netbsd files of uptex
+binfiles arch=i386-netbsd size=410
+ bin/i386-netbsd/convbkmk
+ bin/i386-netbsd/euptex
+ bin/i386-netbsd/upbibtex
+ bin/i386-netbsd/updvitype
+ bin/i386-netbsd/uplatex
+ bin/i386-netbsd/uppltotf
+ bin/i386-netbsd/uptex
+ bin/i386-netbsd/uptftopl
+ bin/i386-netbsd/wovp2ovf
+
+name uptex.universal-darwin
+category Package
+revision 8
+shortdesc universal-darwin files of uptex
+binfiles arch=universal-darwin size=1304
+ bin/universal-darwin/convbkmk
+ bin/universal-darwin/euptex
+ bin/universal-darwin/upbibtex
+ bin/universal-darwin/updvitype
+ bin/universal-darwin/uplatex
+ bin/universal-darwin/uppltotf
+ bin/universal-darwin/uptex
+ bin/universal-darwin/uptftopl
+ bin/universal-darwin/wovp2ovf
+
+name uptex.win32
+category Package
+revision 8
+shortdesc win32 files of uptex
+binfiles arch=win32 size=521
+ bin/win32/convbkmk.exe
+ bin/win32/euptex.dll
+ bin/win32/euptex.exe
+ bin/win32/upbibtex.exe
+ bin/win32/updvitype.exe
+ bin/win32/uplatex.exe
+ bin/win32/uppltotf.exe
+ bin/win32/uptex.dll
+ bin/win32/uptex.exe
+ bin/win32/uptftopl.exe
+ bin/win32/wovp2ovf.exe
+
+name uptex.x86_64-darwin
+category Package
+revision 8
+shortdesc x86_64-darwin files of uptex
+binfiles arch=x86_64-darwin size=545
+ bin/x86_64-darwin/convbkmk
+ bin/x86_64-darwin/euptex
+ bin/x86_64-darwin/upbibtex
+ bin/x86_64-darwin/updvitype
+ bin/x86_64-darwin/uplatex
+ bin/x86_64-darwin/uppltotf
+ bin/x86_64-darwin/uptex
+ bin/x86_64-darwin/uptftopl
+ bin/x86_64-darwin/wovp2ovf
+
+name uptex.x86_64-linux
+category Package
+revision 9
+shortdesc x86_64-linux files of uptex
+binfiles arch=x86_64-linux size=457
+ bin/x86_64-linux/convbkmk
+ bin/x86_64-linux/euptex
+ bin/x86_64-linux/upbibtex
+ bin/x86_64-linux/updvitype
+ bin/x86_64-linux/uplatex
+ bin/x86_64-linux/uppltotf
+ bin/x86_64-linux/uptex
+ bin/x86_64-linux/uptftopl
+ bin/x86_64-linux/wovp2ovf
+

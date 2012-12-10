@@ -1,0 +1,68 @@
+%
+% test of Babel(greek)+UTF8 and CJK multilingual text
+%
+% This file is originally a test file for Utf82TeX
+%%% Utf82TeX sample TeX file for Unix
+%%% (c) 2004-2005, Isao YASUDA, isao@yasuda.homeip.net
+%%% $Id: utf82tex-sample.tex,v 1.2 2006/12/09 15:04:25 isao Exp $
+% and is modified for upLaTeX
+%
+\documentclass[a4j]{ujarticle}
+
+\kcatcode`ç=15% not cjk character
+%\kcatcode`Ŕ=15
+%\kcatcode`П=15
+%\kcatcode`“=15
+\kcatcode`α=15
+\kcatcode`ἀ=15
+\kcatcode`’=15
+
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[10pt]{type1ec}
+\usepackage[T1]{fontenc}
+\usepackage[polutonikogreek]{babel}
+\begin{document}
+
+\selectlanguage{polutonikogreek}
+\section{古典ギリシア語 \protect\textlatin{Polytonic Greek}}
+%% utf82tex default option
+\begin{verse}
+Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ\\
+πλάγχθη, ἐπεὶ Τροίης ἱερόν πτολίεθρον ἔπερσε.\\
+πολλῶν δ’ ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω,\\
+πολλὰ δ’ ὅ γ’ ἐν πόντῳ πάθεν ἄλγεα ὃν κατὰ θῡμόν,\\
+ἀρνύμενος ἥν τε ψῡχὴν καὶ νόστον ἑταίρων.\\
+ἀλλ’ οὐδ’ ὧς ἑτάρους ἐρρύσατο, ἱέμενός περ·\\
+αὐτῶν γὰρ σφετέρῃσιν ἀτασθαλίῃσιν ὄλοντο,\\
+νήπιοι, οἳ κατὰ βοῦς Ὑπερίονος Ἠελίοιο\\
+ἤσθιον· αὐτὰρ ὁ τοῖσιν ἀφείλετο νόστιμον ἦμαρ.\\
+τῶν ἁμόθεν γε, θεά, θύγατερ Διός, εἰπὲ καὶ ἡμῖν.
+\end{verse}
+
+\hfill {\em [ \textit{Ὅμηρος} ]} \qquad\qquad
+
+\vspace{1em}
+ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ 
+αβγδεζηθικλμνξοπρσς τυφχψω\\
+ΆἉἊἋἌἍἎἏ ἀἁἂἃἄἅἆἇ ἘἙἚἛἜἝ ἐἑἒἓἔἕ ἨἩἪἫἬἭἮἯ %
+ἠἡἢἣἤἥἦἧ\\
+ἸἹἺἻἼἽἾἿ ἰ ἱ ἲ ἳ ἴ ἵ ἶ ἷ ὈὉὊὋὌὍ ὀὁὂὃὄὅ ὙὛὝὟ %
+ὐὑὒὓὔὕὖὗ\\
+ὨὩὪὫὬὭὮὯ ὠὡὢὣὤὥὦὧ ὰά ὲέ ὴή ὶί ὸό ὺύ ὼώ\\
+ᾈᾉᾊᾋᾌᾍᾎᾏ ᾀᾁᾂᾃᾄᾅᾆᾇ ᾘᾙᾚᾛᾜᾝᾞᾟ ᾐᾑᾒᾓᾔᾕᾖᾗ\\
+ᾨᾩᾪᾫᾬᾭᾮᾯ ᾠᾡᾢᾣᾤᾥᾦᾧ ᾸᾹᾺΆᾼ ᾰᾱᾲᾳᾴᾶᾷ\\
+ῈΈ ῊΉῌ ῂῃῄῆῇ ῘῙῚΊ ῐ ῑ ΐ ῒ ῖ ῗ\\
+ῠῡ ῢΰ ῤῥ ῦῧ ῨῩ ῪΎ Ῥ ῸΌῺΏῼ ῲῳῴῶῷ\\
+ΆΈΉΊΌΎΏ ΪΫ άέήίόύώ ϊϋ ΐΰ %ϐ ϴϑ ϒϓϔ ϕϖϗ 
+%Ϙϙ Ϛϛ Ϝϝ Ϟϟ Ϡϡ ϰ ϱ ϲ ϳ ϵ ϶· δ᾽\\
+
+%Ϡ%ϡ ϰ ϱ ϲ %ϳ ϵ ϶· δ᾽
+
+\textlatin{Greek Accents}\\
+ʹ ͵ ͺ ; ΄ ΅ · ᾽ ι ᾽ ῀ ῁ ῍ ῎ ῏ ῝ ῞ ῟ ῭ ΅ ` ´ ῾ 
+
+\hfill\today
+
+
+\end{document}

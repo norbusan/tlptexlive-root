@@ -1,0 +1,77 @@
+
+dvipdfmx.BIN:
+		25001 old build before svn 25437
+		26000 just before 26228
+		26010 >= svn rev 26228 (dvipdfmx fix)
+
+dvipdfmx.amd64-freebsd 	25001
+dvipdfmx.i386-cygwin 	26000
+dvipdfmx.i386-freebsd 	25001
+dvipdfmx.i386-linux 	26010
+dvipdfmx.i386-netbsd 	26010
+dvipdfmx.universal-darwin 25001
+dvipdfmx.win32 		26010
+dvipdfmx.x86_64-darwin 	25001
+dvipdfmx.x86_64-linux 	26010
+
+pmetapost:	3
+pmetapost.BIN:
+		5 20120119 patches
+		8 >= svn rev 26228
+
+pmetapost 3
+pmetapost.amd64-freebsd 	5
+pmetapost.i386-cygwin 		8
+pmetapost.i386-freebsd 		5
+pmetapost.i386-linux 		8
+pmetapost.i386-netbsd 		8
+pmetapost.universal-darwin 	5
+pmetapost.win32 		8
+pmetapost.x86_64-darwin 	5
+pmetapost.x86_64-linux 		8
+
+pxdvi:		5
+pxdvi.BIN:	
+		9	>= svn rev 26228
+		7	old build around svn 25437
+
+pxdvi 5
+pxdvi.amd64-freebsd 	7
+pxdvi.i386-cygwin 	9
+pxdvi.i386-freebsd 	7
+pxdvi.i386-linux 	9
+pxdvi.i386-netbsd 	9
+pxdvi.universal-darwin 	7
+pxdvi.x86_64-darwin 	7
+pxdvi.x86_64-linux 	9
+
+ptex.BIN:	
+		25500 >= svn rev 26228
+		25000 old build around svn 25437
+
+ptex.amd64-freebsd 	25000
+ptex.i386-cygwin 	25500
+ptex.i386-freebsd 	25000
+ptex.i386-linux 	25500
+ptex.i386-netbsd 	25500
+ptex.universal-darwin 	25000
+ptex.win32 		25500
+ptex.x86_64-darwin 	25000
+ptex.x86_64-linux 	25500
+
+uptex:		12
+uptex.BIN	
+		13 >= svn rev 26228 (v1.1)
+		8 v1.0 plus wovf2ovp, around svn 25437
+
+uptex 12
+uptex.amd64-freebsd 	8
+uptex.i386-cygwin 	13
+uptex.i386-freebsd 	8
+uptex.i386-linux 	13
+uptex.i386-netbsd 	13
+uptex.universal-darwin 	8
+uptex.win32 		13
+uptex.x86_64-darwin 	8
+uptex.x86_64-linux 	13
+

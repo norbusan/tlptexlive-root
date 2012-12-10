@@ -1,0 +1,18 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{hiraprop}[2003/11/23 v0.3 psitau]
+\@ifpackageloaded{otf}{\if@jsclasses\def\reserved@a{0.961}
+\ifx\utf@sc@le\reserved@a\def\utf@sc@le{0.92469}\fi
+	\else\def\reserved@a{1}\ifx\utf@sc@le\reserved@a
+	\def\utf@sc@le{0.962216}\fi\fi}{\newif\if@jsclasses \@jsclassesfalse
+	\@ifclassloaded{jsarticle}{\@jsclassestrue}{}
+	\@ifclassloaded{jsbook}{\@jsclassestrue}{}
+	\if@jsclasses\def\utf@sc@le{0.92469}\else\def\utf@sc@le{0.962216}\fi}
+\def\hmrdefault{zhmr}
+\def\hsfdefault{zhsf}
+\def\hmgdefault{zhmg}
+\DeclareRobustCommand\hmrfamily{\not@math@alphabet\hmrfamily\relax%
+	\fontfamily\hmrdefault\selectfont}
+\DeclareRobustCommand\hsffamily{\not@math@alphabet\hsffamily\relax%
+	\fontfamily\hsfdefault\selectfont}
+\DeclareRobustCommand\hmgfamily{\not@math@alphabet\hmgfamily\relax%
+	\fontfamily\hmgdefault\selectfont}

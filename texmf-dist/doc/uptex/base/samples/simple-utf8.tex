@@ -1,0 +1,94 @@
+\documentclass{jarticle}
+\topmargin 0mm
+\textheight 230mm
+\begin{document}
+\section{エンコーディングのテスト}
+今日は\today です。
+
+このファイルはUTF-8でエンコードされています。
+
+内部コードは
+\ifnum\jis"2121="A1A1
+ EUC%
+\else
+ SJIS%
+\fi
+のようです。
+
+\typeout{このファイルはUTF-8でエンコードされています。}
+
+\section{漢数字}
+
+\kansuji 1234567890
+\quad\quad
+一二三四五六七八九〇
+
+\char\kuten"104C\char\kuten"2653\char\kuten"1B10\char\kuten"1B2D\char\kuten"183E
+\char\kuten"2F1B\char\kuten"1C17\char\kuten"280C\char\kuten"1645\char\kuten"011B
+\quad\quad
+\char\jis"306C\char\jis"4673\char\jis"3B30\char\jis"3B4D\char\jis"385E
+\char\jis"4F3B\char\jis"3C37\char\jis"482C\char\jis"3665\char\jis"213B
+
+\char\euc"B0EC\char\euc"C6F3\char\euc"BBB0\char\euc"BBCD\char\euc"B8DE
+\char\euc"CFBB\char\euc"BCB7\char\euc"C8AC\char\euc"B6E5\char\euc"A1BB
+\quad\quad
+\char\sjis"88EA\char\sjis"93F1\char\sjis"8E4F\char\sjis"8E6C\char\sjis"8CDC
+\char\sjis"985A\char\sjis"8EB5\char\sjis"94AA\char\sjis"8BE3\char\sjis"815A
+
+\makeatletter
+\ifx\ucs\@undefined
+\else
+  \char\ucs"4E00\char\ucs"4E8C\char\ucs"4E09\char\ucs"56DB\char\ucs"4E94
+  \char\ucs"516D\char\ucs"4E03\char\ucs"516B\char\ucs"4E5D\char\ucs"3007
+\fi
+\makeatother
+
+\kansujichar1=`壹
+\kansujichar2=`弐
+\kansujichar3=`參
+\kansujichar4=`肆
+\kansujichar5=`伍
+\kansuji 12345
+
+\section{uppercase, lowercase}
+
+abc, ABC, $E=mc^2$; 012. あいう、一二三。
+
+\uppercase{abc, ABC, $E=mc^2$; 012. あいう、一二三。}
+
+\lowercase{abc, ABC, $E=mc^2$; 012. あいう、一二三。}
+
+\section{dvi2ttyの改行}
+\parindent 0mm
+
+123456789012345678901234567890123456789012345678901234567890\\
+a123456789012345678901234567890123456789012345678901234567890\\
+ab123456789012345678901234567890123456789012345678901234567890\\
+abc123456789012345678901234567890123456789012345678901234567890\\
+
+αβγδεζηθικαβγδεζηθικαβγδεζηθικ\\
+aαβγδεζηθικαβγδεζηθικαβγδεζηθικ\\
+abαβγδεζηθικαβγδεζηθικαβγδεζηθικ\\
+abcαβγδεζηθικαβγδεζηθικαβγδεζηθικ\\
+
+一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇\\
+a一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇\\
+ab一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇\\
+abc一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇\\
+
+\begin{flushleft}
+left left\\
+左左左
+\end{flushleft}
+
+\begin{center}
+center center\\
+中中中
+\end{center}
+
+\begin{flushright}
+right right\\
+右右右
+\end{flushright}
+
+\end{document}

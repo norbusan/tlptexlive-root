@@ -1,0 +1,288 @@
+#!/bin/sh
+# Public domain.  Originally written 2008, Karl Berry.
+# Update a TeX Live Master/bin/PLATFORM directory.
+
+vc_id='$Id: tl-update-bindir 23033 2011-06-17 23:07:24Z karl $'
+unset CDPATH
+unset LS_COLORS
+
+tmpdir=${TMPDIR-/tmp}/tlupbin.$$
+trap "rm -rf $tmpdir" 0 1 2 15
+test -d $tmpdir || mkdir -p $tmpdir
+
+usage="$0 [OPTION]... TL-PLATFORM...
+
+Update the TeX Live executables for each TL-PLATFORM (which must be a TL
+platform name, e.g., i386-linux) from a build directory.
+
+The new binaries are taken from the location specified by --bin-loc,
+either a directory (whose contents are copied), or a tar file (which is
+unpacked and then copied).
+
+The output directory is computed relative to the location of this script
+by default, or can be explicitly specified via --master.  An upper-level
+directory is specified so multiple platforms can be installed.
+
+This checks for broken symlinks, and symlinks with the svn:executable
+property set (which would mess up Subversion; see the thread around
+http://svn.haxx.se/users/archive-2007-03/1259.shtml.)
+
+It also takes care of doing the explicit remove/add sequence Subversion
+requires when a symlink is replaced by a file or vice versa.
+
+Options:
+  --bin-loc DIR-OR-TAR   use binaries from DIR-OR-TAR
+  --master  DIR          install binaries to DIR/bin/TL-PLATFORM
+                           [default is the bin dir relative to this script]
+
+  --help                 display this help and exit
+  --quiet, --silent      no progress reports
+  --version              output version information and exit
+
+For more information about building TeX Live, see
+http://tug.org/texlive/build.html.
+
+Report bugs to tlbuild@tug.org."
+
+# parse options.
+bin_loc=
+download=wget
+msg=echo
+tlnames=
+while test $# -gt 0; do
+  case $1 in
+  --help|-help|-v) echo "$usage"; exit 0;;
+  --version|-version|-v) echo "$vc_id"; exit 0;;
+  --quiet|-quiet|-q|--silent|-silent|-s) msg=true;;
+
+  --master) shift; Master=$1;;
+  --bin-loc) shift; bin_loc=$1;;
+
+  --no-download|-N) download=true;; # secret option for karl
+
+  --*) echo "$0: unrecognized option \`$1'; try --help if you need it." >&2
+       exit 1;;
+
+  *) tlnames="$tlnames $1";;
+  esac
+  shift
+done
+
+if test -z "$tlnames"; then
+  echo "$0: missing TL platform name; try --help if you need it." >&2
+  exit 1
+fi
+
+if test -z "$Master"; then
+  mydir=`dirname $0`
+  Master=`cd $mydir/../.. && pwd`
+fi
+if test ! -d "$Master/bin"; then
+  echo "$0: Master directory $Master has no bin/ subdir; goodbye." >&2
+  exit 1
+fi
+
+# loop through tl platform names
+for tlname in $tlnames; do
+  destdir=$Master/bin/$tlname
+  if test ! -d $destdir; then
+    echo "$0: unrecognized platform name \`$tlname'" >&2
+    echo "$0: (no directory $destdir)" >&2
+    exit 1
+  fi
+  
+  # karl update convenience
+  default_bin_loc=
+  download_loc=$tmpdir/tl.$tlname.tar.gz
+  grab="$download -O $download_loc"
+  if test x"$USER" = xkarl; then
+   case $tlname in 
+   alpha-linux)
+    default_bin_loc=$download_loc
+    $grab http://www.logic.at/people/preining/alpha-linux.tar.gz;;
+   amd64-freebsd)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://anthesphoria.net/FreeBSD/TeXLive-Devel/amd64-freebsd7.tar.xz;;
+   amd64-kfreebsd)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab ftp://ftp.cea.fr/incoming/y2k01/texlive2011/x86_64-unknown-kfreebsd8.2-gnu.tar.bz2;;
+   hppa-hpux)
+    default_bin_loc=$download_loc
+    $grab http://www.jtartlabs.com/test/hppa2.0-hp-hpux10.20.tar.gz;;
+   i386-cygwin)
+    default_bin_loc=$download_loc
+    $grab http://www.math.cornell.edu/~kbrown/cygwin.tgz;;
+   i386-freebsd)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://anthesphoria.net/FreeBSD/TeXLive-Devel/i386-freebsd7.tar.xz;;
+   i386-kfreebsd)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab ftp://ftp.cea.fr/incoming/y2k01/texlive2011/i686-unknown-kfreebsd8.2-gnu.tar.bz2;;
+   i386-linux)
+    default_bin_loc=/home/texlive/sarge/tmp/source/inst/bin/i686-pc-linux-gnu;;
+   i386-netbsd)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://salmi.ch/~jukka/TL2011/TL2011bin_i386-netbsd.tar.xz;;
+   i386-openbsd)
+    default_bin_loc=$download_loc
+    $grab http://students.dec.bmth.ac.uk/ebarrett/files/tl-bin-20080810.tgz;;
+   i386-solaris)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://ocean1.ee.duth.gr/~apostolo/i386-pc-solaris2.11.tar.xz;;
+   powerpc-linux)
+    default_bin_loc=/home/tschmitz/powerpc.tar.bz2;;
+   sparc-linux)
+    default_bin_loc=/home/karl/s.tgz;;
+   universal-darwin)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://www.uoregon.edu/~koch/universal-darwin.tar.xz;;
+   win32)
+    default_bin_loc=$tmpdir/tl.$tlname.zip
+    $grab http://members2.jcom.home.ne.jp/wt1357ak/tl2009w32-02.zip;;
+   x86_64-darwin)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab  www.uoregon.edu/~koch/x86_64-darwin.tar.xz;;
+   x86_64-linux)
+    default_bin_loc=$download_loc
+    $grab ftp://ftpth.mppmu.mpg.de/pub/peb/TLtests/Build-x86_64-linux.tar.bz2;;
+   x86_64-solaris)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://ocean1.ee.duth.gr/~apostolo/x86_64-pc-solaris2.11.tar.xz;;
+   esac
+  fi
+  
+  # 
+  test -z "$bin_loc" && test -n "$default_bin_loc" \
+  && bin_loc=$default_bin_loc
+  if test -z "$bin_loc"; then
+    echo "$0: missing binary location, try --help if you need it." >&2
+    exit 1
+  fi
+
+  $msg "installing from $bin_loc to $destdir via $tmpdir"
+
+  # if we were given a tar file, unpack it.
+  if test -f "$bin_loc"; then
+    srcdir=$tmpdir/unpacked
+    mkdir $srcdir
+    if echo "$bin_loc" | grep 'zip$' >/dev/null; then
+      (cd $srcdir && unzip -q $bin_loc) || exit 1
+    else
+      (cd $srcdir && tar xf $bin_loc) || exit 1
+    fi
+    
+  elif test -d "$bin_loc"; then
+    srcdir=$bin_loc  # already have a directory
+
+  else
+    echo "$0: strange non-file non-directory binary location $bin_loc" >&2
+    exit 1
+  fi
+  
+  # may need to cd into a subdirectory, depending on how the tar was made.
+  test "`ls $srcdir`" != bin || srcdir=$srcdir/bin
+  test `ls $srcdir | wc -l` != 1 || srcdir=$srcdir/*
+  
+  # state of things.  srcdir is full of the new binaries.
+  (cd $destdir && ls) >$tmpdir/now  
+  (cd $srcdir && ls)  >$tmpdir/new
+
+  ourdel=$tmpdir/2del
+  ouradd=$tmpdir/2add
+    # looking for deletions, but don't delete asy or xasy, or cache+conf
+    # for w32.
+  comm -23 $tmpdir/now $tmpdir/new \
+  | egrep -v '^(x?asy(\.exe)?|freeglut\.dll)$' >$ourdel
+  comm -13 $tmpdir/now $tmpdir/new >$ouradd  # looking for additions
+
+  # get symlink list.
+  (cd $destdir && find . -type l | sort) >$tmpdir/now.symlink
+  (cd $srcdir && find . -type l | sort) >$tmpdir/new.symlink
+
+  cd $destdir || exit 1
+
+  # svn requires separate delete/add operations when symlinks change to
+  # regular files or vice versa.
+  #
+  # remove symlinks which have become files.
+  comm -23 $tmpdir/now.symlink $tmpdir/new.symlink >$tmpdir/s.now
+  replaced_symlinks=
+  for sl in `cat $tmpdir/s.now`; do
+    test -f $srcdir/$sl && replaced_symlinks="$replaced_symlinks $sl"
+  done
+  test -n "$replaced_symlinks" \
+  && $msg "removing symlinks which have become files..." \
+  && svn rm $replaced_symlinks
+  #
+  # remove files which have become symlinks.
+  comm -13 $tmpdir/now.symlink $tmpdir/new.symlink >$tmpdir/s.new
+  replaced_files=
+  for sl in `cat $tmpdir/s.new`; do
+    test -f $destdir/$sl && replaced_files="$replaced_files $sl"
+  done
+  test -n "$replaced_files" \
+  && $msg "removing files which have become symlinks..." \
+  && svn rm $replaced_files
+
+  # the bulk copy.
+  $msg "copying from $srcdir"
+  $msg "to $destdir"
+  (cd $srcdir && tar cf - *) | tar xf -
+
+  # the normal deletions and additions.
+  $msg "removing old..."
+  test -s $ourdel && svn rm `cat $ourdel`
+  $msg "adding new..."
+  test -s $ouradd && svn add `cat $ouradd`
+
+  # anything which is no longer a symlink but still exists
+  # needs to be added.
+  test -n "$replaced_symlinks" \
+  && $msg "adding files that replaced symlinks..." \
+  && svn add $replaced_symlinks
+  
+  # anything which is now a symlink but didn't used to be
+  # also needs to be added.
+  test -n "$replaced_files" \
+  && $msg "adding symlinks that replaced files..." \
+  && svn add $replaced_files
+
+  # be sure the svn:executable property is not set on any symlink.
+  # there is also a pre-commit hook on the repo, but of course we don't
+  # want to unnecessarily trigger it.
+  badlinks=`svn propget svn:executable \`cat $tmpdir/new.symlink\` \
+            | awk '{print $1}'`
+  if test -n "$badlinks"; then
+    $msg "removing svn:executable property from symlinks..."
+    svn propdel svn:executable $badlinks
+  fi
+  
+  # check for broken symlinks.
+  for sl in `cat $tmpdir/new.symlink`; do
+    test ! -r "$sl" && echo "$0: broken new symlink $sl" >&2
+  done
+  
+  # final results.
+  $msg "final svn status..."
+  svn status | sort
+
+  rm -rf $tmpdir
+done

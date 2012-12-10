@@ -1,0 +1,3 @@
+\DeclareFontFamily{LY1}{zhmg}{}
+\DeclareFontShape{LY1}{zhmg}{m}{n}{<-> s * [\utf@sc@le] zhmgs8y}{}
+\DeclareFontShape{LY1}{zhmg}{m}{it}{<-> s * [\utf@sc@le] zhmgsi8y}{}

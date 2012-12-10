@@ -1,0 +1,5 @@
+\DeclareFontFamily{TS1}{zhmr}{}
+\DeclareFontShape{TS1}{zhmr}{m}{n}{<-> s * [\utf@sc@le] zhmrr8c}{}
+\DeclareFontShape{TS1}{zhmr}{bx}{n}{<-> s * [\utf@sc@le] zhmrb8c}{}
+\DeclareFontShape{TS1}{zhmr}{m}{it}{<-> s * [\utf@sc@le] zhmrri8c}{}
+\DeclareFontShape{TS1}{zhmr}{bx}{it}{<-> s * [\utf@sc@le] zhmrbi8c}{}

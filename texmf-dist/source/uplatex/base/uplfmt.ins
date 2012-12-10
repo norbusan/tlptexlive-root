@@ -1,0 +1,24 @@
+\input docstrip
+\keepsilent
+\usedir{tex/uplatex/base}
+\ifToplevel{\askonceonly}
+
+\Msg{*** Generating the upLaTeX files for making the documents ***}
+
+\generate{
+  \file{uplatex.ltx}{\from{uplatex.dtx}{plcore}}
+  \file{uplcore.ltx}{\from{uplvers.dtx}{plcore}
+          \from{uplfonts.dtx}{plcore}
+          \from{plcore.dtx}{plcore}
+          \from{uplvers.dtx}{plfinal}}
+  \file{ukinsoku.tex}{\from{ukinsoku.dtx}{plcore}}
+  \file{upldefs.ltx}{\from{uplfonts.dtx}{pldefs,xpt}}
+  \file{jy2mc.fd}{\from{uplfonts.dtx}{JY2mc}}
+  \file{jy2gt.fd}{\from{uplfonts.dtx}{JY2gt}}
+  \file{jt2mc.fd}{\from{uplfonts.dtx}{JT2mc}}
+  \file{jt2gt.fd}{\from{uplfonts.dtx}{JT2gt}}
+%  \file{plext.sty}{\from{plext.dtx}{package}}
+  \file{uptrace.sty}{\from{uplfonts.dtx}{trace}}
+}
+
+\endbatchfile

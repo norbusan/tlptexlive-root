@@ -1,0 +1,139 @@
+#!/bin/sh -e
+# $Id: tl-makeself-from-tlnet 22448 2011-05-12 23:59:31Z karl $
+# Copyright 2008, 2009, 2010, 2011 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Creates a .run file for updating the texlive.infra 
+# packages on Unix, similar to the .exe we create for Windows.  Both are
+# created in the nightly cron from tl-update-tlcritical.
+
+TMP=`mktemp -d`
+CWD=`pwd`
+
+TLNET=$1
+
+if test ! -d "$TLNET"; then
+  echo "$0: No tlnet directory given as argument, aborting." >&2
+  exit 1
+fi
+
+ARCHIVE=$TLNET/archive
+if test ! -d "$ARCHIVE"; then
+  echo "$0: subdirectory archive/ in $TLNET not found, aborting." >&2
+  exit 1
+fi
+
+TLRELEASE=`sed -n 's!^depend release/!!p' $TLNET/tlpkg/texlive.tlpdb`
+
+cd $TMP
+mkdir master
+cd master
+
+# unpack texlive.infra archives for all platforms, except w32.
+for pkg in texlive.infra; do
+  for i in $ARCHIVE/$pkg*.tar.xz; do
+    case "$i" in 
+      *win32*) ;;
+      *) xzdec <$i | tar -xf - ;;
+    esac
+  done
+done
+
+cd ..
+
+# create the script which will be run on the user's machine to do the update.
+#
+cat >runme.sh <<END_RUNME
+#!/bin/sh
+# Updater for tlmgr and infrastructure on Unix.
+# Runs in unpacked archive directory.
+
+WORKINGRELEASE=$TLRELEASE
+
+END_RUNME
+
+# append to runme literally now.
+cat >>runme.sh <<'END_RUNME'
+ROOT=`kpsewhich --var-value=SELFAUTOPARENT`
+if test -r "$ROOT/tlpkg/texlive.tlpdb"; then
+  echo "$0: updating in $ROOT..."
+ 
+  tlmgrversion=`tlmgr version | grep '^TeX Live.*version' | awk '{print $NF}'`
+  echo "$0: tlmgr version says this is TeX Live $tlmgrversion"
+  if test "x$WORKINGRELEASE" != "x$tlmgrversion"; then
+    if test "x$1" = "x--upgrade"; then
+      echo "$0: upgrading from $tlmgrversion to $WORKINGRELEASE."
+    else
+      echo "$0: upgrading from $tlmgrversion not supported:" >&2
+      echo "$0:   can only upgrade (cautiously) from $WORKINGRELEASE." >&2
+      exit 1
+    fi
+  else
+    echo "$0: proceeding with tlmgr update."
+  fi
+
+  # move the architecture-specific files to the top level.
+  mv ./master/bin .
+  mkdir ./installer
+  mv ./master/tlpkg/installer/xz ./installer
+  mv ./master/tlpkg/installer/wget ./installer
+  
+  # install the architecture-independent files.
+  (cd master && tar cf - *) | (cd $ROOT && tar xf -)
+  
+  # try to get the list of installed architectures by listing the
+  # directories in $ROOT/bin.
+  t_objdir=$ROOT/tlpkg/tlpobj      # target tlpobj directory
+  t_instdir=$ROOT/tlpkg/installer  # target installer dir
+  
+  # ensure these target directories exist.
+  mkdir -p $t_instdir/xz
+  mkdir -p $t_instdir/wget
+
+  # start the list of tlpobjs we will install
+  tlpobjs="$t_objdir/texlive.infra.tlpobj"
+  for a in $ROOT/bin/*; do
+    test -d "$a" || continue  # skip any cruft files
+    b=`basename $a`           # just the architecture name
+    
+    # add the tlpobjs for this platform t the list.
+    tlpobjs="$tlpobjs $t_objdir/texlive.infra.$b.tlpobj"
+
+    # install the bin dir for this platform.
+    (cd bin && tar cf - $b) | (cd $ROOT/bin && tar xf -)
+    
+    # copy the installer binaries.
+    cp installer/xz/xzdec.$b $t_instdir/xz/
+    cp installer/xz/xz.$b $t_instdir/xz/
+    test -r installer/wget/wget.$b \
+    && cp installer/wget/wget.$b $t_instdir/wget
+  done
+else
+  cat <<END_ABORT_NODIR >&2
+$0: Cannot find TeX Live root using kpsewhich --var-value=SELFAUTOPARENT.
+$0: Please call update-tlmgr-latest.sh --noexec --keep
+$0: and then call the runme.sh script in the unpacked directory
+$0: with the directory root as the first argument, something like:
+$0: sh runme.sh /path/to/your/texlive/installation/2010
+END_ABORT_NODIR
+  exit 1
+fi
+
+# invoke secret tlmgr action with the tlpobjs we found.
+# Hopefully the result will be a clean tlpdb state.
+tlmgr -v _include_tlpobj $tlpobjs
+echo "$0: done."
+END_RUNME
+
+chmod ugo+x runme.sh
+
+# make the self-extracting archive back in the directory from where we
+# were invoked.
+cd $CWD
+mydir=`cd \`dirname $0\` && pwd`  # Master/tlpkg/bin
+rev=`svnversion $mydir | sed s/[^0-9].*//`  # just the number, no status
+makeself $TMP update-tlmgr-r$rev.sh "TeX Live Manager Updater" ./runme.sh
+rm -rf $TMP
+
+# vim:set tabstop=2 expandtab: #

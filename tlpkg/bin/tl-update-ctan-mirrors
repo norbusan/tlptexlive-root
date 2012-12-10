@@ -1,0 +1,126 @@
+#!/usr/bin/env perl
+# $Id: tl-update-ctan-mirrors 23970 2011-09-15 23:05:44Z karl $
+# Copyright 2011 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+#
+# Write parsable list of active CTAN mirrors; run from tl-update-auto cron.
+# Needed input:
+# http://ctan.org/mirrors (CTAN.sites, README.mirrors)
+# rsync://comedy.dante.de/MirMon/mirmon.state
+
+use strict;
+$^W = 1;
+use Data::Dumper;
+
+exit (&main ());
+
+sub main {
+  if (@ARGV != 2) {
+    die "Usage: $0 CTAN_SITES MIRMON_STATE.\n";
+  }
+
+  my %good_urls = read_mstate($ARGV[1]);
+  my %ctan_sites = read_readme_mirror($ARGV[0], \%good_urls);
+  $Data::Dumper::Indent = 1;
+  $Data::Dumper::Sortkeys = 1;  # stable output
+  print Data::Dumper->Dump([\%ctan_sites], [qw(mirrors)]);
+  
+  return 0;
+}
+
+# 
+# Return hash of good and bad urls from mirmon state data.
+#
+sub read_mstate {
+  my ($MSTATE) = @_;
+  my %good_urls;
+
+  open (MSTATE, "<$MSTATE") || die "$0: open($MSTATE) failed: $!\n";
+  while (<MSTATE>) {
+    my ($m, $age, $status_last_probe, $time_last_succesful_probe,
+      $probe_history, $state_history, $last_probe)
+      = split (' ');
+    if ($status_last_probe eq "ok") {
+      $good_urls{$m} = 1;
+    } else {
+      $good_urls{$m} = 0;
+    }
+  }
+  close(MSTATE);
+  
+  return %good_urls;
+}
+
+# 
+# return hash of CTAN.sites info.
+# 
+sub read_readme_mirror {
+  my ($CTAN_SITES,$good_urls_ref) = @_;
+  my %mirrors;
+  my ($continent, $country, $mirror, %protocols);
+
+  open (CTAN_SITES,"<$CTAN_SITES") || die "$0: open($CTAN_SITES) failed: $!\n";
+  while (<CTAN_SITES>) {
+    chomp;
+    if (m/^ (Africa|Asia|Australasia|Europe|North America|South America)/) {
+      my $save_continent = $1;
+      if (defined($mirror)) {
+        for my $p (keys %protocols) {
+	  add_mirror(\%mirrors,$continent,$country,$mirror,$p,$protocols{$p},
+	             $good_urls_ref);
+        }
+      }
+      $continent = $save_continent;
+      $mirror = undef;
+      $country = undef;
+      %protocols = ();
+      next;
+    }
+    next if ! defined $continent;
+
+    if (m/^  ([-a-zA-Z0-9.]+) \((.*)\)\s*$/) {
+      my $save_mirror = $1;
+      my $save_country = $2;
+      # make country names more reasonable
+      $save_country =~ s/^The //;
+      if (defined($mirror)) {
+        for my $p (keys %protocols) {
+	  add_mirror(\%mirrors,$continent,$country,$mirror,$p,$protocols{$p},
+	             $good_urls_ref);
+        }
+      }
+      $mirror = $save_mirror;
+      $country = $save_country;
+      %protocols = ();
+      next;
+    }
+    next if ! defined($mirror);
+
+    if (m!^   URL: (ftp|http|rsync)://([-a-zA-Z0-9.]+)/([-\w/]*)!) {
+      $protocols{$1} = "$2/$3";
+      next;
+    }
+    #print "ignored >>$_<<\n";
+  }
+  return %mirrors;
+}
+
+
+sub add_mirror {
+  my ($mirref,$continent,$country,$mirror,$p,$ppath,$good_urls_ref) = @_;
+  my $url = "$p://$ppath";
+  if (exists $good_urls_ref->{$url}) {
+    if ($good_urls_ref->{$url}) {
+      #$mirref->{$continent}{$country}{$mirror}{'protocols_path'}{$p} = $ppath;
+      $mirref->{$continent}{$country}{$url} = 1;
+    } else {
+      printf STDERR "$0: mirror seems to be dead, skipped: $url\n";
+    }
+  } else {
+    # CTAN people leave out ftp/rsync, and intentionally let the
+    # CTAN.sites file stay unchanged even when something is removed from
+    # mirmon, on occasion.  So don't complain about it.
+    #printf STDERR "$0: mirror not in mirmon file, skipped: $url\n";
+  }
+}

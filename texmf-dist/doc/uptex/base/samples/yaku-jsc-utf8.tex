@@ -1,0 +1,91 @@
+\makeatletter
+\def\@default{default}
+\def\jsbook{jsbook}
+\ifx\class\@undefined
+ \def\class{jsarticle}
+\fi
+\ifx\option\@undefined
+ \def\option{default}
+\fi
+\ifx\option\@default
+ \documentclass[uplatex]{\class}
+\else
+ \documentclass[uplatex,\option]{\class}
+\fi
+\makeatother
+
+\DeclareFontFamily{JY2}{umin}{}
+\DeclareFontFamily{JY2}{ujis}{}
+\DeclareFontFamily{JY2}{upjisr}{}
+\DeclareFontShape{JY2}{umin}{m}{n}{<->s*[0.961]umin10}{}
+\DeclareFontShape{JY2}{ujis}{m}{n}{<->s*[0.961]ujis}{}
+\DeclareFontShape{JY2}{upjisr}{m}{n}{<->s*[0.92469]upjisr-h}{}
+\DeclareRobustCommand\umin{\kanjifamily{umin}\selectfont}
+\DeclareRobustCommand\ujis{\kanjifamily{ujis}\selectfont}
+\DeclareRobustCommand\upjisr{\kanjifamily{upjisr}\selectfont}
+
+\begin{document}
+option: uplatex and \option
+\ifx\class\jsbook
+\chapter{新ドキュメントクラス}
+\fi
+\section{拗音、句読点など}
+\xdef\testtext{%
+カムチャッカ．
+ちょっと、待って。きっと，ショック．~~
+‘回’ “回” }%
+\begin{tabular}{rl}\hline
+default & \testtext\\\hline
+
+\if0
+umin10.tfm &
+{\umin \testtext}\\\hline
+
+ujis.tfm &
+{\ujis \testtext}\\\hline
+\fi
+
+upjisr-h.tfm &
+{\upjisr \testtext}\\\hline
+
+\end{tabular}
+
+\section{文字のサイズなど}
+\xdef\testtext{%
+\frame{：}~~\frame{“}\frame{回}\frame{：}\frame{回}\frame{”}~~“回：回”}%
+
+{\huge
+\begin{tabular}{rl}
+default & \testtext\\
+
+\if0
+umin10.tfm &
+{\umin \testtext}\\
+
+ujis.tfm &
+{\ujis \testtext}\\
+\fi
+
+upjisr-h.tfm &
+{\upjisr \testtext}\\
+
+\end{tabular}
+}
+
+\section{括弧類}
+\subsection{JIS X 0208にあるもの}
+‘回’ “回” （回） 〔回〕 ［回］ ｛回｝ 〈回〉 《回》 「回」 『回』 【回】
+
+{\gt
+‘回’ “回” （回） 〔回〕 ［回］ ｛回｝ 〈回〉 《回》 「回」 『回』 【回】
+}
+
+\subsection{JIS X 0213で追加されたもの}
+｟回｠ 〘回〙 〖回〗 〝回〟
+
+{\gt
+｟回｠ 〘回〙 〖回〗 〝回〟
+}
+
+{\gt 〖回〗} は、KozGoProVI-Medium.otfならうまくいくはず。
+\end{document}

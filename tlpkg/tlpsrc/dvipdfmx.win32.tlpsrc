@@ -1,0 +1,3 @@
+binpattern f/win32 bin/win32/dvipdfmx
+binpattern f/win32 bin/win32/ebb
+binpattern f/win32 bin/win32/extractbb

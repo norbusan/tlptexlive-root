@@ -1,0 +1,112 @@
+\documentclass{article}
+
+%%%%%%%%
+%  Adobe-Japan1-5:
+%   $ uplatex adobe-cid.tex
+%   $ uplatex "\def\adobe{jp}\input" adobe-cid.tex
+%  Adobe-Japan1-6: (require the development version of the otf package)
+%   $ uplatex "\def\adobe{jp6}\input" adobe-cid.tex
+%  Adobe-CNS1-5:
+%   $ uplatex "\def\adobe{cns}\input" adobe-cid.tex
+%  Adobe-GB1-5:
+%   $ uplatex "\def\adobe{gb}\input" adobe-cid.tex
+%  Adobe-Korea1-2:
+%   $ uplatex "\def\adobe{kr}\input" adobe-cid.tex
+%
+%  for gtfamily
+%   $ uplatex "\def\adobe{jp}\def\family{gt}\input" adobe-cid.tex
+%   $ uplatex "\def\adobe{cns}\def\family{gt}\input" adobe-cid.tex
+%   $ uplatex "\def\adobe{gb}\def\family{gt}\input" adobe-cid.tex
+%   $ uplatex "\def\adobe{kr}\def\family{gt}\input" adobe-cid.tex
+%%%%%%
+
+\usepackage[uplatex,multi]{otf}
+
+\textwidth180mm
+\textheight255mm
+\topmargin-20mm
+\oddsidemargin-8mm
+
+\makeatletter
+\def\@adobecns{cns}
+\def\@adobegb{gb}
+\def\@adobejapan{jp}
+\def\@adobejapansix{jp6}
+\def\@adobekorea{kr}
+\def\@gtfamily{gt}
+
+\newcommand{\CIDx}{\CID}
+\newcommand{\Name}{Adobe-Japan1-5}
+\newcommand{\CIDmax}{20316}
+%\newcommand{\Name}{Adobe-Japan1-6}
+%\newcommand{\CIDmax}{23057}
+
+\ifx\adobe\@adobejapansix
+%  \renewcommand{\CIDx}{\CID}
+  \renewcommand{\Name}{Adobe-Japan1-6}
+  \renewcommand{\CIDmax}{23057}
+\fi
+\ifx\adobe\@adobecns
+  \renewcommand{\CIDx}{\CIDT}
+  \renewcommand{\Name}{Adobe-CNS1-5}
+  \renewcommand{\CIDmax}{19087}
+\fi
+\ifx\adobe\@adobegb
+  \renewcommand{\CIDx}{\CIDC}
+  \renewcommand{\Name}{Adobe-GB1-5}
+  \renewcommand{\CIDmax}{30283}
+\fi
+\ifx\adobe\@adobekorea
+  \renewcommand{\CIDx}{\CIDK}
+  \renewcommand{\Name}{Adobe-Korea1-2}
+  \renewcommand{\CIDmax}{18351}
+\fi
+\ifx\family\@gtfamily
+  \newcommand{\currentfamily}{\gtfamily}
+  \newcommand{\FamilyName}{gtfamily}
+\else
+  \newcommand{\currentfamily}{\mcfamily}
+  \newcommand{\FamilyName}{mcfamily}
+\fi
+\makeatother
+
+\newcounter{I}
+\newcounter{J}
+\newcounter{K}
+\newcommand{\Kmax}{50}
+\setcounter{J}{0}
+\setcounter{I}{-1}
+
+\begin{document}
+\parindent0pt
+\Name~~\FamilyName
+\currentfamily
+
+\makeatletter
+\@tempcnta=\CIDmax
+\advance\@tempcnta1
+\edef\CIDmax{\number\the\@tempcnta}%
+\@tempcnta=\CIDmax
+\divide\@tempcnta by \Kmax
+\advance\@tempcnta1
+\newcommand{\Jmax}{\number\@tempcnta}%
+\@whilenum\value{J}<\Jmax\do{%
+ \setcounter{K}{0}%
+ \stepcounter{I}%
+ {\number\the\c@I: }
+\@whilenum\value{K}<\Kmax\do{%
+ \c@I=\the\c@J
+ \multiply\c@I by \Kmax
+ \advance \c@I by \c@K
+ \ifnum\c@I<\CIDmax{%
+%  \typeout{debug:(\the\c@I)}%
+  {\CIDx{\number\the\c@I}}%
+ }\fi
+ \stepcounter{K}%
+}%
+ {\\}%
+ \stepcounter{J}%
+}
+\makeatother
+
+\end{document}

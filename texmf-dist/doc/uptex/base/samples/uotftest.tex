@@ -1,0 +1,191 @@
+\makeatletter
+
+\def\@opt@{multi}
+\def\@default{default}
+\def\@jarticle{jarticle}
+\def\@tarticle{tarticle}
+
+\ifx\option\@undefined
+ \def\option{default}
+\fi
+\ifx\option\@default
+\else
+ \edef\@opt@{\option,\@opt@}
+\fi
+
+\ifx\class\@undefined
+ \def\class{jarticle}
+\fi
+\ifx\class\@jarticle
+\else
+ \ifx\class\@tarticle
+ \else
+  \edef\@opt@{uplatex,\@opt@}
+ \fi
+\fi
+
+\documentclass[a4paper,titlepage, draft]{\class}
+%\documentclass[a4paper,titlepage, draft,landscape]{\class}
+
+\usepackage[\@opt@]{otf}
+
+%
+% furikana.sty があれば読み込む
+\newread\@istheresuchafile
+\openin\@istheresuchafile furikana.sty
+\ifeof\@istheresuchafile\relax
+\else\closein\@istheresuchafile\relax
+\usepackage{furikana}% found
+\fi
+
+\makeatother
+
+\usepackage{redeffont}
+
+
+\AtBeginDvi{\special{papersize=\the\paperwidth,\the\paperheight}}
+\ajCIDVarDef{り}{12746}
+\ajCIDVarDef{高}{8705}
+\ajUTFVarDef{鴎}{9DD7}
+\pagestyle{empty}
+\makeatletter
+\ifx\rubyfamily\@undefined\let\rubyfamily=\relax\fi
+\ifx\mgfamily\@undefined\let\mgfamily=\relax\fi
+\makeatother
+\begin{document}
+\section{見出し}
+
+クラス：\texttt{\class}\\
+オプション：\texttt{\option}
+
+\vspace{\baselineskip}
+\begin{tabular}{l||ccccc}
+フォント & 仮名 & 漢字 & UTF & CID & ルビ\\
+\hline
+mc/m & ひらかな & 漢字 & \UTF{9DD7} & \CID{8705} & {\rubyfamily 振りかな}\\
+mc/bx & {\bfseries ひらかな} & {\bfseries 漢字} & {\bfseries\UTF{9DD7}} & {\bfseries\CID{8705}} & {\bfseries\rubyfamily 振りかな}\\
+gt/m & {\gtfamily ひらかな} & {\gtfamily 漢字} & {\gtfamily\UTF{9DD7}} & {\gtfamily\CID{8705}} & {\gtfamily\rubyfamily 振りかな}\\
+gt/bx & {\gtfamily\bfseries ひらかな} & {\gtfamily\bfseries 漢字} & {\gtfamily\bfseries\UTF{9DD7}} & {\gtfamily\bfseries\CID{8705}} & {\gtfamily\bfseries\rubyfamily 振りかな}\\
+mg/m & {\mgfamily ひらかな} & {\mgfamily 漢字} & {\mgfamily\UTF{9DD7}} & {\mgfamily\CID{8705}} & {\mgfamily\rubyfamily 振りかな}\\
+\end{tabular}
+\vspace{\baselineskip}
+
+日本：\UTF{9aa8}　簡体字：\UTFC{9aa8}　繁體字：\UTFT{9aa8}　朝鮮：\UTFK{9aa8}
+
+日本：\UTF{6d77}　簡体字：\UTFC{6d77}　繁體字：\UTFT{6d77}　朝鮮：\UTFK{6d77}
+
+% with furikana.sty
+\makeatletter
+\ifx\kana\@undefined
+\else
+\kana{漢字}{振りかな}{\bfseries \kana{漢字}{振りかな}}%
+{\gtfamily\kana{漢字}{振りかな}\bfseries \kana{漢字}{振りかな}}
+{\mgfamily\kana{漢字}{振りかな}}
+
+\kana{\UTF{9DD7}}{かな}\kana{鴎}{かな}
+
+\Kana[3]{\UTFK{c548},\UTFK{b155},\UTFK{d558},\UTFK{c138},\UTFK{c694}}{アン,ニョン,ハ,セ,ヨ}
+\fi
+\makeatother
+
+
+\clearpage
+[mc/m]
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+
+{\bfseries%
+[mc/bx]
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+}
+
+{\gtfamily
+[gt/m]
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+
+{\bfseries%
+[gt/bx]
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+}}
+
+{\mgfamily
+[mg/m]
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+}
+
+{\rubyfamily%
+[ruby/m]
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+
+{\bfseries%
+[ruby/bx]
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+}}
+
+{\gtfamily\rubyfamily%
+[rubyg/m]
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+
+{\gtfamily\rubyfamily\bfseries%
+[rubyg/bx]
+
+\fbox{\hbox{\tate\Huge ぁ}}
+
+\fbox{\hbox{\yoko\Huge ぁ}}
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+}}
+
+{\mgfamily\rubyfamily%
+[rubymg/m]
+
+ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのは
+ばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんヽヾゝゞー
+
+ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハ
+バパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲンヴヵヶ
+}
+\end{document}

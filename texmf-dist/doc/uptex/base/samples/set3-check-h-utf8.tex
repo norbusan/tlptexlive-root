@@ -1,0 +1,169 @@
+\documentclass{ujarticle}
+
+%%%%%%%%
+% hyperref 関連の制御をコマンドラインから行う
+% ①,②,③ のどれかを実行すればよい。
+%   ① 何もしない
+%   $ uplatex misc-check-utf8.tex
+%   ② hyperref + dvipdfmx
+%   $ uplatex "\def\withhyperref{dvipdfmx}\input" misc-check-utf8.tex
+%   ③ hyperref + dvips + modified "convert-euc.txt" + distiller
+%   $ uplatex "\def\withhyperref{dvips}\input" misc-check-utf8.tex
+%%%%%%
+\makeatletter
+\def\@dvipdfmx{dvipdfmx}
+\def\@dvips{dvips}
+\ifx\withhyperref\@dvipdfmx
+
+%% for hyperref + dvipdfmx
+\usepackage[dvipdfm,bookmarks=true,bookmarksnumbered=true,%
+bookmarkstype=toc]{hyperref}
+\AtBeginDvi{\special{pdf:tounicode UTF8-UCS2}}
+%%
+
+\fi
+\ifx\withhyperref\@dvips
+
+%% for hyperref + dvips + modified "convert-euc.txt" + distiller
+\usepackage[dvips,bookmarks=true,bookmarksnumbered=true,%
+bookmarkstype=toc]{hyperref}
+%%
+
+\fi
+\makeatother
+%%%%%%%%
+
+\oddsidemargin0mm
+\evensidemargin0mm
+\topmargin-15mm
+\textwidth162mm
+\textheight245mm
+
+\DeclareFontFamily{JY2}{mcw}{}
+\DeclareFontFamily{JY2}{gtw}{}
+\DeclareFontShape{JY2}{mcw}{m}{n}{<->s*[0.962216]upjpnrm-h}{}
+\DeclareFontShape{JY2}{gtw}{m}{n}{<->s*[0.962216]upjpngt-h}{}
+\DeclareFontShape{JY2}{gt}{m}{n}{<->s*[0.962216]upjpngt-h}{}
+\DeclareFontShape{JY2}{mcw}{bx}{n}{<->ssub*gt/m/n}{}
+\DeclareFontShape{JY2}{gtw}{bx}{n}{<->ssub*gt/m/n}{}
+\DeclareFontShape{JY2}{gt}{bx}{n}{<->ssub*gt/m/n}{}
+\DeclareRobustCommand\mcw{\kanjifamily{mcw}\selectfont}
+\DeclareRobustCommand\gtw{\kanjifamily{gtw}\selectfont}
+\renewcommand\mcdefault{mcw}
+\renewcommand\gtdefault{gtw}
+
+\begin{document}
+
+\section{いわゆる『JIS外字』←不正確な言い方だが}
+
+JIS X 0208, JIS X 0213では、別のコードポイントの文字に包摂されている
+異体字(JIS X 0221ではまた話が別)や、その他の例。
+
+髙島屋 \kchar"9AD9島屋\quad% はしご高
+内田百閒 内田百\kchar"9592\quad% 月間
+杮落とし \kchar"676E落とし\quad% こけら、JIS X 0212には含まれている
+安全﻿㐧一 安全\kchar"3427一\quad% 第の略字 CJK Ideographs Extension A
+𠮷野家 \kchar"20BB7野家% 土吉, CJK Extension B, 要set3対応
+
+{\gt
+髙島屋 \kchar"9AD9島屋\quad% はしご高
+内田百閒 内田百\kchar"9592\quad% 月間
+杮落とし \kchar"676E落とし\quad% こけら、JIS X 0212には含まれている
+安全﻿㐧一 安全\kchar"3427一\quad% 第の略字 CJK Ideographs Extension A
+𠮷野家 \kchar"20BB7野家% 土吉, CJK Extension B, 要set3対応
+}
+
+\section{いわゆる『新JIS』『JIS2004』}
+\subsection{JIS X 0213:2004追加漢字 (10字)}
+俱剝𠮟吞噓姸屛幷瘦繫
+
+\subsection{Extension B (BMP外)の文字(303字): 𠀋𠆢𠘨𡈽𠮟など}
+
+𠂉𠀋𠂢𠂤𠆢𠈓𠌫𠎁𠍱𠏹𠑊𠔉𠗖𠘨𠝏𠠇𠠺𠢹𠥼𠦝
+𠫓𠬝𠵅𠷡𠺕𠹭𠹤𠽟𡈁𡈽𡉕𡉻𡉴𡋤𡋗𡌛𡋽𡌶𡍄𡏄
+𡑮𡑭𡗗𦰩𡙇𡜆𡝂𡢽𡧃𡱖𡴭𡚴𡵅𡵸𡵢𡶡𡶜𡶒𡶷𡷠
+𡸴𡸳𡼞𡽶𡿺𢅻𢌞𢎭𢛳𢡛𢢫𢦏𢪸𢭏𢭐𢭆𢰝𢮦𢰤𢷡
+𣇄𣇃𣇵𣆶𣍲𣏓𣏒𣏐𣏤𣏕𣏚𣏟𣑊𣑑𣑋𣑥𣓤𣕚𣗄𣖔
+𣘹𣙇𣘸𣘺𣜿𣜜𣝣𣜌𣝤𣟿𣟧𣠤𣠽𣪘𣱿𣳾𣴀𣵀𣷺𣷹
+𣷓𣽾𤂖𤄃𤇆𤇾𤎼𤘩𤚥𤟱𤢖𤩍𤭖𤭯𤰖𤴔𤸎𤸷𤹪𤺋
+𥁊𥁕𥄢𥆩𥇥𥇍𥈞𥉌𥐮𥒎𥓙𥔎𥖧𥝱𥞩𥞴𥧄𥧔𥫤𥫣
+𥫱𥮲𥱋𥱤𥶡𥸮𥹖𥹥𥹢𥻘𥻂𥻨𥼣𥽜𥿠𥿔𦀌𥿻𦀗𦁠
+𦃭𦉰𦊆𦍌𣴎𦐂𦙾𦚰𦜝𦣝𦣪𦥑𦥯𦧝𦨞𦩘𦪌𦪷𦫿𦱳
+𦳝𦹀𦹥𦾔𦿸𦿶𦿷𧃴𧄍𧄹𧏛𧏚𧏾𧐐𧑉𧘕𧘔𧘱𧚄𧚓
+𧜎𧜣𧝒𧦅𧪄𧮳𧮾𧯇𧲸𧶠𧸐𧾷𨂊𨂻𨉷𨊂𨋳𨏍𨐌𨑕
+𨕫𨗈𨗉𨛗𨛺𨥉𨥆𨥫𨦇𨦈𨦺𨦻𨨞𨨩𨩱𨩃𨪙𨫍𨫤𨫝
+𨯁𨯯𨴐𨵱𨷻𨸟𨸶𨺉𨻫𨼲𨿸𩊠𩊱𩒐𩗏𩙿𩛰𩜙𩝐𩣆
+𩩲𩷛𩸽𩸕𩺊𩹉𩻄𩻩𩻛𩿎𪀯𪀚𪃹𪂂𪆐𢈘𪎌𪐷𪗱𪘂
+𪘚𪚲𠮟\\
+%
+% KozGoPro-Medium.otfでは、かなり欠けている。
+% KozGoProVI-Medium.otfならうまくいくはず。
+{\gt
+𠂉𠀋𠂢𠂤𠆢𠈓𠌫𠎁𠍱𠏹𠑊𠔉𠗖𠘨𠝏𠠇𠠺𠢹𠥼𠦝
+𠫓𠬝𠵅𠷡𠺕𠹭𠹤𠽟𡈁𡈽𡉕𡉻𡉴𡋤𡋗𡌛𡋽𡌶𡍄𡏄
+𡑮𡑭𡗗𦰩𡙇𡜆𡝂𡢽𡧃𡱖𡴭𡚴𡵅𡵸𡵢𡶡𡶜𡶒𡶷𡷠
+𡸴𡸳𡼞𡽶𡿺𢅻𢌞𢎭𢛳𢡛𢢫𢦏𢪸𢭏𢭐𢭆𢰝𢮦𢰤𢷡
+𣇄𣇃𣇵𣆶𣍲𣏓𣏒𣏐𣏤𣏕𣏚𣏟𣑊𣑑𣑋𣑥𣓤𣕚𣗄𣖔
+𣘹𣙇𣘸𣘺𣜿𣜜𣝣𣜌𣝤𣟿𣟧𣠤𣠽𣪘𣱿𣳾𣴀𣵀𣷺𣷹
+𣷓𣽾𤂖𤄃𤇆𤇾𤎼𤘩𤚥𤟱𤢖𤩍𤭖𤭯𤰖𤴔𤸎𤸷𤹪𤺋
+𥁊𥁕𥄢𥆩𥇥𥇍𥈞𥉌𥐮𥒎𥓙𥔎𥖧𥝱𥞩𥞴𥧄𥧔𥫤𥫣
+𥫱𥮲𥱋𥱤𥶡𥸮𥹖𥹥𥹢𥻘𥻂𥻨𥼣𥽜𥿠𥿔𦀌𥿻𦀗𦁠
+𦃭𦉰𦊆𦍌𣴎𦐂𦙾𦚰𦜝𦣝𦣪𦥑𦥯𦧝𦨞𦩘𦪌𦪷𦫿𦱳
+𦳝𦹀𦹥𦾔𦿸𦿶𦿷𧃴𧄍𧄹𧏛𧏚𧏾𧐐𧑉𧘕𧘔𧘱𧚄𧚓
+𧜎𧜣𧝒𧦅𧪄𧮳𧮾𧯇𧲸𧶠𧸐𧾷𨂊𨂻𨉷𨊂𨋳𨏍𨐌𨑕
+𨕫𨗈𨗉𨛗𨛺𨥉𨥆𨥫𨦇𨦈𨦺𨦻𨨞𨨩𨩱𨩃𨪙𨫍𨫤𨫝
+𨯁𨯯𨴐𨵱𨷻𨸟𨸶𨺉𨻫𨼲𨿸𩊠𩊱𩒐𩗏𩙿𩛰𩜙𩝐𩣆
+𩩲𩷛𩸽𩸕𩺊𩹉𩻄𩻩𩻛𩿎𪀯𪀚𪃹𪂂𪆐𢈘𪎌𪐷𪗱𪘂
+𪘚𪚲𠮟
+}
+
+\section{verbatim, verb}
+\begin{verbatim}
+abcABC \¥￥
+αβγΑΒΓ
+髙島屋
+内田百閒
+杮落とし
+安全﻿㐧一
+𠮷野家
+\end{verbatim}
+
+\verb+abcABC \¥￥+
+\verb-αβγΑΒΓ-
+\verb!髙島屋!
+\verb/内田百閒/
+\verb#杮落とし#
+\verb|安全﻿㐧一|
+\verb=𠮷野家=
+
+\edef\bs{$\backslash$\kern0em}
+\section{コントロールワード}
+\def\𠮷野家{この``\bs 𠮷野家''のように、BMP超のCJK Ideographs Extension Bの文字でもコントロールワードに使えます。}
+\𠮷野家
+
+\newcommand\東西{東と西---east and west.}
+\東西
+
+\newif\if土の𠮷
+\土の𠮷true
+\def\test土の𠮷{%
+\if土の𠮷
+ 土の𠮷です。
+\else
+ 士の吉です。
+\fi}
+\土の𠮷true\test土の𠮷\quad\土の𠮷false\test土の𠮷
+
+
+% 以下の例は、uptex-0.04 までは改行位置が壊れ破綻していた。 kcode_pos の対処が不完全だったため。大丈夫になったはず。
+
+\typeout{𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷}
+
+\typeout{a𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷}
+
+\typeout{ab𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷}
+
+\typeout{abc𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷𠮷}
+
+\end{document}
+

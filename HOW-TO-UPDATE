@@ -1,0 +1,6 @@
+
+perl tlpkg/bin/tl-update-tlpdb -from-files -no-reverse-revision-check --keep-revisions
+# fix revisions by hand
+
+perl tlpkg/bin/tl-update-containers -location /var/www/norbert/tlptexlive -all # -recreate
+

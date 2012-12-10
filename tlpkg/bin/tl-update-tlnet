@@ -1,0 +1,220 @@
+#!/bin/sh -e
+# Copyright 2008, 2009, 2010, 2011 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Update a TeX Live tlnet area, with testing.
+
+vc_id='$Id: tl-update-tlnet 24220 2011-10-06 22:50:55Z karl $'
+unset CDPATH
+unset LS_COLORS
+
+yyyy=2011
+
+chicken=false
+critical=
+pretest=false
+recreate=
+testinstall=true
+tlweb=/home/ftp/texlive/tlnet
+verbose=
+
+while test $# -gt 0; do
+  case $1 in
+  --critical)          critical=--all;;
+  --dry-run|-n)        chicken=true;;
+  --master)            shift; Master=$1;;
+  --no-testinstall|-N) testinstall=false;;  # and no updates; quit early.
+  --pretest)           tlweb=/home/ftp/texlive/tlpretest;;
+  --recreate)          recreate=--recreate;;
+  --testlocation)      shift; tltrybase=$1;;
+  -v|-vv|-vvv)	       verbose=$1;;
+  --help)              echo "ustl. sorry."; exit 0;;
+  --version)           echo "$vc_id"; exit 0;;
+  --*) echo "$0: unrecognized option \`$1'." >&2
+       exit 1;;
+  *) tlweb=$1;;
+  esac
+  shift
+done
+
+if test -z "$Master"; then
+  mydir=`dirname $0`
+  Master=`cd $mydir/../.. && pwd`
+fi
+
+if test ! -r "$tlweb/tlpkg/texlive.tlpdb"; then
+  cat <<END_NO_TLPDB >&2
+$0: fatal: no file $tlweb/tlpkg/texlive.tlpdb.
+$0: If you are setting up a new release, touch the file,
+$0: and then use --critical --recreate.
+$0: (Or otherwise set up the tlnet hierarchy manually.)
+$0: Goodbye.
+END_NO_TLPDB
+  # and typically we will fail because there are new messages
+  # in the installer.  move the trial dir by hand to avoid
+  # time-consuming full recreate more than once.
+  exit 1
+fi
+
+# Keep the default out of ~ftp/texlive/tlnet, which CTAN mirrors.
+test -z "$tltrybase" \
+&& tltrybase=`cd $tlweb/../.. && pwd`/tlnet-trial-`date +%y%m%d`
+tltry=$tltrybase/tlsrc.try
+echo "$0: Using tlweb=$tlweb"         # top level network directory, mirrored
+echo "$0: Using tltry=$tltry"   # local working dir
+
+# Save tlpdb in case of disaster.
+cp --force --backup $tlweb/tlpkg/texlive.tlpdb* /tmp
+
+# 
+# Be sure we're starting the test cleanly.
+rm -rf $tltrybase
+mkdir -p $tltry
+chmod g+w $tltry
+cp -al $tlweb/* $tltry  # assuming GNU cp
+
+# Update packages in our working dir.
+echo "$0: Updating $tltry in cow-shell..."
+cd $tltry
+cow-shell <<END_COW
+echo "$0: Running tl-update-containers..."
+$Master/tlpkg/bin/tl-update-containers \
+  $verbose -location $tltry $critical $recreate
+
+# It is scary, but I guess we should update the installer package every
+# day, partly for the sake of doc.html and partly so it actually gets
+# tested.  Hopefully we don't break the Perl modules very often.
+echo "$0: Running tl-update-install-pkg..."
+$Master/tlpkg/bin/tl-update-install-pkg -o $tltry
+END_COW
+
+# if not doing the test installation, don't push anything out.
+$testinstall || exit 0
+
+# 
+# Now we have an updated tlweb in $tltry where only the changed files
+# are actual files, the rest are hard links.
+# Try to make a test installation.
+cd $tltrybase
+tltryinst=$tltrybase/tlinst.try
+
+zcat $tltry/install-tl-unx.tar.gz | tar -xf -
+cd install-tl-*  # subdir is YYYYMMDD
+# create TL install profile:
+echo "# texlive-profile from $0
+selected_scheme scheme-full
+TEXDIR $tltryinst/$yyyy
+TEXDIRW $tltryinst/$yyyy
+TEXMFSYSCONFIG $tltryinst/$yyyy/texmf-config
+TEXMFSYSVAR $tltryinst/$yyyy/texmf-var
+TEXMFLOCAL $tltryinst/texmf-local
+TEXMFHOME ~/texmf
+option_doc 1
+option_fmt 1
+option_letter 0
+option_src 1
+option_path 0
+" >texlive.profile
+
+echo "$0: Running test install (log: `pwd`/install.log)..."
+perl install-tl -location $tltry -profile texlive.profile >install.log 2>&1\
+|| true # install-tl can fail, but we test the output, so don't abort.
+
+# the following long grep command should filter away all *normal*
+# installation messages.
+# if there are any other messages they will end up on stdout and 
+# thus be noticed.
+unexpected_output=`cat install.log \
+  | sed '/The following environment variables/,/^ ------/d' \
+  | grep -Ev '^ ------' \
+  | grep -Ev '^Automated TeX Live installation using profile' \
+  | grep -Ev '^Installing from:' \
+  | grep -Ev '^Platform: ' \
+  | grep -Ev '^Distribution: inst' \
+  | grep -Ev '^Directory for temporary files' \
+  | grep -Ev '^Loading ' \
+  | grep -Ev '^Installing ' \
+  | grep -Ev '^(re-)?running mktexlsr' \
+  | grep -Ev '^mktexlsr: Updating ' \
+  | grep -Ev '^mktexlsr: Done' \
+  | grep -Ev '^writing fmtutil.cnf to' \
+  | grep -Ev '^writing updmap.cfg to' \
+  | grep -Ev '^writing language.(dat|def|dat.lua) to' \
+  | grep -Ev '^pre-generating all format file' \
+  | grep -Ev '^making ConTeXt MkIV cache' \
+  | grep -Ev '^running ' \
+  | grep -Ev '^done running ' \
+  | grep -Ev '^finished ' \
+  | grep -Ev '^ See' \
+  | grep -Ev '^  .*/index.html' \
+  | grep -Ev '^ for links to documentation' \
+  | grep -Ev '^ contains updates' \
+  | grep -Ev '^ TeX Live is a joint project of the TeX user groups' \
+  | grep -Ev '^ please consider supporting it by joining the group b' \
+  | grep -Ev '^ list of user groups is on the web at' \
+  | grep -Ev '^ Add ' \
+  | grep -Ev '^ Most importantly, add ' \
+  | grep -Ev '^ to your PATH for current and future sessions' \
+  | grep -Ev '^ Welcome to TeX Live' \
+  | grep -Ev 'install-tl: done' \
+  | grep -Ev '^Logfile: ' \
+  | grep -Ev '^Time used for installing ' \
+  | grep -Ev '^setting up ConTeXt MkIV cache ' \
+  | grep -Ev '^resolvers +\| ' \
+  | grep -Ev '^system +\| ' \
+  | grep -Ev '^done$' \
+  | cat`
+
+failure=false
+if test -n "$unexpected_output"; then
+  failure=true
+  echo "$0: Test installation failed." >&2
+  echo "$0: Here is the unexpected output:" >&2
+  echo "$unexpected_output" >&2
+fi
+
+# more consistency checks.
+if test $failure = false; then
+  for cmd in \
+      "$tltryinst/$yyyy/bin/*/tlmgr update --list" \
+      "$Master/tlpkg/bin/check-tlnet-consistency --location=$tltry" \
+      "$Master/tlpkg/bin/tl-compare-tlpdbs $critical $tltry/tlpkg/texlive.tlpdb" \
+  ; do
+    cmdname=`echo "$cmd" | awk '{print $1}'`
+    basecmd=`basename $cmdname`
+    echo "$0: Running $basecmd ($cmd)"
+    outfile=/tmp/tlnet.$basecmd
+    if $cmd >$outfile 2>&1; then :; else
+      echo "$0: $basecmd failed ($cmd):" >&2
+      sed 8q $outfile >&2
+      echo "... see $outfile for full output ..." >&2
+      echo >&2
+      failure=true
+    fi
+  done
+fi
+
+if $failure; then
+  echo
+  echo "$0: Full transcript file: `pwd`/install.log" >&2
+  echo "$0: install-tl complete log file: $tltryinst/$yyyy/install-tl.log" >&2
+  echo "$0: Remember to clean up the trial dir, please." >&2
+  exit 1
+fi
+
+# 
+# no unexpected output, so ship the new packages.
+cd $tltrybase
+if $chicken; then
+  echo "$0: Chicken mode, not updating anything."
+else
+  echo "$0: Updating $tlweb from $tltry."
+  # mv then rm to avoid the mirmon probe from making the rm fail.
+  mv $tlweb $tltrybase/tlnet.old
+  mv $tltry $tlweb
+  rm -rf $tltrybase
+  echo "$0: Done."
+fi
+
+exit 0

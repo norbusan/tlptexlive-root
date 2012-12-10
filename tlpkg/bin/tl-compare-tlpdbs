@@ -1,0 +1,148 @@
+#!/usr/bin/env perl
+# Copyright 2008, 2009, 2010, 2011 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+#
+# compare two tlpdbs
+#
+
+BEGIN {
+  $vc_id = '$Id: tl-compare-tlpdbs 22918 2011-06-11 21:11:04Z karl $';
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+use TeXLive::TLUtils;
+use TeXLive::TLPDB;
+use Getopt::Long;
+use Pod::Usage;
+
+# packages ignored unless --all is given
+# see @critical_pkg_list in tl-update-containers
+my @add_ignored_packs = qw/texlive.infra tlperl.win32/;
+
+our ($mydir, $vc_id);
+my $opt_version = 0;
+my $opt_help = 0;
+
+TeXLive::TLUtils::process_logging_options();
+GetOptions(
+  "version"	=> \$opt_version,
+  "help|?"      => \$opt_help,
+  "all"   => sub { @add_ignored_packs = () },
+) or pod2usage(1);
+
+pod2usage("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
+if ($opt_version) { print "$vc_id\n"; exit 0; } 
+
+exit (&main());
+
+
+sub main
+{
+  chomp(my $Master = `cd $mydir/../.. && pwd`);
+  #
+  # if tl-compare-tlpdbs was called with two arguments like
+  #   tl-compare-tlpdbs aaa bbb
+  # then aaa and bbb are assumed to be two .tlpdb files.
+  # if it was called with one argument only then this one is the tlpdb
+  # to be compared with the "self-defined" (i.e., the one in 
+  # $Master/tlpkg/texlive.tlpdb) one, where the "self-defined" is the
+  # first one, and the to be compared the second one
+
+  my $tlpdbAsrc;
+  my $tlpdbBsrc;
+
+  if ($#ARGV < 0) {
+    tlwarn("$0 expects either one or two arguments, exiting.\n");
+    exit 1;
+  }
+
+  if ($#ARGV == 0) {
+    # one argument
+    $tlpdbBsrc = $ARGV[0];
+    $tlpdbAsrc = "$Master/tlpkg/texlive.tlpdb";
+  } elsif ($#ARGV == 1) {
+    $tlpdbAsrc = $ARGV[0];
+    $tlpdbBsrc = $ARGV[1];
+  } else {
+    tlwarn("$0 expects either one or two arguments, exiting.\n");
+    exit 1;
+  }
+
+  if (! -r $tlpdbAsrc) {
+    tlwarn("$0: not readable $tlpdbAsrc, exiting.\n");
+    exit 1;
+  }
+  if (! -r $tlpdbBsrc) {
+    tlwarn("$0: not readable $tlpdbBsrc, exiting.\n");
+    exit 1;
+  }
+
+  my $tlpdbA = TeXLive::TLPDB->new();
+  my $tlpdbB = TeXLive::TLPDB->new();
+  $tlpdbA->from_file($tlpdbAsrc);
+  $tlpdbB->from_file($tlpdbBsrc);
+
+  my %ret = TeXLive::TLUtils::compare_tlpdbs(
+      $tlpdbA, $tlpdbB, @add_ignored_packs);
+
+  # anything reported here is a difference in tlpdbs which we do not want
+  if (keys %ret) {
+    TeXLive::TLUtils::report_tlpdb_differences(\%ret);
+    return 1;
+  }
+  return 0;
+}
+
+
+__END__
+
+=head1 NAME
+
+tl-compare-tlpdbs - compare two tlpdbs
+
+=head1 SYNOPSIS
+
+tl-compare-tlpdbs [I<option>]... <TLPDB1> [<TLPDB2>]
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-help>
+
+Print this documentation and exit.
+
+=back
+
+The standard options B<-q>, B<-v>, and B<-logfile>=I<file> are also
+accepted; see the C<process_logging_options> function in
+L<TeXLive::TLUtils> for details.
+
+=head1 DESCRIPTION
+
+This program compares two tlpdbs. If two arguments are given both
+have to refer to a .tlpdb file and the two tlpdbs will be compared.
+If only one argument is given then the tlpdb from the tree of this
+program itself is compared with the tlpdb given on the command line.
+
+The comparision reports revision differences, and if the revision are
+the same, differences in the file lists.
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2 expandtab: #

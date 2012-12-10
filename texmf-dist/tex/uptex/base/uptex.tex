@@ -1,0 +1,57 @@
+% This is the upTeX format
+%
+%    pTeX format file:
+%	(C)copyright ASCII corporation,1987,1995,1997
+%    and modified for upTeX
+%
+\input plain
+\catcode`@=11 % at signs are no longer letters
+\def\footnote#1{\let\@sf\empty % parameter #2 (the text) is read later
+  \ifhmode\edef\@sf{\spacefactor\the\spacefactor}\/\fi
+  \nobreak#1\@sf\vfootnote{#1}}
+\catcode`@=12 % at signs are no longer letters
+%
+\font\tenmin=upjisr-h % mincho(KANJI)
+\font\sevenmin=upjisr-h at 7pt
+\font\fivemin=upjisr-h at 5pt
+%
+\font\tengt=upjisg-h % ugothic(KANJI)
+\font\sevengt=upjisg-h at 7pt
+\font\fivegt=upjisg-h at 5pt
+%
+\font\tentmin=upjisr-v % mincho(KANJI,tate)
+\font\seventmin=upjisr-v at 7pt
+\font\fivetmin=upjisr-v at 5pt
+%
+\font\tentgt=upjisg-v % gothic(KANJI,tate)
+\font\seventgt=upjisg-v at 7pt
+\font\fivetgt=upjisg-v at 5pt
+%
+\newfam\minfam % \min is family 8
+\newfam\gtfam  % \gt is family 9
+\newfam\tminfam % \tmin is family 10
+\newfam\tgtfam  % \tgt is family 11
+%
+\def\mc{\iftdir\fam\tminfam\tentmin\else\fam\minfam\tenmin\fi}%
+\textfont\minfam=\tenmin\scriptfont\minfam=\sevenmin%
+\scriptscriptfont\minfam=\fivemin
+\textfont\tminfam=\tentmin\scriptfont\tminfam=\seventmin%
+\scriptscriptfont\tminfam=\fivetmin
+%
+\def\gt{\iftdir\fam\tgtfam\tentgt\else\fam\gtfam\tengt\fi}%
+\textfont\gtfam=\tengt\scriptfont\gtfam=\sevengt%
+\scriptscriptfont\gtfam=\fivegt
+\textfont\tgtfam=\tentgt\scriptfont\tgtfam=\seventgt%
+\scriptscriptfont\tgtfam=\fivetgt
+%
+\input ukinsoku
+\mc		  % select mincho font
+\kanjiskip=0pt plus .4pt minus .4pt
+%\xkanjiskip=2.5pt plus 1pt minus 1pt
+\xkanjiskip=.25zw plus 1pt minus 1pt
+\autospacing\autoxspacing
+\jcharwidowpenalty=500
+%
+% identifies the current format
+\def\fmtname{uptex}
+\def\fmtversion{3.14159 p1.0b_u00}

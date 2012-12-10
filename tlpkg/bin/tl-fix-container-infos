@@ -1,0 +1,185 @@
+#!/usr/bin/env perl
+# Copyright 2008, 2009 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Updates/fixes the sizes and md5sums of all containers in a tlpdb.
+
+BEGIN {
+  $vc_id = '$Id: tl-fix-container-infos 14621 2009-08-12 00:49:01Z karl $';
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+use TeXLive::TLConfig;
+use TeXLive::TLPOBJ;
+use TeXLive::TLPDB;
+use TeXLive::TLUtils;
+use Getopt::Long;
+use Pod::Usage;
+use File::Path;
+
+our ($mydir, $vc_id);
+my $opt_location = ".";
+my $opt_nosetup = 0;
+my $opt_version = 0;
+my $opt_help = 0;
+
+TeXLive::TLUtils::process_logging_options();
+GetOptions(
+  "location=s"  => \$opt_location, 
+  "no-setup"    => \$opt_nosetup,
+  "version"	=> \$opt_version,
+  "help|?"      => \$opt_help) or pod2usage(1);
+
+pod2usage("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
+if ($opt_version) { print "$vc_id\n"; exit 0; } 
+
+exit (&main());
+
+
+sub main
+{
+  chomp(my $Master = `cd $mydir/../.. && pwd`);
+
+  # check that we have a target db.
+  if (! -r "$opt_location/tlpkg/texlive.tlpdb") {
+    die "$0: Cannot load tlpdb from output directory $opt_location"
+  }
+
+  # get source db, same hierarchy from which we are being run.
+  my $tlpdb = TeXLive::TLPDB->new("root" => $opt_location);
+  die "cannot find tlpdb in $opt_location" unless defined($tlpdb);
+  my @packs = $tlpdb->list_packages;
+
+  # get configuration of package splitting
+  my $srcsplit = $tlpdb->config_src_container;
+  my $docsplit = $tlpdb->config_doc_container;
+  my $format = $tlpdb->config_container_format;
+
+  my $opt_containerdir = "$opt_location/$TeXLive::TLConfig::Archive";
+
+  # set up the programs.
+  if ($opt_nosetup) {
+    # do a minimal setup
+    $::progs{'xz'} = "xz";
+    $::progs{'tar'} = "tar";
+  } else {
+    # do a full setup
+    my $ret = &TeXLive::TLUtils::setup_programs("$Master/tlpkg/installer");
+    if ($ret == -1) {
+      tlwarn("$0: no xzdec for $::_platform_, aborting.\n");
+      exit 1;
+    }
+    if (!$ret) {
+      tlwarn("$0: binaries could not be set up, aborting.\n");
+      exit 1;
+    }
+  }
+
+  # get list of packages.
+  PACKS: for my $pkg (sort $tlpdb->list_packages) {
+    next if $pkg =~ /00texlive/;
+    my $obj = $tlpdb->get_package ($pkg);
+    die "no package $pkg in master $Master, goodbye"
+      if ! $obj;
+
+    #debug("updating $pkg containers ...\n");
+    info("updating $pkg containers ...\n");
+    $obj = do_containers($obj, $srcsplit, $docsplit);
+    # replace with the new one where md5sum and size is changed
+    $tlpdb->add_tlpobj($obj);
+  }
+  $tlpdb->save;
+  system("xz --force -k -z $opt_location/tlpkg/texlive.tlpdb");
+
+  return 0;
+}
+
+
+sub do_containers {
+  my ($obj, $dosrc, $dodoc) = @_;
+  my $fbase = "$opt_location/archive/" . $obj->name;
+  my ($a, $b) = do_size_md ("${fbase}.tar.xz");
+  $obj->containersize($a);
+  $obj->containermd5($b);
+  if ($dosrc && $obj->srcfiles) {
+    ($a, $b) = do_size_md ("${fbase}.source.tar.xz");
+    $obj->srccontainersize($a);
+    $obj->srccontainermd5($b);
+  }
+  if ($dodoc && $obj->docfiles) {
+    ($a, $b) = do_size_md ("${fbase}.doc.tar.xz");
+    $obj->doccontainersize($a);
+    $obj->doccontainermd5($b);
+  }
+  return($obj);
+}
+
+sub do_size_md {
+  my $f = shift;
+  my $size = (stat $f)[7];
+  my $md = TeXLive::TLUtils::tlmd5($f);
+  return($size, $md);
+}
+
+__END__
+
+=head1 NAME
+
+tl-fix-container-infos - updates/adds size and md5 info for the containers
+
+=head1 SYNOPSIS
+
+tl-fix-container-infos [I<option>]...
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-location> I</container/dir>
+
+The directory of containers to be updated, usually with a previous set
+of containers to be compared against; default is C<.>.
+
+=item B<-no-setup>
+
+Does not try to setup the various programs, but uses I<xz> and I<tar>
+from the current path.
+
+=item B<-help>
+
+Print this documentation and exit.
+
+=back
+
+The standard options B<-q>, B<-v>, and B<-logfile>=I<file> are also
+accepted; see the C<process_logging_options> function in
+L<TeXLive::TLUtils> for details.
+
+The format of the containers and the splitting of source and
+documentation files are controlled by the TLPDB options in the
+pseudo-package C<00texlive.config>.  See L<TeXLive::TLPDB>.
+
+
+=head1 DESCRIPTION
+
+This program adds (or updates) {,src,doc}container{size,md5} entries for
+all packages found in the location given by C<--location> (default C<.>).
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2 expandtab: #

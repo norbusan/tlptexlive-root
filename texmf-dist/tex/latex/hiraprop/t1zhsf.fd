@@ -1,0 +1,5 @@
+\DeclareFontFamily{T1}{zhsf}{}
+\DeclareFontShape{T1}{zhsf}{m}{n}{<-> s * [\utf@sc@le] zhsfr8t}{}
+\DeclareFontShape{T1}{zhsf}{bx}{n}{<-> s * [\utf@sc@le] zhsfb8t}{}
+\DeclareFontShape{T1}{zhsf}{m}{it}{<-> s * [\utf@sc@le] zhsfri8t}{}
+\DeclareFontShape{T1}{zhsf}{bx}{it}{<-> s * [\utf@sc@le] zhsfbi8t}{}

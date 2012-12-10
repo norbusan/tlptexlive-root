@@ -1,0 +1,46 @@
+%%
+%% example:
+%%   uptex "\def\cjk{jpn}\input" console_io.tex
+%%   uptex "\def\cjk{sch}\input" console_io.tex
+%%   uptex "\def\cjk{tch}\input" console_io.tex
+%%   uptex "\def\cjk{kor}\input" console_io.tex
+%%   uptex console_io.tex
+%%   ptex "\def\cjk{jis}\input" console_io.tex
+%%   ptex console_io.tex
+%%   tex console_io.tex
+%%
+
+\def\@jpn{jpn}
+\def\@sch{sch}
+\def\@tch{tch}
+\def\@kor{kor}
+\def\@jis{jis}
+
+\ifx\cjk\@jpn
+ \font\upjpnrm = upjpnrm-h at 10.0pt
+ \upjpnrm
+\fi
+\ifx\cjk\@sch
+ \font\upschrm = upschrm-h at 10.0pt
+ \upschrm
+\fi
+\ifx\cjk\@tch
+ \font\uptchrm = uptchrm-h at 10.0pt
+ \uptchrm
+\fi
+\ifx\cjk\@kor
+ \font\upkorrm = upkorrm-h at 10.0pt
+ \upkorrm
+\fi
+\ifx\cjk\@jis
+ \font\jis = jis at 10.0pt
+ \jis
+\fi
+
+\endlinechar=256\relax
+
+\read16 to\currline
+\currline
+\immediate\write16{|\currline|}
+
+\end

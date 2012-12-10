@@ -1,0 +1,3 @@
+\DeclareFontFamily{T3}{zhmr}{}
+\DeclareFontShape{T3}{zhmr}{m}{n}{<-> s * [\utf@sc@le] zhmrripa}{}
+\DeclareFontShape{T3}{zhmr}{bx}{n}{<-> s * [\utf@sc@le] zhmrbipa}{}

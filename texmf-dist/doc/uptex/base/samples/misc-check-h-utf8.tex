@@ -1,0 +1,346 @@
+\documentclass{ujarticle}
+
+%%%%%%%%
+% hyperref 関連の制御をコマンドラインから行う
+% ①,②,③ のどれかを実行すればよい。
+%   ① 何もしない
+%   $ uplatex misc-check-utf8.tex
+%   ② hyperref + dvipdfmx
+%   $ uplatex "\def\withhyperref{dvipdfmx}\input" misc-check-utf8.tex
+%   ③ hyperref + dvips + modified "convert-euc.txt" + distiller
+%   $ uplatex "\def\withhyperref{dvips}\input" misc-check-utf8.tex
+%%%%%%
+\makeatletter
+\def\@dvipdfmx{dvipdfmx}
+\def\@dvips{dvips}
+\ifx\withhyperref\@dvipdfmx
+
+%% for hyperref + dvipdfmx
+\usepackage[dvipdfm,bookmarks=true,bookmarksnumbered=true,%
+bookmarkstype=toc]{hyperref}
+\AtBeginDvi{\special{pdf:tounicode UTF8-UCS2}}
+%%
+
+\fi
+\ifx\withhyperref\@dvips
+
+%% for hyperref + dvips + modified "convert-euc.txt" + distiller
+\usepackage[dvips,bookmarks=true,bookmarksnumbered=true,%
+bookmarkstype=toc]{hyperref}
+%%
+
+\fi
+\makeatother
+%%%%%%%%
+
+\oddsidemargin0mm
+\evensidemargin0mm
+\topmargin-15mm
+\textwidth162mm
+\textheight245mm
+
+\begin{document}
+\section{漢数字}
+
+\kansuji 1234567890
+\quad
+一二三四五六七八九〇
+\quad
+\char\kuten"104C\char\kuten"2653\char\kuten"1B10\char\kuten"1B2D\char\kuten"183E
+\char\kuten"2F1B\char\kuten"1C17\char\kuten"280C\char\kuten"1645\char\kuten"011B
+\quad
+\char\jis"306C\char\jis"4673\char\jis"3B30\char\jis"3B4D\char\jis"385E
+\char\jis"4F3B\char\jis"3C37\char\jis"482C\char\jis"3665\char\jis"213B
+
+\char\euc"B0EC\char\euc"C6F3\char\euc"BBB0\char\euc"BBCD\char\euc"B8DE
+\char\euc"CFBB\char\euc"BCB7\char\euc"C8AC\char\euc"B6E5\char\euc"A1BB
+\quad
+\char\sjis"88EA\char\sjis"93F1\char\sjis"8E4F\char\sjis"8E6C\char\sjis"8CDC
+\char\sjis"985A\char\sjis"8EB5\char\sjis"94AA\char\sjis"8BE3\char\sjis"815A
+\quad
+\char\ucs"4E00\char\ucs"4E8C\char\ucs"4E09\char\ucs"56DB\char\ucs"4E94
+\char\ucs"516D\char\ucs"4E03\char\ucs"516B\char\ucs"4E5D\char\ucs"3007
+\quad
+\char"4E00\char"4E8C\char"4E09\char"56DB\char"4E94
+\char"516D\char"4E03\char"516B\char"4E5D\char"3007
+
+\kansujichar1=`壹
+\kansujichar2=`弐
+\kansujichar3=`參
+\kansujichar4=`肆
+\kansujichar5=`伍
+\kansuji 12345
+
+\section{拗音、句読点など}
+\begin{tabular}{rl}
+default &
+ひらがな，カムチャッカ．
+~~
+ちょっと、待って。きっと、ショック。
+~~
+‘回’ “回” \\
+
+\if0
+umin10.tfm &
+\font\uminten = umin10 at 10pt
+{\uminten
+ひらがな，カムチャッカ．
+~~
+ちょっと、待って。きっと、ショック。
+~~
+‘回’ “回” 
+}\\
+\fi
+
+\if0
+ujis.tfm &
+\font\ujisten = ujis at 10pt
+{\ujisten
+ひらがな，カムチャッカ．
+~~
+ちょっと、待って。きっと、ショック。
+~~
+‘回’ “回” 
+}\\
+\fi
+
+upjisr-h.tfm &
+\font\upjisrten = upjisr-h at 9.62216pt
+{\upjisrten
+ひらがな，カムチャッカ．
+~~
+ちょっと、待って。きっと、ショック。
+~~
+‘回’ “回” 
+}\\
+
+\end{tabular}
+
+\section{括弧類}
+\subsection{JIS X 0208にあるもの}
+‘回’ “回” （回） 〔回〕 ［回］ ｛回｝ 〈回〉 《回》 「回」 『回』 【回】
+
+{\gt
+‘回’ “回” （回） 〔回〕 ［回］ ｛回｝ 〈回〉 《回》 「回」 『回』 【回】
+}
+
+%‘回’ “回” は、upTeX-0.13 で改善した。
+
+\subsection{JIS X 0213で追加されたもの}
+｟回｠ 〘回〙 〖回〗 〝回〟
+
+{\gt
+｟回｠ 〘回〙 〖回〗 〝回〟
+}
+
+{\gt 〖回〗} は、KozGoProVI-Medium.otfならうまくいくはず。
+
+\section{いわゆる『JIS外字』←不正確な言い方だが}
+JIS X 0208, JIS X 0213では、別のコードポイントの文字に包摂されている
+異体字(JIS X 0221ではまた話が別)や、その他の例。
+
+髙島屋 \char"9AD9島屋\quad% はしご高
+内田百閒 内田百\char"9592\quad% 月間
+杮落とし \char"676E落とし\quad% こけら、JIS X 0212には含まれている
+安全﻿㐧一 安全\char"3427一\quad% 第の略字 CJK Ideographs Extension A
+%𠮷野家 \char"20BB7野家% 土吉, CJK Extension B, 要set3対応
+
+{\gt
+髙島屋 \char"9AD9島屋\quad% はしご高
+内田百閒 内田百\char"9592\quad% 月間
+杮落とし \char"676E落とし\quad% こけら、JIS X 0212には含まれている
+安全﻿㐧一 安全\char"3427一\quad% 第の略字 CJK Ideographs Extension A
+%𠮷野家 \char"20BB7野家% 土吉, CJK Extension B, 要set3対応
+}
+
+\section{いわゆる『新JIS』『JIS2004』}
+\subsection{いろいろな例}
+JIS X 0213で第3,4水準に追加された文字の例。JIS X 0212(補助漢字)に収録されていた字も含む。
+
+〼〽♮♫♬♩♤♠♢♦♡♥♧♣☖☗〠☎☀☁☂☃♨ゔゕゖヷヸヹヺ⅓⅔⅕✓⌘␣⏎㈱㈲
+
+①②③④⑤❶❷❸❹❺⓵⓶⓷⓸⓹ⅰⅱⅲⅳⅴⅠⅡⅢⅣⅤⓐⓑⓒⓓⓔ㋐㋑㋒㋓㋔
+
+鄧小平 李承燁 里見弴 草彅剛 朴璐美 森鷗外 森雞二 王銘琬 宮﨑あおい 蔣介石
+
+你好 深圳 東日本旅客鉃道株式会社 尾骶骨 生酛仕込 凮月堂 㐂寿 仐寿 圓壔函數
+
+啞然 火焰 嚙む 任俠 長身瘦軀 石鹼 屢〻 刺繡 醬油 蟬時雨 隔靴搔痒 奥飛驒 簞笥 摑む
+
+充塡 顚末 祈禱 瀆職 土囊 潑溂 醱酵 頰紅 素麵 麴町 蓬萊 蠟燭 攢竹
+
+\subsection{JIS X 0208 AB包摂29組}
+{\gt
+\noindent
+A: 唖焔鴎噛侠躯鹸麹屡繍蒋醤蝉掻騨箪掴填顛祷涜嚢溌醗頬麺莱蝋攅\\
+B: 啞焰鷗嚙俠軀鹼麴屢繡蔣醬蟬搔驒簞摑塡顚禱瀆囊潑醱頰麵萊蠟攢
+}
+
+\subsection{JIS X 0213:2004追加漢字 (10字)}
+俱剝%𠮟
+吞噓姸屛幷瘦繫 (1字はextension B (BMP外))
+
+\section{Fullwidth formがあるもの}
+% upTeX v.0.10以降では、\kchar\ucs"00A3 など、U+00FF 以下は欧文になる。
+% 和文フォントで表示するには、\char → \kchar にする必要がある。
+£\kchar\ucs"00A3% pound sign
+
+￡\kchar\ucs"FFE1% fullwidth pound sign
+
+¥\kchar\ucs"00A5% yen sign
+
+￥\kchar\ucs"FFE5% fullwidth yen sign
+
+
+\section{日本語フォントのギリシャ文字(αβγ)、キリル文字(абв)}
+\char\ucs"03B1\char\ucs"03B2\char\ucs"03B3
+\char\ucs"0391\char\ucs"0392\char\ucs"0393
+\quad
+\char"03B1\char"03B2\char"03B3
+\char"0391\char"0392\char"0393
+\quad
+αβγΑΒΓ
+
+\char\ucs"0430\char\ucs"0431\char\ucs"0432
+\char\ucs"0410\char\ucs"0411\char\ucs"0412
+\quad
+\char"0430\char"0431\char"0432
+\char"0410\char"0411\char"0412
+\quad
+абвАБВ
+
+\section{verbatim, verb}
+\begin{verbatim}
+abcABC \¥￥
+αβγΑΒΓ
+髙島屋
+内田百閒
+杮落とし
+安全﻿㐧一
+\end{verbatim}
+%𠮷野家
+
+\verb+abcABC \¥￥+
+\verb-αβγΑΒΓ-
+\verb!髙島屋!
+\verb/内田百閒/
+\verb#杮落とし#
+\verb|安全﻿㐧一|
+%\verb=𠮷野家=
+
+\edef\bs{$\backslash$\kern0em}
+\section{コントロールワード}
+\newcommand\東西{東と西---east and west.}
+\newcommand\ａＺ{ａからＺ---a to Z.}
+\東西 \ａＺ
+
+{
+
+\kcatcode"FF71=17
+\newcommand\ﾏｽﾞｰ{ﾏｽﾞｰ}
+\ﾏｽﾞｰ
+
+\kcatcode"FF70=17
+\newcommand\ﾏｽﾞｰ{ﾏｽﾞｰ}
+\ﾏｽﾞｰ
+
+}
+
+\section{日本語フォントのU+0000〜U+00FF}
+\noindent
+\kcatcode"005C=18
+5C:\kchar"005C, 7C:\kchar"007C, 7D:\kchar"007D, 7E:\kchar"007E
+\kcatcode"005C=15
+
+\noindent
+A0:\kchar"00A0, A4:\kchar"00A4, A5:\kchar"00A5, A6:\kchar"00A6, A7:\kchar"00A7, A8:\kchar"00A8, 
+A9:\kchar"00A9, AA:\kchar"00AA, AB:\kchar"00AB, AC:\kchar"00AC, AD:\kchar"00AD, AE:\kchar"00AE,\\
+AF:\kchar"00AF, B0:\kchar"00B0, B1:\kchar"00B1, B4:\kchar"00B4, B5:\kchar"00B5, B6:\kchar"00B6, 
+B7:\kchar"00B7, B8:\kchar"00B8, B9:\kchar"00B9, BA:\kchar"00BA, BB:\kchar"00BB, BF:\kchar"00BF,\\
+C6:\kchar"00C6, D7:\kchar"00D7, D8:\kchar"00D8, DF:\kchar"00DF, E6:\kchar"00E6, F7:\kchar"00F7, 
+F8:\kchar"00F8
+
+\noindent
+\kchardef\セクション=`§
+\kchardef\段落記号=`¶
+\kchardef\×=`×
+\kchardef\÷=`÷
+\bs kchardef:\セクション\段落記号\×\÷\quad
+\bs kchar:\kchar`§\kchar`¶\kchar`×\kchar`÷\quad
+UTF-8:§¶×÷
+
+
+\[
+ x_{例えば「§\kchar"A7\セクション 」}= y_{『¶\kchar"B6\段落記号 』}
+\]
+
+\section{半角片仮名、ｶﾀｶﾅ｡}
+!アイウエオ!\raisebox{-.12zh}{\frame{ア}\frame{イ}\frame{ウ}\frame{エ}\frame{オ}}!~~
+!ｱｲｳｴｵ!\raisebox{-.12zh}{\frame{ｱ}\frame{ｲ}\frame{ｳ}\frame{ｴ}\frame{ｵ}}!
+
+(･∀･)ｲｲ~~
+(~ﾟДﾟ)ﾏｽﾞｰ
+
+{\bfseries
+!アイウエオ!\raisebox{-.12zh}{\frame{ア}\frame{イ}\frame{ウ}\frame{エ}\frame{オ}}!~~
+!ｱｲｳｴｵ!\raisebox{-.12zh}{\frame{ｱ}\frame{ｲ}\frame{ｳ}\frame{ｴ}\frame{ｵ}}!
+
+(･∀･)ｲｲ~~
+(~ﾟДﾟ)ﾏｽﾞｰ
+}
+
+{\small
+\frame{ｱ}\frame{ｲ}\frame{ｳ}\frame{ｴ}\frame{ｵ}}
+
+{\normalsize
+\frame{ｱ}\frame{ｲ}\frame{ｳ}\frame{ｴ}\frame{ｵ}}
+
+{\Large
+\frame{ｱ}\frame{ｲ}\frame{ｳ}\frame{ｴ}\frame{ｵ}}
+
+\newcommand{\chkvartable}[2]{%
+\ifnum\jis"#1="#2
+ \typeout{check: jis 0x#1 -> ucs 0x#2 : OK!}%
+\else
+ \typeout{check: jis 0x#1 -> ucs 0x#2 : NG!}%
+\fi
+}
+\chkvartable{2126}{30FB}
+\chkvartable{2131}{FFE3}
+\chkvartable{213D}{2015}
+\chkvartable{2141}{301C}
+\chkvartable{2142}{2016}
+\chkvartable{2143}{FF5C}
+\chkvartable{2144}{2026}
+\chkvartable{215D}{2212}
+\chkvartable{216F}{FFE5}
+\chkvartable{2171}{FFE0}
+\chkvartable{2172}{FFE1}
+\chkvartable{224C}{FFE2}
+\chkvartable{227E}{25EF}
+
+
+% kcode_pos などのテスト。
+\typeout{αβγδεζηθικαβγδεζηθικαβγδεζηθικαβγδεζηθικαβγδεζηθικ}
+
+\typeout{一二三四五六七八九〇}
+\typeout{一二三四五六七八九〇一二三四五六七八九〇}
+
+\typeout{一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇}
+\typeout{a一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇}
+\typeout{ab一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇}
+
+\typeout{一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇}
+\typeout{一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇}
+\typeout{一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇一二三四五六七八九〇}
+
+\typeout{〼〽♮♫♬♩♤♠♢♦♡♥♧♣☖☗〠☎☀☁☂☃♨ゔゕゖヷヸヹヺ⅓⅔⅕✓⌘␣⏎㈱㈲}
+\typeout{①②③④⑤❶❷❸❹❺⓵⓶⓷⓸⓹ⅰⅱⅲⅳⅴⅠⅡⅢⅣⅤⓐⓑⓒⓓⓔ㋐㋑㋒㋓㋔}
+\typeout{αβγΑΒΓ 髙島屋 内田百閒 杮落とし 安全﻿㐧一 𠮷野家 ｶﾀｶﾅ｡}
+\typeout{科学技術}
+\typeout{科学技术}
+\typeout{科學技術}
+\typeout{과학기술}
+
+\end{document}
+

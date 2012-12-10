@@ -1,0 +1,3 @@
+binpattern f bin/${ARCH}/pdvitomp
+binpattern f bin/${ARCH}/pmpost
+runpattern +f texmf-dist/metapost/pmetapost/pmpost.mp

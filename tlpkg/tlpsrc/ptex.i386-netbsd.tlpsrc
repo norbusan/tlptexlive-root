@@ -1,0 +1,9 @@
+binpattern f/i386-netbsd bin/i386-netbsd/eptex
+binpattern f/i386-netbsd bin/i386-netbsd/makejvf
+binpattern f/i386-netbsd bin/i386-netbsd/mendex
+binpattern f/i386-netbsd bin/i386-netbsd/pbibtex
+binpattern f/i386-netbsd bin/i386-netbsd/pdvitype
+binpattern f/i386-netbsd bin/i386-netbsd/platex
+binpattern f/i386-netbsd bin/i386-netbsd/ppltotf
+binpattern f/i386-netbsd bin/i386-netbsd/ptex
+binpattern f/i386-netbsd bin/i386-netbsd/ptftopl

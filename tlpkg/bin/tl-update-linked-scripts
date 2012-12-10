@@ -1,0 +1,32 @@
+#!/bin/sh
+# $Id: tl-update-linked-scripts 22649 2011-05-28 17:36:35Z karl $
+# Public domain.  Originally written 2011, Peter Breitenlohner.
+#
+# This script updates the linked scripts under Build
+# (but doesn't commit anything).
+
+mydir=`cd \`dirname $0\` && pwd`
+Master=`cd $mydir/../.. && pwd`
+Dest=`cd $Master/../Build/source/texk/texlive/linked_scripts && pwd`
+
+test -r $Dest/scripts.lst || {
+  echo "$0: \`$Dest/scripts.lst' missing'"
+  exit 1
+}
+
+. $Dest/scripts.lst
+
+compare_and_copy () {
+  Src=$Master/$1/scripts
+  shift
+  for file in $@; do
+    #echo "comparing $Src/$file to $Dest..."
+    cmp -s $Src/$file $Dest/$file && continue
+    echo "updating $Src/$file -> $Dest/$file"
+    diff -u0 $Src/$file $Dest/$file
+    cp $Src/$file $Dest/$file || exit 1
+  done
+}
+
+compare_and_copy texmf $texmf_scripts
+compare_and_copy texmf-dist $texmf_dist_scripts

@@ -1,0 +1,485 @@
+#!/usr/bin/env perl
+# Copyright 2008, 2009, 2010, 2011 Norbert Preining
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Generate archive file(s) for the packages specified on the cmdline
+# (doesn't really work, not documented), or all (except some critical
+# packages) if none specified.
+
+BEGIN {
+  $vc_id = '$Id: tl-update-containers 22918 2011-06-11 21:11:04Z karl $';
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+use TeXLive::TLConfig;
+use TeXLive::TLPOBJ;
+use TeXLive::TLPDB;
+use TeXLive::TLUtils;
+use Getopt::Long;
+use Pod::Usage;
+use File::Path;
+
+# packages matching these re's will not be updated without --all.
+my @critical_pkg_list = qw/texlive\.infra tlperl\.win32/;
+
+our ($mydir, $vc_id);
+my $opt_all = 0;
+my $opt_location = ".";
+my $opt_nosetup = 0;
+my $opt_recreate = 0;
+my $opt_relative = 1;
+my $opt_version = 0;
+my $opt_help = 0;
+my $opt_dry = 0;
+
+TeXLive::TLUtils::process_logging_options();
+GetOptions(
+  "all|a"       => \$opt_all,
+  "dry-run"	=> \$opt_dry,
+  "location=s"  => \$opt_location, 
+  "no-setup"    => \$opt_nosetup,
+  "recreate"    => \$opt_recreate,
+  "relative!"   => \$opt_relative,
+  "version"	=> \$opt_version,
+  "help|?"      => \$opt_help) or pod2usage(1);
+
+pod2usage("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
+if ($opt_version) { print "$vc_id\n"; exit 0; } 
+
+exit (&main());
+
+
+sub main
+{
+  # check that we have a target db.
+  if (! $opt_recreate && ! -r "$opt_location/tlpkg/texlive.tlpdb") {
+    die "$0: Cannot load tlpdb from output directory $opt_location;\n"
+        . "  specify --recreate if you want to populate anew.\n";
+  }
+
+  # get source db, same hierarchy from which we are being run.
+  chomp(my $Master = `cd $mydir/../.. && pwd`);
+  my $tlpdb = TeXLive::TLPDB->new("root" => $Master);
+  die "cannot find tlpdb in $Master" unless defined($tlpdb);
+  my @packs = $tlpdb->expand_dependencies("-only-arch", $tlpdb,
+                                        @ARGV ? @ARGV : $tlpdb->list_packages);
+
+  # get configuration of package splitting
+  my $srcsplit = $tlpdb->config_src_container;
+  my $docsplit = $tlpdb->config_doc_container;
+  my $format = $tlpdb->config_container_format;
+  my $type = "xz";
+  if ($format eq "xz" || $format eq "zip") {
+    $type = $format;
+  } else {
+    tlwarn("$0: unknown container format $format in 00texlive.config; ",
+           "ignoring and continuing with $type");
+  }
+  debug("$Master: format=$type srcsplit=$srcsplit docsplit=$docsplit\n");
+
+  my $nettlpdb;
+  my %count;
+  my @todopacks = ();
+  my @removepacks = ();
+  my @removecontainers = ();
+  my $opt_containerdir = "$opt_location/$TeXLive::TLConfig::Archive";
+  &debug("output containerdir = $opt_containerdir\n");
+  
+  if ($opt_recreate) {
+    # remake everything.
+    if (@ARGV) {
+      @todopacks = @packs;
+      $nettlpdb = TeXLive::TLPDB->new;
+      die "cannot create new tlpdb" unless defined($nettlpdb);
+    } else {
+      @todopacks = $tlpdb->list_packages;
+      $nettlpdb = $tlpdb->copy;
+    }
+    $nettlpdb->root($opt_location);
+  } else {
+    $nettlpdb = TeXLive::TLPDB->new("root" => $opt_location);
+    if (!defined($nettlpdb)) {
+      die "cannot init tlpdb from $opt_location";
+    }
+    my %archiverevs;
+    for my $pkg ($nettlpdb->list_packages()) {
+      $archiverevs{$pkg} = $nettlpdb->get_package($pkg)->revision();
+      if (!defined($tlpdb->get_package($pkg))) {
+        # $pkg has disappeared, removing it
+        push @removepacks, $pkg;
+      }
+    }
+
+    # collect packages to be updated.
+    $count{"new"} = $count{"removed"} = $count{"updated"} = $count{"unchanged"}
+                  = 0;
+ 
+    for my $pkg (@packs) {
+      # by definition, any 00texlive... package does not need containers.
+      next if $pkg =~ /00texlive/;
+
+      # we check for the existence of a special config file, and if it
+      # is present any package listed therein will not be updated in
+      # tlnet.  Assume GNU grep for checking it.
+      my $disabled_pkgs = "$Master/tlpkg/dev/tlnet-disabled-packages.txt";
+      if (-r $disabled_pkgs) {
+        if (!system("grep", "-q", "-x", "-F", $pkg, $disabled_pkgs)) {
+          tlwarn("$0: $pkg disabled for tlnet updates in $disabled_pkgs\n");
+          next;
+        }
+      }
+      my $oldrev = 0;
+      if (-r "$opt_containerdir/$pkg.tar.$type"
+          && defined($archiverevs{$pkg})) {
+        $oldrev = $archiverevs{$pkg};
+      } else {
+        info("$0: $pkg is new\n");
+        $count{"new"}++;
+      }
+
+      my $tlp = $tlpdb->get_package($pkg);
+      my $newrev = 0;
+      if (defined($tlp)) {
+        $newrev = $tlp->revision;
+      } else {
+        # this can happen with typos on the command line.
+        die "no package $pkg in location $opt_location, goodbye";
+      }
+
+      if ($oldrev == $newrev) {
+        debug("$pkg up to date\n");
+        # check for the existence of all containers in case they go missing
+        if (($tlp->runfiles && ! -r "$opt_containerdir/$pkg.tar.$type")
+            || ($srcsplit && $tlp->srcfiles
+                && ! -r "$opt_containerdir/$pkg.source.tar.$type")
+            || ($docsplit && $tlp->docfiles
+                && ! -r "$opt_containerdir/$pkg.doc.tar.$type")) {
+          info("$0: container(s) for $pkg disappeared, recreating them.\n");
+          push @todopacks, $pkg;
+          $count{"updated"}++;
+        } else {
+          $count{"unchanged"}++;
+        }
+      } elsif ($oldrev < $newrev) {
+        push @todopacks, $pkg;
+        $count{"updated"}++ if $oldrev;
+      } else {
+        # This can happen when packages get renamed or files get
+        # shuffled from one package to another.
+        tlwarn("$0: $pkg in source tree is OLDER ($newrev) than in ",
+               "$opt_location/tlpkg/texlive.tlpdb ($oldrev); continuing.\n");
+        push @todopacks, $pkg;
+      }
+    }
+  }
+  
+  # The two packages 00texlive.config and 00texlive.installation
+  # are essential and have to be included in each and every case.
+  # So add them ...
+  my $tlpconfig = $tlpdb->get_package("00texlive.config");
+  $nettlpdb->add_tlpobj($tlpconfig);
+  my $tlpinstconfig = $tlpdb->get_package("00texlive.installation");
+  $nettlpdb->add_tlpobj($tlpinstconfig);
+
+  # set up the programs.
+  if ($opt_nosetup) {
+    # do a minimal setup
+    $::progs{'xz'} = "xz";
+    $::progs{'tar'} = "tar";
+  } else {
+    # do a full setup
+    my $ret = &TeXLive::TLUtils::setup_programs("$Master/tlpkg/installer");
+    if ($ret == -1) {
+      tlwarn("$0: no xzdec for $::_platform_, aborting.\n");
+      exit 1;
+    }
+    if (!$ret) {
+      tlwarn("$0: binaries could not be set up, aborting.\n");
+      exit 1;
+    }
+  }
+
+  # get list of packages.
+  PACKS: for my $pkg (sort @todopacks) {
+    next if $pkg =~ /00texlive/;
+    foreach my $manualpkgre (@critical_pkg_list) {
+      # we match the initial string of the package name, so that all the
+      # .arch packages are skipped, too
+      if ($pkg =~ m/^$manualpkgre/) {
+        if ($opt_all || $opt_recreate) {
+          tlwarn("$0: Updating critical $pkg due to -all\n");
+          last; # of the manualpkgre checks
+
+        } else {
+          tlwarn("$0: Skipping critical $pkg\n");
+          # we assume that the packages in @critical_pkg_list always
+          # exist, so if they are there then the number of updated packages
+          # should be reduced.
+          $count{'updated'}--;
+          
+          # the following line skips all other regexp checks on critical
+          # packages and skips everything below this (the part which
+          # actually builds the containers) and continues with the next
+          # package (the PACKS: label above).
+          next PACKS;
+        }
+      }
+    }
+    my $obj = $tlpdb->get_package ($pkg);
+    die "no package $pkg in master $Master, goodbye"
+      if ! $obj;
+
+    debug("updating $pkg containers ...\n");
+    # we have to make a copy otherwise the src/doc files in the original
+    # tlpobj are removed, and thus also in the tlpdb to be saved!!!
+
+    my $objcopy = $obj->copy;
+
+    # if we try to create relative containers we check the package 
+    # for residing only in texmf-dist, and being relocatable, and
+    # not having a dependency on $pkg.ARCH
+    # TLPOBJ->common_texmf_tree returns the string of the
+    # common temxf tree or undefined, so we can use it in &&
+    my $ctt = $objcopy->common_texmf_tree;
+    my $deps_on_arch = 0;
+    for ($objcopy->depends) {
+      if (m/^$pkg\.ARCH$/) {
+        $deps_on_arch = 1;
+        last;
+      }
+    }
+    my $do_relative = 0;
+    debug("pkg=$pkg deps_on_arch=$deps_on_arch, ctt=", defined($ctt)?$ctt:"(undefined)", "\n");
+    $do_relative = $opt_relative &&          # user option
+                   ($deps_on_arch?0:1) &&    # no $pkg.ARCH dep
+                   (defined($ctt)?1:0) &&    # see above
+                   (($ctt eq $TeXLive::TLConfig::RelocTree) ? 1 : 0);   
+                                             # only for texmf-dist
+    if ($srcsplit) {
+      if (!$opt_dry) {
+        my $objsrc = $obj->srcfiles_package;
+        $objcopy->clear_srcfiles;
+        if ($objsrc) {
+          my ($s,$m) = $objsrc->make_container($type, $Master, $opt_containerdir,
+                                              "$pkg.source", $do_relative);
+          if ($s > 0) {
+            # something was created 
+            # important, we have to add it to the original $obj
+            $obj->srccontainersize($s);
+          }
+          if ($m ne "") {
+            $obj->srccontainermd5($m);
+          }
+        } else {
+          # no src files in the package, so remove old .source containers
+          push @removecontainers, "$pkg.source";
+        }
+      }
+    } else {
+      # remove the .source container
+      push @removecontainers, "$pkg.source";
+    }
+    if ($docsplit) {
+      if (!$opt_dry) {
+        my $objdoc = $obj->docfiles_package;
+        $objcopy->clear_docfiles;
+        if ($objdoc) {
+          my ($s,$m) = $objdoc->make_container($type, $Master,
+                                 $opt_containerdir, "$pkg.doc", $do_relative);
+          if ($s > 0) {
+            # something was created
+            $obj->doccontainersize($s);
+          }
+          if ($m ne "") {
+            $obj->doccontainermd5($m);
+          }
+        } else {
+          # no doc files in the package, so remove old .doc containers
+          push @removecontainers, "$pkg.doc";
+        }
+      }
+    } else {
+      # remove the .doc containers
+      push @removecontainers, "$pkg.doc";
+    }
+    if (!$opt_dry) {
+      my ($s,$m) = $objcopy->make_container($type, $Master, $opt_containerdir,
+                                            $pkg, $do_relative);
+      if ($s > 0) {
+        $obj->containersize($s);
+      }
+      if ($m ne "") {
+        $obj->containermd5($m);
+      }
+    }
+    # if the container has been build relocatable we save that information
+    $obj->relocated($do_relative);
+    # and remove the common prefix from the files in the tlpobj
+    $obj->cancel_common_texmf_tree if $do_relative;
+    # add the updated (or new) TLPOBJ to NET TLPDB
+    # that way the other container sizes are not destroyed
+    $nettlpdb->add_tlpobj($obj) unless $opt_dry;
+  }
+
+  # remove old containers
+  for my $op (@removecontainers) {
+    if (-r "$opt_containerdir/$op.tar.xz") {
+      info("$0: $op container is old, removing it\n");
+      `rm $opt_containerdir/$op.*` unless $opt_dry;
+    }
+  }
+  # next we remove those containers which have been gone!
+  REMOVEPACK: for my $op (@removepacks) {
+    foreach my $manualpkgre (@critical_pkg_list) {
+      # we match the initial string of the package name, so that all the
+      # .arch packages are skipped, too
+      if ($op =~ m/^$manualpkgre/) {
+        if ($opt_all || $opt_recreate) {
+          tlwarn("$0: Removing critical $op due to -all\n");
+          last; # of the manualpkgre checks
+
+        } else {
+          tlwarn("$0: Skipping removal of critical $op\n");
+          # the following line skips all other regexp checks on critical
+          # packages and skips everything below this (the part which
+          # actually builds the containers) and continues with the next
+          # package (the PACKS: label above).
+          next REMOVEPACK;
+        }
+      }
+    }
+    info("$0: $op has disappeared, removing its containers\n");
+    `rm $opt_containerdir/$op.*` unless $opt_dry;
+    $nettlpdb->remove_package($op) unless $opt_dry;
+    $count{"removed"}++;
+  }
+
+  if ($opt_recreate) {
+    info("$0: all packages recreated.\n");
+  } else {
+    if (@todopacks) {
+      # we updated something
+      info("$0: $count{new} new, $count{removed} removed, " .
+            "$count{updated} updated, $count{unchanged} unchanged.\n");
+    } else {
+      info("$0: nothing to be done.\n");
+    }
+  }
+
+  return 0 if $opt_dry;
+
+  # STRANGE: It seems that calling -recreate did not save the
+  # docfiles into the texlive.tlpdb, no idea why. So update should now
+  # do that.
+  $nettlpdb->save;
+  system("$::progs{'xz'} --force -k -z $opt_location/tlpkg/texlive.tlpdb");
+  chomp (my $olddir = `pwd`);
+  if (chdir("$opt_location/tlpkg/")) {
+    xsystem("md5sum texlive.tlpdb > texlive.tlpdb.md5");
+    xchdir($olddir);
+  } else {
+    tlwarn("Cannot chdir to $opt_location/tlpkg/ for md5 hash creation\n");
+  }
+  
+  if (! @ARGV) {
+    # do a last check that all the containers are actually present
+    foreach my $p ($nettlpdb->list_packages) {
+      next if $p =~ /00texlive/;
+      if (! -r "$opt_containerdir/$p.tar.xz") {
+        tlwarn("$0: container for $p is missing, strange\n");
+      }
+    }
+  }
+  
+  return 0;
+}
+
+
+__END__
+
+=head1 NAME
+
+tl-update-containers - create, update, or remove TL containers
+
+=head1 SYNOPSIS
+
+tl-update-containers [I<option>]...
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-location> I</container/dir>
+
+The directory of containers to be updated, usually with a previous set
+of containers to be compared against; default is C<./archive>.
+
+=item B<-recreate>
+
+Forces rebuild of all containers, including creation of the output
+C<texlive.tlpdb> if need be.
+
+=item B<-all|-a>
+
+Include packages deemed critical in the update, currently
+C<texlive.infra>.  (That is, C<tlmgr> itself needs
+testing before updating, so we don't do it by default.)
+
+=item B<-no-relative>
+
+Do not create any relocatable packages.
+
+=item B<-no-setup>
+
+Do not try to use the TL version of our basic programs such as I<xz>
+and I<tar>, but instead looks for them in the current path.
+
+=item B<-help>
+
+Print this documentation and exit.
+
+=back
+
+The standard options B<-q>, B<-v>, and B<-logfile>=I<file> are also
+accepted; see the C<process_logging_options> function in
+L<TeXLive::TLUtils> for details.
+
+The format of the containers and the splitting of source and
+documentation files are controlled by the TLPDB options in the
+pseudo-package C<00texlive.config>.  See L<TeXLive::TLPDB>.
+
+=head1 DESCRIPTION
+
+This program compares the packages in the C<texlive.tlpdb> found
+relative to this script with those in the C<texlive.tlpdb> found in the
+specified I<containerdir>.
+
+If a local tlpdb package is newer (i.e., a higher revision number), the
+container(s) for the package are updated.  When the package exists in
+tlpdb only, it is created in I<containerdir>.  When the package exists
+in I<containerdir> only, it is removed from there.  The C<texlive.tlpdb>
+in I<containerdir> is updated accordingly.
+
+If I<containerdir> does not have a C<texlive.tlpdb>, the script aborts
+unless C<-recreate> is specified.  
+
+This is called from the L<tl-update-tlnet> script, which is run nightly.
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2 expandtab: #

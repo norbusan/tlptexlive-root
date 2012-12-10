@@ -1,0 +1,2 @@
+\DeclareFontFamily{T3}{zhmg}{}
+\DeclareFontShape{T3}{zhmg}{m}{n}{<-> s * [\utf@sc@le] zhmgsipa}{}

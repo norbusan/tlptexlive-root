@@ -1,0 +1,50 @@
+#!/bin/sh -e
+# $Id: tl-update-messages 19479 2010-07-16 14:43:39Z mpg $
+# Public domain.  Originally written 2009, Norbert Preining.
+# 
+# update the master messages.pot catalog and merge the result into the
+# respective .po files.
+
+mydir=`cd \`dirname $0\` && /bin/pwd`
+Master=`cd $mydir/../.. && /bin/pwd`
+transdir=$Master/tlpkg/translations
+tmpfile=tlpkg/translations/shortdesc.pl
+
+cd $Master || exit 1
+cp $transdir/messages.pot $transdir/messages.prev
+sed -n 's/^shortdesc \(.*\)/__("\1");/p' \
+    tlpkg/tlpsrc/scheme-*.tlpsrc tlpkg/tlpsrc/collection-*.tlpsrc >$tmpfile
+xgettext -o tlpkg/translations/messages.pot	\
+        -L Perl   				\
+	--copyright-holder="TeX Live Team"	\
+	--msgid-bugs-address=tex-live@tug.org	\
+	--package-version=2010			\
+	--package-name="TeX Live"		\
+        -k__ -k\$__ -k%__ -k__x -k__n:1,2 -k__nx:1,2 -k__xn:1,2 -kN__ -k  \
+       tlpkg/installer/install-menu-wizard.pl \
+       tlpkg/installer/install-menu-perltk.pl \
+       texmf/scripts/texlive/tlmgrgui.pl      \
+       $tmpfile
+rm $tmpfile
+
+cd $transdir || exit 1
+
+tmpa=`mktemp`
+tmpb=`mktemp`
+sed /POT-Creation-Date:/d <messages.prev >$tmpa
+sed /POT-Creation-Date:/d <messages.pot >$tmpb
+if cmp -s $tmpa $tmpb ; then
+  echo "$0: no msg changes."
+  mv messages.prev messages.pot
+  rm -f $tmpa $tmpb
+  exit 0
+fi
+rm -f $tmpa $tmpb messages.prev
+
+# here we come only if there have been changes
+for i in *.po ; do
+  printf "$i "
+  msgmerge --backup=none --no-fuzzy-matching --update $i messages.pot
+done
+
+exit $?

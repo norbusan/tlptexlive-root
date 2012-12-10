@@ -1,0 +1,191 @@
+#!/usr/bin/env perl
+# $Id: tlpfiles 14621 2009-08-12 00:49:01Z karl $
+# Copyright 2007, 2008, 2009 Karl Berry.
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Return all files for a given TeX Live package, or package name(s) for
+# a given set of files.
+
+our $mydir;
+
+BEGIN {
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+
+use TeXLive::TLConfig qw/$RelocPrefix $RelocTree/;
+use TeXLive::TLPDB;
+use Pod::Usage;
+use Getopt::Long;
+use TeXLive::TLUtils;
+
+our $FILE;
+our %DB_BY_FILE;  # used privately below.
+
+our @opt_pkgof = ();
+my $opt_help = 0;
+
+TeXLive::TLUtils::process_logging_options ();
+GetOptions ("pkgof=s" => \@opt_pkgof,
+            "help|?" => \$opt_help) or pod2usage (2);
+pod2usage ("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
+
+exit (&main ());
+
+
+sub main
+{
+  my $Master = "$mydir/../..";  # xx TLPDB should default
+	my $tlpdb_path = "$Master/$TeXLive::TLConfig::InfraLocation/texlive.tlpdb";
+
+  if (@opt_pkgof) {
+    return &do_pkgof ($tlpdb_path, @opt_pkgof);
+    
+  } elsif (@ARGV != 1) {
+    die "$0: expected exactly one package name; try --help if you need it.\n";
+  }
+
+  # report files in given package.
+  my $pkg = $ARGV[0];
+
+  my $tlpdb = TeXLive::TLPDB->new (root => $Master);
+
+  my $obj = $tlpdb->get_package ($pkg);
+  die "$0: no TeX Live package named $pkg in $Master.\n" if ! $obj;
+  
+  my @files = $obj->all_files;
+	if ($obj->relocated) { for (@files) { s:^$RelocPrefix/:$RelocTree/:; } }
+  print "$_\n" foreach @files;
+  
+  return 0;
+}
+
+
+
+# Report which package(s) the given files belong to.
+# 
+sub do_pkgof
+{
+  my ($tlpdb,@files) = @_;
+  
+  @files = split (/\s/, "@files");
+  for my $f (@files) {
+    my $pkg = &find_pkg_of_file ($tlpdb, $f);
+    printf "%s\t%s\n", $pkg || "-", $f;
+  }
+  
+  return 0;
+}
+
+
+# return package to which FILE belongs, or undef.
+# 
+# any directory part of FILE is stripped.  If there are multiple
+# packages holding files by the same name, all are returned,
+# space-separated.
+# 
+# Because this strange inverse operation is not needed for anything
+# else, we don't attempt to implement it in the usual modules.  Instead,
+# we read the raw tlpdb file.
+# 
+sub find_pkg_of_file
+{
+  my ($tlpdb,$file) = @_;
+  
+  if (! keys %DB_BY_FILE) {
+    local *FILE;
+    $FILE = $tlpdb;
+    open (FILE) || die "open($FILE) failed: $!";
+    my $pkg;
+    while (<FILE>) {
+      chomp;
+      if (/^name /) {
+        (undef,$pkg) = split (/ /);
+      } elsif (/^ /) {
+        # we carefully designed the format so that the only lines with
+        # leading spaces are the files.  here we just take the basename.
+        (my $dbfile = $_) =~ s,^.*/,,;
+        $DB_BY_FILE{$dbfile} .= "$pkg ";
+      }
+    }
+    close (FILE) || warn "close($FILE) failed: $!";
+  }
+  
+  $file =~ s,^.*/,,;  # take basename
+
+  # strict stupidity
+  my $ret = exists $DB_BY_FILE{$file} ? substr ($DB_BY_FILE{$file}, 0, -1)
+            : "";
+  return $ret;  # omit final space,
+}
+
+__END__
+
+=head1 NAME
+
+tlpfiles - list files contained in a TeX Live package, or vice versa
+
+=head1 SYNOPSIS
+
+  tlpfiles [I<option>]... I<tlpkg>
+  or: tlpfiles [I<option>]... -pkgof I<file>...
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-pkgof> I<file>...
+
+Output the TeX Live package(s) in which each I<file> is contained.
+
+=item B<-help>
+
+Print this documentation and exit.
+
+=back
+
+The standard options B<-q>, B<-v>, and B<-logfile>=I<file> are also
+accepted; see the C<process_logging_options> function in
+L<TeXLive::TLUtils> for details.
+
+=head1 DESCRIPTION
+
+In the first form, with just I<TLPKG> specified, return all the files
+contained in the given TeX Live package (as determined by reading the
+TeX Live package database).  This includes any executables as well as
+runtime, documentation, and source files.
+
+It does not include the C<.tlpsrc> file for the package, since that is
+necessarily part of the build infrastructure, and not part of the
+self-contained package.
+
+In the second form, with the C<-pkgof> option, return the TeX Live
+package in which each given I<FILE> is contained, or C<-> if no package
+can be found.  The files may be given as a single whitespace-separated
+argument, or the C<-pkgof> option may be given more than once, or both.
+Example invocation, given the list of files to search for in C</tmp/f>:
+
+  tlpfiles --pkgof "`cat /tmp/f`"
+
+Any directory part of the files is stripped.  If there are multiple
+packages holding files by the same name, all are returned,
+space-separated, followed by a tab, followed by the basename searched for.
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2: #

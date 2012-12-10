@@ -1,0 +1,49 @@
+#!/usr/bin/env perl
+# $Id: cmp-textfiles 17826 2010-04-12 18:03:12Z karl $
+# Public domain.  Originally written 2008, Karl Berry.
+# Compare two files considering CR, LF, and CRLF as equivalent.  
+# Used in place and tlpkg-ctan-check in TeX Live.
+
+exit (&main ());
+
+sub main
+{
+  if (@ARGV != 2) {
+    warn <<END_USAGE;
+Usage: $0 FILE1 FILE2.
+Compare as text files, ignoring line endings.
+Exit status is zero if the same, 1 if different, something else if trouble.
+END_USAGE
+    exit $ARGV[0] eq "--help" ? 0 : 2;
+  }
+  
+  my $file1 = &read_file ($ARGV[0]);
+  my $file2 = &read_file ($ARGV[1]);
+  
+  return $file1 eq $file2 ? 0 : 1;
+}
+
+
+# Return contents of FNAME as a string, converting all of CR, LF, and
+# CRLF to just LF.
+# 
+sub read_file
+{
+  my ($fname) = @_;
+  my $ret = "";
+  
+  local *FILE;
+  open (FILE, $fname) || die "open($fname) failed: $!";
+  while (<FILE>) {
+    s/\r\n?/\n/g;
+    #warn "line is |$_|";
+    $ret .= $_;
+  }
+  close (FILE) || warn "close($fname) failed: $!";
+
+  # if the file did not have a trailing newline, add one for purposes of
+  # comparison, since it can slip in if we edit it, etc.
+  $ret .= "\n" if substr ($ret, -1) ne "\n";
+  
+  return $ret;
+}

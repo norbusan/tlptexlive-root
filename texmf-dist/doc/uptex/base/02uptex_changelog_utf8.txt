@@ -1,0 +1,496 @@
+### ChangeLog / 変更履歴
+
+2012.04.29 Ver1.10-20120429a
+  TeXLive svn 26146 base
+  Build/source/texk/web2c/uptexdir:
+    * uptex-m.ch, uppltotf.ch uptftopl.ch, updvitype.ch, upbibtex.ch:
+      Update upTeX version number.
+    * uptex-m.ch, kanji.c:
+      Update reference of Unicode blocks to
+      "Blocks-6.1.0.txt Date: 2011-06-14, 18:26:00 GMT [KW, LI]"
+  Build/source/texk/makejvf:
+    * main.c:
+      Update upTeX version number.
+      Revise command line help messages.
+    * uniblock.c:
+      Update references.
+      "Blocks-6.1.0.txt Date: 2011-06-14, 18:26:00 GMT [KW, LI]"
+      cid2code.txt (Version 10/25/2010) for Adobe-CNS1-6
+      cid2code.txt (Version 10/29/2010) for Adobe-GB1-5
+      cid2code.txt (Version 02/04/2012) for Adobe-Japan1-6
+      cid2code.txt (Version 01/31/2012) for Adobe-Korea1-2
+  Master/texmf-dist/fonts/vf/uptex/jis/*.vf:
+      Update references.
+      "Blocks-6.1.0.txt Date: 2011-06-14, 18:26:00 GMT [KW, LI]"
+      cid2code.txt (Version 02/04/2012) for Adobe-Japan1-6
+  samples:
+    Update.
+  patch/*:
+    Remove.
+
+2012.01.18 Ver1.00-20120118a
+  Master/texmf-dist/fonts/vf/uptex/jis/*.vf:
+    * In Ver1.00-20120115a,
+      Master/texmf-dist/fonts/vf/uptex/jis/*.vf was obsolete virtual fonts.
+      Master/texmf-dist/fonts/tfm/uptex/jis/*.vf was latest ones.
+      New *.vf are now set in Master/texmf-dist/fonts/vf/uptex/jis/ .
+
+2012.01.15 Ver1.00-20120115a
+  TeXLive svn r25043 base
+  Build/source/texk/web2c/uptexdir:
+    * uptex-m.ch, uppltotf.ch uptftopl.ch, updvitype.ch, upbibtex.ch:
+      Update upTeX version number.
+    * uptex-m.ch, kanji.c:
+      Update reference of Unicode blocks to
+      "Blocks-6.0.0.txt Date: 2010-06-04, 11:12:00 PDT [KW]".
+  Build/source/texk/makejvf:
+    * main.c:
+      Update upTeX version number.
+      Revise command line help messages.
+    * Makefile.{am,in}, main.c, makejvf.h, write.c, uniblock.{c,h}:
+      upTeX support for makejvf.
+    * uniblock.c:
+      Update references.
+      "Blocks-6.0.0.txt Date: 2010-06-04, 11:12:00 PDT [KW]"
+      cid2code.txt (Version 04/13/2010) for Adobe-CNS1-6
+      cid2code.txt (Version 04/13/2010) for Adobe-GB1-5
+      cid2code.txt (Version 06/24/2010) for Adobe-Japan1-6
+  Master/texmf-dist/fonts/{source,tfm,vf}/uptex/jis:
+    * makepl.perl, upjisr-h{,-hk}.pl, upjisr-v.pl,
+      upjis{r,g}-{h,v}.tfm, up{jpn,kor,sch,tch}{rm,gt}-{h,v}.tfm:
+      add U+2014 as Type 5 in tfm files.
+    * upjpn{rm,gt}-{h,v}.vf
+      add CJK Unified Ideographs Extension C,D.
+    * Makefile
+      Update.
+  bin/convbkmk.rb:
+    Update to Ver0.01: BOM typo was fixed.
+  samples:
+    Update.
+  fonts:
+    Delete obsolete fonts i.e. umin10.tfm.
+  ptexenc, dvips, dvipdfmx, dvi2tty:
+    Delete from this release because
+    TeXLive svn has already included upTeX support.
+  up(j)mpost, xdvi:
+    Delete from this release because
+    TeXLive svn has not included pTeX support yet.
+  otfbeta-uptex-0.07.tar.xz:
+    Delete from this release and
+    already released as an independent package.
+
+2010.04.10 Ver0.30
+  ptetex3-20090610 ベース
+  uptex-base.ch:
+    upTeXのヴァージョン番号の変更。
+  otfstable-uptex-0.05, 5macro_uptex.sh:
+    "otfstable (v1.2.9.2 2010/3/26)"ベースに更新。
+    同梱のpackages/otfstable-1292.zipは、
+    配布元のotfstable.zip (v1.2.9.2 2010/3/26) の
+    ファイル名を変更したのみのもの。
+  makejvf:
+    Unicode のブロックを
+    "Blocks-5.2.0.txt Date: 2009-05-19, 16:21:00 PDT [KW]"
+    ベースに更新。
+    参考のCMapをVersion 08/11/2009〜08/23/2009のものに更新。
+    オプション "-u cns -3" を選択すると、CJK統合漢字Extension Cを含む。
+  fonts:
+    upjpn{rm,gt}-h.vf に半角片仮名が含まれていなかったのを修正。
+    uptch{rm,gt}-{h,v}.vf にCJK統合漢字Extension Cを追加。
+  ptexenc:
+    WindowsNT系のコマンドプロンプトでのUnicode文字入力
+    (コピー&ペーストで入力可能)のために
+    ReadConsoleW()を使ったコードを書いてみた。
+    Windows9x系では動かないはずだが --sjis-terminal で
+    利用することを想定。
+    getc4_win32console()の単体で動作確認したのみだが
+    上手く動くかどうか。
+    BOMの読み込み判定を最新ptexencからバックポートした。
+  web2c/cpascal.h, dvipsk/afm2tfm.c, updvi2tty/dvistuff.c:
+    getline 重複定義対策。
+    (デビ丸さん、ありがとうございました)
+  kpathsea/fontmap.c:
+    free のバグ対策。
+    (デビ丸さん、ありがとうございました)
+  samples: 更新。
+  uptex_font-0.30.tar.gz, 0uptex.sh:
+    up{jpn,tch}*.vf 更新。
+    CMapをoreillyのサイトのものからAdobeのサイトのものへ更新。
+2010.01.31 Ver0.29
+  ptetex3-20090610 ベース
+  0uptex.sh, ptex-src-3.1.10-3.1.11.patch:
+    ptex-3.1.11 ベースに変更。
+    ptex-src-3.1.10-forum327.patch は不要になった。
+  0uptex.sh:
+    eptex, euptex自動インストールを廃止。
+    代わりに euptex-091003 以下に eptex-091003.tar.bz2 の
+    修正部分を置いた。テスト用。
+  uptex-base.ch, kanji.c:
+    全角英数字、半角片仮名のブロックを
+    Halfwidth and Fullwidth Forms のブロックから分離した。
+    (Doraさん、ZRさんに御意見をいただき、
+     ありがとうございました)
+    Unicode のブロックを
+    "Blocks-5.2.0.txt Date: 2009-05-19, 16:21:00 PDT [KW]"
+    ベースに更新。
+  samples: 更新。
+2009.08.23 Ver0.28
+  ptetex3-20090610 ベース
+  uptex-base.ch, 0uptex.sh, ptex-src-3.1.10-forum327.patch:
+    upTeXのヴァージョン番号の変更。
+    ptexlive から patch を拝借して、下記の修正を入れた。
+    http://oku.edu.mie-u.ac.jp/tex/mod/forum/discuss.php?d=327
+    下記のkcatcode関連バグ修正。
+    (Doraさん、北川さん、ありがとうございました)
+    http://oku.edu.mie-u.ac.jp/~okumura/texfaq/qa/53557.html
+    http://oku.edu.mie-u.ac.jp/~okumura/texfaq/qa/53556.html
+  euptexdir/ptexextra.c:
+    e-pTeX/e-upTeX (090309) の自動インストール時に
+    FAM256 パッチを無効とした場合に
+    eupTeX が上手く動かなかったバグ修正。
+    (栗山さん、北川さんに御意見をいただき、
+     ありがとうございました)
+  0uptex.ch, 5macro_uptex.sh:
+    最新の jsclasses が ptetex3 に入ったので
+    インストール法を元に戻した。
+  0uptex.ch:
+    小さいバグ修正。
+  convbkmk.rb:
+    新規に作成したrubyスクリプトを同梱。
+    upLaTeX, dvips と hyperrefとの組合せでしおり(bookmark)を
+    正常につくれるようになった。
+    松本隆太郎氏の convert-euc.txt
+    (Ref. http://www.rmatsumoto.org/tex-ps-pdf/hyperref.ja.html)
+    とほぼ同様の機能であるが、
+    pTeX/upTeX 両対応となっている点と ruby なのが新規。
+    引数に dvips の出力 foo.ps を指定すると foo-convbkmk.ps へ出力する。
+    dvips の出力を標準入力に与えると標準出力へ出力する。
+    この ruby スクリプトはMITライセンスとする。
+  otfstable-uptex-0.04:
+    小さいバグ修正。
+    (角藤さん、ZRさんに御意見をいただき、
+     ありがとうございました)
+  ptexenc:
+    上流の更新に対応するための修正。
+  samples: 更新。
+2009.03.12 Ver0.27
+  ptetex3-20080616 ベース
+  uptex-base.ch: ヴァージョン番号の変更のみ。
+  Makefile.in, 0uptex.chなど:
+    e-pTeX/e-upTeX (090309) の自動インストール。
+    さらに、FAM256 パッチを利用可能にした。
+    eptex-090309.tar.bz2 の配布のうち etex.diff, uptex.diff,
+    eptex.src, euptex.src, eptexdefs.lib, fp.ch, fam256.ch を利用。
+    その他は、拙作パッチに含まれるようにしたが、些細な点を除いて
+    北川さんオリジナルとほぼ同等のものが出来上がるはず。
+    my_option で ENABLE_EPTEX_FAM256=1 を指定すると
+    FAM256 パッチが有効になる。
+  jsclasses-090222.zip, 0uptex.ch, 5macro_uptex.sh:
+    jsclasses を更新。
+    配布元の奥村さんのところで upTeX パッチを適用して頂いた。
+  0uptex.ch:
+    CTAN の cbfonts.zip のディレクトリ構成が変更されていたのに対応。
+    cbfonts.zip, cm-super.zip, unicode.zip のインストール先を
+    texmf-dist に変更。
+  6babel_uptex.sh:
+    eplatex, euplatex + babel でのfmtの再生成が出来ていなかったのを修正。
+  samples: 更新。
+2009.02.21 Ver0.26
+  ptetex3-20080616 ベース
+  uptex-base.ch: ヴァージョン番号の変更のみ。
+  Makefile.inなど: eTeX, pdfeTeX などと同様に
+    ヴァージョン番号を ptexextra.h などに自動で採り入れるようにした。
+  0uptex.chなど: e-pTeX/e-upTeX (090220) の自動インストール。
+    (北川さん、e-pTeX/e-upTeX の開発有難うございました。)
+    eptex-090220.tar.bz2 の配布のうち etex.diff, uptex.diff,
+    eptex.src, euptex.src, eptexdefs.lib, fp.ch を利用。
+    その他は、拙作パッチに含まれるようにしたが、些細な点を除いて
+    北川さんオリジナルとほぼ同等のものが出来上がるはず。
+    FAM256 は無効のままとなっている。
+  jsclasses-090123-uptex0.26.zip, 0uptex.ch, 5macro_uptex.sh:
+    jsclasses を更新。upTeX パッチ適用済を同梱した。
+  samples: 更新。
+2008.12.13 Ver0.25
+  ptetex3-20080616 ベース
+  uptex-base.ch: ヴァージョン番号の変更のみ。
+  otf, otfstable-uptex-0.03: 
+    本文用vfに、JIS X 0208に含まれずかつJIS X 0213に含まれかつ
+    Unicodeで合成不要の文字を追加した。
+    プロポーショナル仮名は未検討。
+    fontmap更新。
+  samples: 更新。
+2008.10.18 Ver0.24
+  ptetex3-20080616 ベース
+  uptex: フルパス指定などで起動できない問題点を修正した。
+  uptex, upjbibtex, uppltotf, uptftopl:
+    BUG_ADDRESS を表示しないようにした。
+  updvi2tty: 環境によってコンパイルに失敗する問題点を修正した。
+  otf, otfstable-uptex-0.02: 
+    本文用vfを追加した。JIS X 0208に含まれない仮名は未検討。
+    プロポーショナル仮名は未検討。
+  5macro_uptex.sh, 6babel_uptex.sh, 0uptex.sh:
+    root_checkが効いていなかったのを修正した。
+    otfパッケージの本文用vfインストールを追加。
+  samples: 更新。
+2008.09.04 Ver0.23
+  ptetex3-20080616 ベース
+  updvi2tty: dvi2tty 日本語版を upTeX 対応にしたものを追加。
+    ptexenc ライブラリーを使用。
+    pTeX や NTT JTeX の場合でも UTF-8 出力が可能になっている。
+    NTT JTeX の場合の改行に関するバグも修正している。
+  0uptex.sh: updvi2tty の自動インストールを追加。
+  xdvi: 半角片仮名のとき、"Warning: 'font' (code=0xXXXX) is not square."
+    の警告を出さないようにした。
+  ptexenc: PTEXENC_VERSION に 0.997-u00 と upTeX パッチの枝番を付けた。
+  samples: 更新。
+2008.08.03 Ver0.22
+  ptetex3-20080616 ベース
+  makejvf: font ID を0番から開始するオプション -i を追加。
+    dvioutとの組合せで発現する問題を回避するため。
+  uptex_font: 上記 makejvf の修正を適用。
+    umin5, umin6, ..., umin9 などを Makefile から削除。
+  0uptex.sh: 「xdviインストールなし」の場合でも動作するように修正。
+  pdvitype: -kanjiオプションが無効になっていたバグ
+    (オリジナルのptetex3では発現せず、uptexパッチによるバグ)を修正。
+  xdvi: 半角片仮名が再度おかしくなっていたバグを修正。
+    あまり自信はないが、動いているように見える。
+  samples: 更新。
+2008.03.13 Ver0.21
+  ptetex3-20080311 ベース
+  uptex-base.ch: \uppercase, \lowercase が異常になるバグを修正。
+  updvitype, uppltotf, uptftopl, upjbibtex, upjmpost:
+    default のエンコーディングを
+    --kanji=utf8 --kanji-internal=uptex 相当にした。
+  xdvi, dvips, dvipdfmx:
+    set3 対応のために消費していたメモリー領域を動的確保に変更。
+    従来ptetex3 版比 17 倍だったが、 SIP 使用時に3倍程度、
+    pTeX/pLaTeX 使用時には ptetex3 版とほぼ同等になった。
+  dvips:
+    CMap の UTF32 と UTF8 に対応。
+    UniJISX0213-UTF32 など UTF16 のものが公開されていないものに対し
+    有用と思われる。
+  0uptex.shなど:
+    make babelの後、uplatex.fmtを自動生成できていなかった点を修正。
+    make babel相当を自動で行うことにした。
+    不要なら0uptex.shからコメントアウトする。
+  samples: 更新。
+2008.01.12 Ver0.20
+  ptetex3-20080107 ベース
+  uptex-base.ch: ヴァージョン番号の変更のみ。
+  updvitype, uppltotf, uptftopl, upjbibtex, upjmpost, updvitomp, upovp2ovf:
+    以前は pdvitype, pltotf, tftopl, jbibtex, jmpost, pdvitomp, ovp2ovf は
+    ptetex3 のものを上書きしていたが、コマンド名を新設し上書きをやめた。
+    W32TeX では既にそのようにして頂いている。
+    ptexenc, makejvf, xdvi, dvips, dvipdfmx, jsclasses は、
+    まだ上書きしている。
+  upjbibtex: デフォルトの内部コードを uptex とした。
+  upmakempx: 新設。
+  samples: 更新。
+2007.12.26 Ver0.19
+  ptetex3-20071214 ベース
+  uptex-base.ch: プリミティヴ \forcecjktoken を追加。
+  フォント: upjisr-h, upjisg-h 等を修正。
+    半角仮名関係のグルーを追加。
+  ukinsoku.tex: 半角仮名関係を追加。
+  otf: 本文用vf利用の準備。実際の本文用vfは、別途検討する。
+  samples: 更新。
+2007.12.08 Ver0.18
+  ptetex3-20071207 ベース
+  uptex-base.ch: ヴァージョン番号の変更のみ。
+  フォント: upjisr-h, upjisg-h 等を修正。
+    横組時に半角片仮名 (U+FF61〜U+FF9F) に対応させた。
+    xdviで "uprml-h is not a square metric." などの警告が出てしまうが、
+    一応動いているようだ。
+  makejvf: オプション -H を新設し、横組時に半角片仮名 (U+FF61〜U+FF9F) 
+    に仮対応した。
+    psフォント用のtfm出力において半角片仮名の部分は
+    makejvfでの対応が出来ていない。
+  jmpost: 半角片仮名 (U+FF61〜U+FF9F) に対応した。
+  samples: 更新。
+2007.11.17 Ver0.17
+  ptetex3-20071030 ベース
+  uptex-base.ch: ヴァージョン番号の変更のみ。
+  フォント: upjisr-h, upjisg-h 等を修正。公称10ptをDESIGN SIZE 10ptに、
+    縦横比を1:1に、CHARHT:CHARDPの比を88:12に変更した。
+    ujarticle.cls などで10pt指定に対し公称10pt, DESIGN SIZE 10ptを
+    9.62216ptに縮小した(OTFパッケージ同様)。
+    jarticle.cls と和文,欧文の横の大きさと比は一部の約物を除き一致する。
+    plain upTeX の uptex.tex では、10pt指定をDESIGN SIZE 10ptにした。
+    このため plain pTeX と和文の大きさが異なることになる。
+  jsclasses: uplatexオプション時にデフォルトで upjisr-h.tfm を 
+    0.962216*0.961=0.924690 倍して使うようした。
+    ujis.tfm を使うには uplatex,jis オプションを指定する。
+    umin10.tfm を使うには uplatex,mingoth オプションを指定する。
+  ptexenc.c: 微修正。
+    無事 Windows のコマンドプロンプトでUnicodeの表示が出来ているようだ
+    (Thanks to 角藤さん)。
+  samples: 更新。
+  (奥村さん、uchiyamaさん、本田さん、ZRさんに御意見をいただき、
+   ありがとうございました)
+2007.11.10 Ver0.16
+  ptetex3-20071030 ベース
+  uptex-base.ch: ヴァージョン番号の変更のみ。
+  ptexenc.c: Windows のコマンドプロンプト用に
+    WriteConsoleW()を使ったコードを書いてみた。
+    Windows9x 系では動かないはずだが --sjis-terminal で
+    利用することを想定。
+    動作確認していないがはたして上手くいくかどうか?
+  makejvf: -U, -u jisq オプションを追加してみた。
+    縦組対応にはこれでも不充分で、専用の CMap を作るしかないようだ。
+  フォント: upjisr-h, upjisg-h 等を作成。公称10ptを9.62216pt(min10同様)に、
+    縦横比を1:1に、CHARHT:CHARDPの比を88:12にしてみた。
+    default のフォントを ujis,ujisg → upjisr-h, upjisg-h 等に変更。
+    中韓のフォントを upjisr-h 系に変更。
+    中韓のフォントにSans Serif用を追加。
+  samples: 追加、更新。
+2007.10.18 Ver0.15
+  ptetex3-20071017 ベース
+  uptex-base.ch: ヴァージョン番号の変更のみ。
+  uplcore.ltx: "2006/11/10" ベースに更新。
+  u{,t}{article,report,book}.clsなど: "2006/06/27 v1.6" ベースに更新。
+  otfパッケージ: \UTFK{}, \CIDK{} などを動くようにした。
+  font/map/for_dviout.map: dviout 用のmap記入例を追加。
+     これで dviout の簡単なテストを行った。
+  samples: 追加、更新。
+  samples/testrun.bat: MS-DOS 用のバッチファイルを追加。
+2007.09.25 Ver0.14
+  ptetex3-20070822 ベース
+  uptex-base.ch: ヴァージョン番号の変更のみ。
+  ptexenc.c: 環境によってコンパイル出来ない問題を修正。
+  0uptex.sh: EUC-JP → UTF-8に。英語のコメントを追加。
+  00readme_en.txt: 追加。
+2007.09.15 Ver0.13
+  ptetex3-20070822 ベース
+  ptexenc: "-kanji=uptex" のとき "-kanji-internal=*" を無視し、
+    強制的に "-kanji-internal=uptex" をセットし、
+    内部コードを uptex に固定するようにした。
+  makejvf, 付属フォント: 「‘」「’」「“」「”」に関し
+    ujis.vf などでの対応先を urml.tfm→rml.tfm 等 jis 系に変更。
+  フォント: default のフォントを umin10,ugoth10 → ujis,ujisg 等に変更。
+    default のフォントからset3を取り除いた。
+  {uj,ut}{book,report}.cls: 追加。
+  jmpost: -kanji オプションが子プロセスに伝搬するようにした
+    (Thanks to 角藤さん)。
+  samples: 更新。
+  (ZRさん、土村さんに御意見をいただき、ありがとうございました)
+2007.08.25 Ver0.12
+  ptetex3-20070822 ベース
+  uptex: kcatcodeが18でUTF-8の3〜4バイトの場合に処理がときどき
+    異常になるバグを修正。
+    ハングルの直後の改行を空白扱いするように変更。
+    (Ref. http://project.ktug.or.kr/omega-cjk/tug2004-preprint.pdf)
+  ptexenc: is_internalUPTEXの場合に JIS→Unicode の変換を
+    実装依存ではなく、一種類に固定するようにした。
+  ukinsoku.tex: \inhibitglue の U+FF5E の追加など。
+  jbibtex: デフォルトの内部コードをuptexからeucに戻した。
+    デフォルトではupTeXパッチのない状態に等しくなっているはず。
+  samples: 追加、更新。
+  (ZRさん、栗山さん、土村さんに御意見をいただき、ありがとうございました)
+2007.08.07 Ver0.11
+  ptetex3-20070806 ベース
+  jcharwidowpenalty がらみの動作が動かなくなっていたのを修正。
+  pdvitype: 出力を、端末の文字コードではなく
+    -kanji 指定を優先するように変更。
+  ukinsoku.tex: 8 bit 欧文に関し \xspcode を追加。
+  makejvf: cjk に用いないコード値を vf に入れないようにした。
+  uptex_font: vf の軽量化。
+  sample を更新。
+  (ZRさん、安田さんに御意見をいただき、ありがとうございました)
+2007.07.28 Ver0.10
+  ptetex3-20070606 ベース
+  \char`<文字>, \chardef では文字コードが255以下の場合には欧文動作、
+  265以上の場合には和文動作となるように変更した。
+  さらに、文字コードが255以下の場合に和文動作をするためのプリミティヴ
+  \kchar`<文字>, \kchardef を追加した。
+  jbibtex へのパッチのバグ修正。さらに、-kanji-internal=uptex,
+  -kanji-internal=euc が動くようにした。
+  -kanji-internal=euc ならば従来のjbibtexと同等の動作になる(はず)。
+  ovp2ovf へのパッチの微修正。
+  cbfonts, cm-super などのインストール先の修正。
+  sample を更新。
+  (多数の点でZRさんに御意見をいただき、ありがとうございました)
+2007.06.16 Ver0.09
+  ptetex3-20070606 ベース
+  \string cjkトークン のバグ 
+  (ZRさんに御報告いただき、ありがとうございました) に関し
+  全く不可解なトークンは発生しないようにした(つもり)。
+  kcatcode表のデフォルト値を見直した (ZRさんに御提案いただき、
+  ありがとうございました) 。
+  unicode.zip, cbfonts.zip があれば自動インストールするようにした。
+  jsclasses へのパッチの微修正。
+  ovp2ovf へのパッチの微修正。
+  sample を更新。
+2007.05.28 Ver0.08
+  ptetex3-20070522 ベース
+  \char<数値>, \chardef で文字コードが 255 以下の場合に
+  kcatcode, enablecjktoken の条件が整えば cjkトークンにするようにした。
+  utf/otf パッケージへの簡易的対応。まだ一部しか動かない。
+  また、実装方法も今後変更する可能性がある。
+  cm-super.zip があれば自動インストールするようにした。
+  uptex_font-0.08.tar.gz : vfフォントに 0x7F 以下を追加した。
+  これらは\char, \chardef による指定で利用可能になったはず。
+  sample を更新。
+2007.05.13 Ver0.07
+  ptetex3-20070426 ベース
+  CJKの内部コードを kcatcode + 文字コード に変更。
+  内部レジスターにおいて U+0080〜U+0FFF がそのままのコード値で
+  使えなかった問題点をほぼ解消したつもり。
+  まだ \char<数値> などの 255以下で問題がある。
+  大工事なので、安定性は低下しているおそれあり。
+  jbibtex の Unicode 対応実験(土村さんによる)を更新。
+  dvipdfmx で hyperrefとの組合せで bookmark を正常につくれるようにした。
+  calc_pos の簡略化。
+  kcatcodekey の簡略化(土村さんによる)。
+  makejvf の微修正。
+  sample を更新。
+2007.04.15 Ver0.06
+  ptetex3-20070412 ベース
+  jbibtex の Unicode 対応実験(土村さんによる)を更新。
+  プリミティヴ \enablecjktoken, \disablecjktoken を追加。
+  ukinsoku.tex を UTF-8 にし、JIS X 0212, JIS X 0213 関連を追加。
+  uptex-base.ch で cs_token_flag を変更。
+  sample を追加、更新。
+  uptex_font-0.06.tar.gz : 新版の CMap Uni{JIS,GB,UCS,KS}-UTF16-{H,V} を追加。
+2007.04.08 Ver0.05
+  ptetex3-20070405 ベース
+  ptexenc との摺り合わせ(土村さんに作業していただき、有難うございました)。
+  jbibtex の Unicode 対応実験(土村さんによる)を同梱。
+  JIS X 0213 関連ソースの動かなくなっていた部分を削除。
+  EUC/SJIS 動作で kcat_code の内部領域を変更。
+  uptex で kcode_pos, trick_buf2 の多バイト対応したつもり。テストは不十分。
+  jsclasses を uplatex に簡易対応させた。
+  dvips のオプション -UCS, -SJIS を廃止し、自動判定するようにした。
+  uptex-utf8.fmt, uplatex-utf8.fmt を uptex.fmt, uplatex.fmt に変更。
+  tftopl, pltotf のコード範囲のチェックを checkkanji 任せに変更。
+  ドキュメントに「upTeX開発のねらい」を追加。
+  sample を追加。
+2007.03.25 Ver0.04
+  ptetex3-20070323 ベース
+  新しい ptexenc の関数に対応(土村さんに作業していただき、有難うございました)。
+  sample を修正。
+2007.03.18 Ver0.03
+  ptetex3-20070316 ベース
+  自動インストールスクリプトを追加した(Thanks to 土村さん)。
+  ディレクトリ構成、インストール上の問題点を修正(Thanks to 土村さん)。
+  メモリーを浪費していた点を修正(土村さんにご指摘いただきました)。
+  新しい ptexenc の関数に一部を変更。
+  jmpost が set3 を含めて動くようになった。
+  sample を追加。
+  フォントのバイナリーパッケージでシンボリックリンクを使用するようにした。
+2007.03.07 Ver0.02
+  ptetex3-20070304 ベース
+  sample を微修正。
+  フォントのバイナリーパッケージを分離。
+2007.02.27 Ver0.01
+  ptetex3-20070223 ベース
+  kanji_enc を入出力コード(-kanji=xxx)と内部コード(-kanji-internal=xxx)
+  に分離(Thanks to 土村さん)。
+  ptex と uptex のソース、バイナリーを分離。共存できるようにした。
+  sample を追加。
+  jis.tfm 系のフォントを追加。同系統のCJKのフォントを追加。
+  CJKの動作確認。sample を追加。
+  とりあえずkcatcodeに hangul(19)を追加。現状は漢字(16)と同じ動作。
+  dvidpfmx で set3 が使えるようになった。
+  pltotf がまともに使えるようになった。
+2007.01.27 Ver0.00
+  ptetex3-20070101 ベース

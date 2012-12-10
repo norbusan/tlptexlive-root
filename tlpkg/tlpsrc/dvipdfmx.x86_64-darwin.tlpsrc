@@ -1,0 +1,3 @@
+binpattern f/x86_64-darwin bin/x86_64-darwin/dvipdfmx
+binpattern f/x86_64-darwin bin/x86_64-darwin/ebb
+binpattern f/x86_64-darwin bin/x86_64-darwin/extractbb

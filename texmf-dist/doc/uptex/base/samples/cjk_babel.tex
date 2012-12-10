@@ -1,0 +1,427 @@
+%
+% test of Babel+UTF8 and CJK multilingual text
+%
+% This file is originally a test file for Utf82TeX
+%%% Utf82TeX sample TeX file for Unix
+%%% (c) 2004-2005, Isao YASUDA, isao@yasuda.homeip.net
+%%% $Id: utf82tex-sample.tex,v 1.2 2006/12/09 15:04:25 isao Exp $
+% and is modified for upLaTeX
+%
+\documentclass{ujarticle}
+%\usepackage{lmodern}% Latin Modern
+\usepackage[utf8]{inputenc}
+%\usepackage[10pt]{type1ec}
+\usepackage[OT2,T2A,T2B,T2C,T1]{fontenc}
+\usepackage[french,german,czech,russian,japanese]{babel}
+
+\DeclareFontFamily{JY2}{jpnrm}{}
+\DeclareFontFamily{JY2}{schrm}{}
+\DeclareFontFamily{JY2}{tchrm}{}
+\DeclareFontFamily{JY2}{korrm}{}
+\DeclareFontShape{JY2}{jpnrm}{m}{n}{<->s*[0.962216]upjpnrm-h}{}
+\DeclareFontShape{JY2}{schrm}{m}{n}{<->s*[0.962216]upschrm-h}{}
+\DeclareFontShape{JY2}{tchrm}{m}{n}{<->s*[0.962216]uptchrm-h}{}
+\DeclareFontShape{JY2}{korrm}{m}{n}{<->s*[0.962216]upkorrm-h}{}
+\DeclareFontShape{JY2}{jpnrm}{bx}{n}{<->ssub*jpnrm/m/n}{}
+\DeclareFontShape{JY2}{schrm}{bx}{n}{<->ssub*schrm/m/n}{}
+\DeclareFontShape{JY2}{tchrm}{bx}{n}{<->ssub*tchrm/m/n}{}
+\DeclareFontShape{JY2}{korrm}{bx}{n}{<->ssub*korrm/m/n}{}
+\DeclareRobustCommand\jpnrm{\kanjifamily{jpnrm}\selectfont}
+\DeclareRobustCommand\schrm{\kanjifamily{schrm}\selectfont}
+\DeclareRobustCommand\tchrm{\kanjifamily{tchrm}\selectfont}
+\DeclareRobustCommand\korrm{\kanjifamily{korrm}\selectfont}
+
+\begin{document}
+\kcatcode`ç=15% not cjk character
+\kcatcode`Ŕ=15
+\kcatcode`П=15
+\kcatcode`“=15
+
+\selectlanguage{french}
+\section{フランス語 Français}
+Souvent, la main portée au front, debout sur les 
+vaisseaux,tandis que la lune se balançait entre 
+les mâts d'une façon irrégulière, je me suis surpris, 
+faisant abstraction de tout ce qui n'était pas le but 
+que je poursuivais, m'efforçant de résoudre ce 
+difficile problème!
+
+\hfill {\em Conte de Lautréamont, «Les Chants de Maldoror»}%
+\qquad\qquad
+
+\hfill\today
+
+
+\selectlanguage{german}
+\section{ドイツ語 Deutsch}
+Dann ließ sie ihre Hände langsam über meine Wangen
+heruntergleiten, und ihr Blick ruhte mit unendlicher
+Innigkeit auf mir.
+Sie schüttelte den Kopf mit einem schmerzlichen Ausdruck,
+als könnte sie irgend etwas nicht fassen.
+,,Mußst du denn schon heute weg?{}`` 
+fragte sie leise.
+
+\hfill {\em A. Schnitzler, «Die Frau des Weisen»}%
+\qquad\qquad
+
+\hfill\today
+
+
+\selectlanguage{czech}%
+\section{チェコ語 Czech}
+Posláním sdružení je vytvářet předpoklady 
+pro všestranné využívání a další rozvoj jazyka 
+počítačové typografie \TeX{} a příbuzného programového 
+vybavení pro stolní tisk, 
+zejména mezi českými a slovenskými uživateli.
+
+\hfill {\em Czechoslovak \TeX{} Users Group}%
+\qquad\qquad
+
+\hfill\today
+
+
+%\selectlanguage{nippon}
+\section{Latin-1，Latin-2}
+ÄÁÅÂÀÃ ÏÍÎÌ ÜÚÛÙ ËÉÆÊÈ ÖÓØÔÒÕ ~Þ ÝÐÇÑ ¡¿\\
+äáåâàã ïíîì üúûù ëéæêè öóøôòõ ßþÿýðçñ\\
+ÁĄÂĂ ÍÎ Ú{\selectlanguage{czech}Ů}Ű ÉĘĚ ÓŐÔ 
+ŔŘŢŤÝŚŞŠĐĎĹŁĽŹŻŽĆÇČŃŇ\\
+áąâă íî ú{\selectlanguage{czech}ů}ű éęě óőô 
+ŕřţťýśşšđďĺłľźżžćçčńň
+
+\kcatcode"A7=18% other_kchar
+``?`But aren't Kafka's Schlo{\ss} and {\AE}sop's {\OE}uvres
+often na{\"\i}ve  vis-\`a-vis the d{\ae}monic ph{\oe}nix's official r\^ole
+in fluffy souffl\'es?''
+
+\kcatcode"A7=15% not cjk character
+``?`But aren't Kafka's Schlo{\ss} and {\AE}sop's {\OE}uvres
+often na{\"\i}ve  vis-\`a-vis the d{\ae}monic ph{\oe}nix's official r\^ole
+in fluffy souffl\'es?''
+
+% “:U+201C  ”:U+201D  ’:U+2019
+“¿But aren’t Kafka’s Schloß and Æsop’s Œuvres
+often naïve vis-à-vis the dæmonic phœnix’s official rôle
+in fluffy soufflés?”
+
+\selectlanguage{russian}
+\section{ロシア語 \fontencoding{T2A}\selectfont{}Русский}
+\fontencoding{T2A}\selectfont
+Прежде всего откроем тайну которую Мастер не пожелал
+открыть Иванушке.
+Возлюбленную его звали Маргаритою Николаевной.
+Все, что Мастер говорил о ней, было сущей правдой.
+Он описал свою возлюбленную верно.
+Она была красива и умна.
+
+\hfill {\em М. Булгаков, «Мастер и Маргарита»}
+\qquad\qquad
+
+OT2:\\
+\fontencoding{OT2}\selectfont
+АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ\\
+абвгдежзийклмнопрстуфхцчшщъыьэюя
+
+T2A:\\
+\fontencoding{T2A}\selectfont
+АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ\\
+абвгдежзийклмнопрстуфхцчшщъыьэюя
+
+\hfill\today
+
+\fontencoding{T1}\selectfont
+
+\selectlanguage{japanese}
+\section{日本語}
+\jpnrm
+雪後庵は起伏の多い小石川界隈の高臺にあつて、幸ひに戰災を免かれた。
+三千坪に及ぶ名高い小堀遠洲流の名園と共に、京都のとある名刹から
+移された中雀門も、奈良の古い寺をそのまゝ移した玄關や客殿も、
+あとに建てられた大廣閒も、何一つ損なはれてゐなかつた。
+
+戰後の財產税さわぎの只中に、雪後庵は元の持主の實業家の茶人の手から、
+美しい元氣な女主人の手に渡つて、たちまち名高い料理屋になつた。
+
+\hfill 三島由紀夫『宴のあと』\qquad\qquad
+
+\西暦false
+%\def\today{%
+% 平成\number\heisei 年
+% \number\month 月
+% \number\day 日
+%}
+
+\hfill\today
+\typeout{日本語}
+
+\section{中国語・簡体字 {\schrm 简体中文}}
+{\schrm
+本常问问答集~(FAQ list)~是从一些经常被问到的问题及其适当的解答中，
+以方便的形式摘要而出的。
+跟上一版不同的是，其编排结构已彻底改变。
+有关新结构的细节，
+可参考「如何阅读本问答集及了解其编排结构」该项中的说明。
+
+\def\today{%
+ \number\year ﻿年
+ \number\month 月
+ \number\day 日
+}
+
+\hfill\today
+}
+\typeout{简体中文}
+
+\section{中国語・繁体字 {\tchrm 繁體中文}}
+{\tchrm
+本常問問答集~(FAQ list)~是從一些經常被問到的問題及其適當的解答中，
+以方便的形式摘要而出的。
+跟上一版不同的是，其編排結構已徹底改變。
+有關新結構的細節，
+可參考「如何閱讀本問答集及了解其編排結構」該項中的說明。
+
+\def\today{%
+ \number\year ﻿年
+ \number\month 月
+ \number\day 日
+}
+
+\hfill\today
+}
+\typeout{繁體中文}
+
+\section{韓国語 {\korrm 한국어}}
+{\korrm
+\xkanjiskip=.1zw plus 1pt minus 1pt
+% 
+% upTeX treats a linebreak after a hangul character as a space.
+% Ref. http://project.ktug.or.kr/omega-cjk/tug2004-preprint.pdf
+이 FAQ은 자주 반복되는
+질문과 그에 대한 대답을
+간단명료한
+양식으로%
+모아 엮어졌습니다. 
+이 FAQ의 구조는 지난 판에 비하여
+획기적으로변경되었습니다.
+상세한 것은 ``이 FAQ을 어떻게 읽을
+것인가'' 라는 대목을 참조하시기 바랍니다.
+
+
+\def\today{%
+ \number\year ﻿연%
+ \number\month 월%
+ \number\day 일%
+}
+
+\hfill\today
+}
+
+%% test of xkanjiskip
+{\korrm
+\xkanjiskip=.25zw plus 1pt minus 1pt
+
+이 FAQ을
+
+\xkanjiskip=5zw plus 1pt minus 1pt
+
+이 FAQ을
+
+\xkanjiskip=-.5zw minus 1pt
+
+이 FAQ을
+
+}
+
+\typeout{한국어}
+
+\jpnrm
+\section{difference of glyphs among CJK}
+\begin{tabular}{rl}
+Japanese & {\jpnrm 文字，骨練平直。卿響饗嚮，邁進飯餃神祀．才次与}\\
+Simplified Chinese &  {\schrm 文字，骨練平直。卿響饗嚮，邁進飯餃神祀．才次与}\\
+Traditional Chinese &  {\tchrm 文字，骨練平直。卿響饗嚮，邁進飯餃神祀．才次与}\\
+Korean & {\korrm 文字，骨練平直。卿響饗嚮，邁進飯餃神祀．才次}\\
+\end{tabular}
+
+\section{switching between CJK and Latin}
+\def\bs{{$\backslash$\kern0pt}}
+
+\bs kcatcode=18: 
+\kcatcode\ucs"00A7=18% other_kchar
+\kcatcode\ucs"0410=18% other_kchar
+日本語フォントの§¶
+~~
+Русский
+
+\bs kcatcode=15: 
+\kcatcode\ucs"00A7=15% not cjk character
+\kcatcode\ucs"0410=15% not cjk character
+Latin §¶
+~~
+\fontencoding{T2A}\selectfont
+Русский
+
+\bs kcatcode=18: 
+\kcatcode\ucs"00A7=18% other_kchar
+\kcatcode\ucs"0410=18% other_kchar
+再び、日本語フォントの§¶
+~~
+Русский
+
+\bs kcatcode=15: 
+\kcatcode\ucs"00A7=15% not cjk character
+\kcatcode\ucs"0410=15% not cjk character
+Latin §¶
+~~
+\fontencoding{T2A}\selectfont
+Русский
+
+\forcecjktoken
+\bs forcecjktoken: 
+§¶~~Русский
+
+\disablecjktoken
+\bs disablecjktoken: 
+§¶~~Русский
+
+\enablecjktoken
+\bs enablecjktoken: 
+§¶~~Русский
+
+\bs kcatcode=18: 
+\kcatcode\ucs"00A7=18% other_kchar
+\kcatcode\ucs"0410=18% other_kchar
+再び、日本語フォントの§¶
+~~
+Русский
+
+\forcecjktoken
+\bs forcecjktoken: 
+§¶~~Русский
+
+\disablecjktoken
+\bs disablecjktoken: 
+§¶~~Русский
+
+\enablecjktoken
+\bs enablecjktoken: 
+§¶~~Русский
+
+
+{ Inside of a group: 
+§¶~~Русский
+\quad
+\disablecjktoken
+\bs disablecjktoken: 
+§¶~~Русский
+}
+
+Outside of the group:
+§¶~~Русский
+
+
+\disablecjktoken
+\bs disablecjktoken: 
+§¶~~Русский
+
+{ Inside of a group: 
+§¶~~Русский
+\quad
+\enablecjktoken
+\bs enablecjktoken: 
+§¶~~Русский
+}
+
+Outside of the group:
+§¶~~Русский
+
+\enablecjktoken
+\bs enablecjktoken: 
+§¶~~Русский
+
+{ Inside of a group: 
+\fontencoding{T2A}\selectfont
+§¶~~Русский
+\quad
+\bs kcatcode=15: 
+\kcatcode\ucs"00A7=15% not cjk character
+\kcatcode\ucs"0410=15% not cjk character
+\fontencoding{T1}\selectfont
+§¶
+~~
+\fontencoding{T2A}\selectfont
+Русский
+}
+
+Outside of the group:
+§¶~~Русский
+
+\bs kcatcode=15: 
+\kcatcode\ucs"00A7=15% not cjk character
+\kcatcode\ucs"0410=15% not cjk character
+\fontencoding{T1}\selectfont
+§¶
+~~
+\fontencoding{T2A}\selectfont
+Русский
+
+{ Inside of a group: 
+§¶~~Русский
+\quad
+\bs kcatcode=18: 
+\kcatcode\ucs"00A7=18% other_kchar
+\kcatcode\ucs"0410=18% other_kchar
+%§¶~~%%
+%{}§¶~~%%
+\relax §¶~~%% この\relax または{}がないとうまく動かない。要調査。
+Русский
+}
+
+Outside of the group:
+§¶~~Русский
+
+
+\newpage
+\section{space between CJK and Latin}
+\kcatcode\ucs"00A7=15% not cjk character
+\kcatcode\ucs"0410=15% not cjk character
+
+default\\
+\fontencoding{T1}\selectfont
+今日はStraußのKonzertと
+\fontencoding{T2A}\selectfont
+ШостаковичのСимфонияを聴いた。
+
+\xkanjiskip1zw plus 1pt minus 1pt
+large \bs xkanjiskip\\
+\fontencoding{T1}\selectfont
+今日はStraußのKonzertと
+\fontencoding{T2A}\selectfont
+ШостаковичのСимфонияを聴いた。
+
+%\xkanjiskip.25zw plus 1pt minus 1pt
+let xspcode 0\\
+\xspcode`S=0
+\xspcode`K=0
+\xspcode`t=0
+\xspcode255=0%\ss (ß) in T1 encoding, \cyrya (я) in T2A encoding
+\xspcode216=0%\CYRSH (Ш) in T2A encoding
+\xspcode247=0%\cyrch (ч)
+\xspcode209=0%\CYRS (С)
+\fontencoding{T1}\selectfont
+今日はStraußのKonzertと
+\fontencoding{T2A}\selectfont
+ШостаковичのСимфонияを聴いた。
+
+
+\end{document}
+%
+% このファイルの大部分は、
+% 安田功さんの Utf82TeX のサンプルから引用、
+% upTeX用に編集させていただきました。
+% upTeXの開発にも大きな刺激になりました。
+% ありがとうございました。
+% TANAKA, Takuji
+%

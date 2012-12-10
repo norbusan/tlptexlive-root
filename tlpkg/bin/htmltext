@@ -1,0 +1,23 @@
+#!/bin/sh
+# $Id: htmltext 9581 2008-07-15 17:16:38Z karl $
+# Public domain.  Originally written 2003, Karl Berry.
+# Dump a url (or -stdin) to text using lynx.
+
+PATH=/usr/local/bin:$PATH
+
+HOME=/tmp; export HOME
+TERM=vt100; export TERM
+: ${LYNX_CFG=/home/tug/.lynxcfg}; export LYNX_CFG
+# just contains the line JUSTIFY:FALSE.
+
+test $# -eq 0 && set - -stdin
+
+for url in "$@"; do
+  # when we add -width=79, tables are formatted badly.
+  # -dump lists url's like this with -stdin (lynx 2.8.4, linux):
+  #   file://localhost/tmp/89inmk/FAQ/german
+  # Since the reference list is useful, we fix it up by hand instead of
+  # using -nolist.
+  lynx -dump -nocolor -hiddenlinks=ignore "$url" \
+  | sed 's,file://localhost/tmp/,file:,'
+done

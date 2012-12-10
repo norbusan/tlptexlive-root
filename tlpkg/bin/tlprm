@@ -1,0 +1,164 @@
+#!/usr/bin/env perl
+# $Id: tlprm 23238 2011-07-26 23:23:54Z karl $
+# Copyright 2007, 2008, 2009, 2010, 2011 Karl Berry.
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Remove a package from the TeX Live source repository.  We use this on
+# the source tree when a package becomes obsolete, gets merged, or
+# whatever.  It doesn't handle package removals from an installed tree.
+
+our $mydir;
+
+BEGIN {
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+
+use TeXLive::TLConfig qw/$RelocPrefix $RelocTree/;
+use TeXLive::TLPDB;
+use TeXLive::TLPSRC;
+use TeXLive::TLUtils;
+use Pod::Usage;
+use Getopt::Long;
+
+my $opt_help = 0;
+
+TeXLive::TLUtils::process_logging_options();
+GetOptions("help|?" => \$opt_help) or pod2usage(1);
+pod2usage("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
+
+exit (&main ());
+
+
+sub main {
+  my $failure_count = 0;
+
+  chomp (my $Master = `cd $mydir/../.. && pwd`);
+  my $tlpdb = TeXLive::TLPDB->new ("root" => $Master);
+
+  foreach my $f (@ARGV) {
+    my $obj = $tlpdb->get_package ($f);
+    if (! $obj) {
+      warn "$0: no TeX Live package named $f.\n";
+      $failure_count++;
+      next;
+    }
+
+    my @files = $obj->all_files;
+    if ($obj->relocated) {
+      s,^$RelocPrefix/,$RelocTree/, foreach @files;
+    }
+
+    my $tlpsrc = new TeXLive::TLPSRC;
+    $tlpsrc->from_file ("$f.tlpsrc");
+    push (@files, $tlpsrc->_srcfile); # also want to remove the tlpsrc file.
+
+    # The paths in tlpdb are relative to Master, so we chdir there so
+    # that Cwd::abs_path can work.
+    chdir ($Master) || die "chdir($Master) failed: $!";
+
+    # Commonly, we want to remove entire directories, not just all the
+    # files in the directory.
+    my @removals = TeXLive::TLUtils::collapse_dirs (@files);
+    my $removals = join ("", map { "$_\n" } @removals);
+
+    my $TMPDIR = $ENV{"TMPDIR"} || "/tmp";
+    my $rm_file = "$TMPDIR/tlprm.rm";
+    unlink ($rm_file);
+    `printf "$removals" >$rm_file`;
+
+    my $commit_file = "$TMPDIR/tlprm.commit";
+    unlink ($commit_file);
+    `printf "$removals" >$commit_file`;
+
+    print "if license in Catalogue is free, and package isn't, "
+          . "tell Robin.Fairbairns\@cl.cam.ac.uk.\n";
+
+    # show with line numbers for next-error.
+    my $tsrc = "$Master/tlpkg/tlpsrc";
+    my @lines = `grep -n 'depend.* $f\$' $tsrc/collection-* $tsrc/scheme-*`;
+    print "first edit collections:\n", @lines if @lines;
+    
+    # but just file names for commit list.
+    my @coll_files = @lines;  # get 
+    s/:.*// for @coll_files;
+    `printf "@coll_files" >>$commit_file`;
+    
+    my $check_script = "$Master/tlpkg/bin/tlpkg-ctan-check";
+    @lines = `egrep -nH '( |^)$f( |\$)' $check_script`;
+    if (@lines) {
+      print @lines;
+      `echo $check_script >>$commit_file`;
+    }
+
+    # e.g., insert a die.
+    print "$Master/tlpkg/libexec/ctan2tds:500: no resurrection\n";
+    `echo $Master/tlpkg/libexec/ctan2tds >>$commit_file`;
+
+    print "then:\nsvn remove `cat $rm_file`\n";
+    print "svn commit -m'rm $f, REASON' `cat $commit_file`\n";
+
+    if (1) {  # maybe only if debugging?
+      print "\n\f ", @removals + 0, " removals ($rm_file):\n";
+      print `cat $rm_file`;
+      #
+      chomp (my $ncommits = `wc -l <$commit_file`);
+      print "\n\f ", $ncommits, " commits ($commit_file):\n";
+      print `cat $commit_file`;
+      #
+      print "\n\f ", @files + 0, " files being removed:\n";
+      print "$_\n" foreach @files;
+    }
+  }
+
+  # Instead of rewriting the database here, I think we're better off
+  # just doing it nightly or whatever.
+
+  return $failure_count;
+}
+
+__END__
+
+=head1 NAME
+
+tlprm - remove a TeX Live package
+
+=head1 SYNOPSIS
+
+tlprm [OPTION]... [TLPKG]...
+
+=head1 OPTIONS
+
+The standard options B<-q>, B<-v>, and B<-logfile>=I<file> are
+accepted; see the C<process_logging_options> function in
+L<TeXLive::TLUtils> for details.
+
+=head1 DESCRIPTION
+
+B<tlprm> merely prints Subversion commands to remove TeX Live packages
+from the source repository, e.g., when a package becomes obsolete or
+merged.  It does not actually run any commands, remove anything, or
+change the TeX Live package database or anything else.
+
+No dependency or other checking is done.  It also does not remove the
+given package from any collection(s) where it is present, although it
+reports any collections and schemes that have dependencies on the package.
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2: #

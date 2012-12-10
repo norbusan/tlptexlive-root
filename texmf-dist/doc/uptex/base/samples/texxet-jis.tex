@@ -1,0 +1,37 @@
+% For eplatex or euplatex
+
+% autodetect kanji-internal code
+\ifnum\jis"2121="3000
+% euplatex
+\documentclass{ujarticle}
+\def\pLaTeXorupLaTeX{$\epsilon$-up\LaTeX}
+\else
+% eplatex
+\documentclass{jarticle}
+\def\pLaTeXorupLaTeX{$\epsilon$-p\LaTeX}
+\fi
+
+\DeclareFontShape{OT1}{cmr}{bxrev}{n}{<-> xbmc10}{} % for right-to-left text
+\DeclareTextFontCommand{\revrm}{\fontseries{bxrev}\fontshape{n}\selectfont}
+\def\TeXXeT{\TeX-\revrm{\TeXXeTstate=1\beginR\TeX-\endR}}
+
+\begin{document}
+
+\section{\TeXXeT のテスト}
+\pLaTeXorupLaTeX でテストしています。
+
+\parindent0mm
+
+``Yes, we can.'' offline enilffo shuffle elffuhs file elif
+
+\TeXXeTstate=1\beginR
+``Yes, we can.'' offline enilffo shuffle elffuhs file elif
+\endR
+
+モーニング娘。 本田美奈子． とらや
+
+\TeXXeTstate=1\beginR
+モーニング娘。 本田美奈子． とらや
+\endR
+
+\end{document}

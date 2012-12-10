@@ -1,0 +1,76 @@
+#!/bin/sh
+# $Id: tl-update-4ht 15344 2009-09-17 23:33:15Z karl $
+# Public domain.  Originally written 2006, Karl Berry.
+# Attempt at updating tex4ht.
+#
+# Do not just blindly run this script.
+# It is necessary to actually check the results at each step
+# and think about what is being done.  It's checked in so that when I
+# get hit by a truck, at least the procedure I used will be there as a
+# starting point.
+# 
+# The script uses various paths and convenience variables that I define
+# for myself.  If you want to tackle tex4ht updates, dealing with those
+# things should be the least of your worries :).  --karl
+#
+exit 1
+
+cd /home/texlive/karl/Build/source/texk/tex4htk
+tar xzf /home/httpd/html/applications/tex4ht/fix/tex4ht.tar.gz
+cd tex4ht-*
+diff -u1 .. bin/unix/ | fgrep -v "Only in .." >/tmp/u; v /tmp/u
+#\cp -pf bin/unix/* ..
+#update $tm/texmf-dist/scripts/tex4ht, adding extensions:
+for s in ht htcontext htmex httexi; do 
+  \cp -pfv bin/unix/$s  $tm/texmf-dist/scripts/tex4ht/$s.sh; done
+\cp -pfv bin/unix/mk4ht.pl  $tm/texmf-dist/scripts/tex4ht/$s.sh; done
+
+#
+diff -u1 $tm/bin/win32 bin/win32/ | fgrep -v "Only in /home" >/tmp/u; v /tmp/u  #tex4ht, t4ht
+#\cp -pf bin/win32/* /home/texlive/karl/Master/bin/win32/
+#
+diff -u1 .. src | fgrep -v "Only in .." >/tmp/u; v /tmp/u
+#\cp -prf src/* ..
+#
+diff -u1 .. temp | fgrep -v "Only in .." >/tmp/u; v /tmp/u
+#
+diff -u1 -r $tm/texmf-dist/tex4ht/base texmf/tex4ht/base | fgrep -v "Only in /home" >/tmp/u; v /tmp/u
+#\cp -prf texmf/tex4ht/base /home/texlive/karl/Master/texmf-dist/tex4ht/
+
+# tex/generic/tex4ht directory (no subdirs).
+(cd $tm/texmf-dist/tex/generic/tex4ht/ && find -type f | fgrep -v .svn | sort >/tmp/now)
+(cd texmf/tex/generic/tex4ht/ && find -type f | sort >/tmp/new)
+comm -23 /tmp/now /tmp/new >/tmp/c; ls -l /tmp/c  # looking for deletions
+#(cd $tm/texmf-dist/tex/generic/tex4ht/ && svn rm `cat /tmp/c`)  # if any
+#
+# update files:
+\cp -pf texmf/tex/generic/tex4ht/* $tm/texmf-dist/tex/generic/tex4ht
+#
+# additions:
+comm -13 /tmp/now /tmp/new >/tmp/c; v /tmp/c
+(cd $tm/texmf-dist/tex/generic/tex4ht && svn add `cat /tmp/c`)  # if any
+
+# tex4ht directory (and subdirs).
+(cd $tm/texmf-dist/tex4ht/ && find -type f | fgrep -v .svn | sort >/tmp/now)
+(cd texmf/tex4ht/ && find -type f | sort >/tmp/new)
+comm -23 /tmp/now /tmp/new >/tmp/c; wc -l /tmp/c  # looking for deletions
+#(cd $tm/texmf-dist/tex4ht/ && svn rm `cat /tmp/c`)  # if any
+#
+# update files:
+(cd texmf/tex4ht/ && tar cf - . | (cd $tm/texmf-dist/tex4ht/ && tar xpf -))
+#
+# additions:
+comm -13 /tmp/now /tmp/new >/tmp/c; wc -l /tmp/c
+# must add dirs manually first, if any:
+#(cd $tm/texmf-dist/tex4ht/ && svn add -N `sed 's,/[^/]*$,,' /tmp/c | sort -u`)
+#(cd $tm/texmf-dist/tex4ht/ && svn add `cat /tmp/c`)
+
+# check results:
+svn status .. $tm/bin/win32 \
+  $tm/texmf-dist/tex/generic/tex4ht \
+  $tm/texmf-dist/tex4ht \
+  $tm/texmf-dist/scripts/tex4ht
+
+# and svn commit same dirs.
+
+exit $?

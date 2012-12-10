@@ -1,0 +1,300 @@
+#!/usr/bin/env perl
+# $Id: check-files-by-format 22442 2011-05-12 22:53:34Z karl $
+#
+# Check that files in various formats are in good shape.
+#
+# The following formats are checked currently: pdf, pfb, tfm, vf.
+#
+# For each format, there is one routine &check_<format> and an exclusion 'list'
+# (hash reference) $exclude_<format>: the keys are either a directory name if
+# they have a trailing slash, or a file name. If a key named '*base*' is
+# present, then the paths are relative to this base, otherwise to $tlroot. The
+# values of the keys may be free or have a special meaning depending on the
+# associated check_<format> routine.
+#
+# Formats that might be added:
+# - afm with (afm2pl?)
+#
+# Manuel P\'egouri\'e-Gonnard, 2010. WTFPL v2.
+
+use warnings;
+use File::Basename;
+use File::Temp;
+
+BEGIN {
+  my $mydir = dirname($0);
+  $tlroot = "$mydir/../..";
+  unshift (@INC, "$tlroot/tlpkg");
+}
+
+use TeXLive::TLPDB;
+
+
+# 1 means pdfinfo issues errors but still exits successfully
+# 2 means pdfinfo exits non-zero
+my $exclude_pdf = {
+  'texmf-dist/doc/latex/dvdcoll/dcexample.pdf' => 1,  # [1]
+  'texmf/dvips/tetex/config.pdf' => 2, # not a PDF file actually
+};
+# cf thread started on pdftex@ 2010-03-01
+
+# the value has no meaning here
+my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
+  'adobe/courier/' => 1,
+  'arabi/arabeyes/' => 1,
+  'arabi/farsiweb/' => 1,
+  'arkandis/adfsymbols/' => 1,
+  'arkandis/libris/' => 1,
+  'arkandis/venturis/' => 1,
+  'arphic/bkaiu/' => 1,
+  'arphic/bsmiu/' => 1,
+  'arphic/gbsnu/' => 1,
+  'arphic/gkaiu/' => 1,
+  'gust/poltawski/' => 1,
+  'nowacki/iwona/' => 1,
+  'nowacki/kurier/' => 1,
+  'public/allrunes/' => 1,
+  'public/amsfonts/cm/' => 1,
+  'public/amsfonts/cmextra/' => 1,
+  'public/arev/' => 1,
+  'public/ascii/' => 1,
+  'public/augie/' => 1,
+  'public/aurical/' => 1,
+  'public/bbold-type1/' => 1, # old y&y fonts, won't be changing
+  'public/belleek/' => 1,
+  'public/bera/' => 1,
+  'public/brushscr/' => 1,
+  'public/burmese/' => 1,
+  'public/carolmin-ps/' => 1,
+  'public/chemarrow/' => 1,
+  'public/cjhebrew/' => 1,
+  'public/cmcyr/' => 1,
+  'public/cm-super/' => 1,
+  'texmf-dist/doc/fonts/cm-unicode/Fontmap.CMU.pfb' => 1,
+  'public/cm-unicode/cmunobi.pfb' => 1,
+  'public/cs/' => 1,
+  'public/doublestroke/' => 1,
+  'public/epiolmec/' => 1,
+  'public/esstix/' => 1,  # 12may11 author fixed some, others will remain
+  'public/ethiop-t1/' => 1,
+  'public/eurosym/' => 1,
+  'public/foekfont/' => 1,
+  'public/fonetika/' => 1,
+  'public/fourier/' => 1,
+  'public/gfsartemisia/' => 1,
+  'public/gfsbaskerville/' => 1,
+  'public/gfsbodoni/' => 1,
+  'public/gfscomplutum/' => 1,
+  'public/gfsdidot/' => 1,
+  'public/gfsneohellenic/' => 1,
+  'public/gfssolomos/' => 1,
+  'public/initials/' => 1,
+  'public/itrans/' => 1,
+  'public/kerkis/' => 1,
+  'public/kpfonts/' => 1,
+  'public/libertine/' => 1,
+  'public/linearA/' => 1,
+  'public/lm/' => 1,
+  'public/lxfonts/' => 1,
+  'public/mathabx-type1/' => 1,  # 14jan11 wrote bnb/preining --karl
+  'public/marvosym/' => 1,
+  'public/mathpazo/' => 1,
+  'public/musixtex/' => 1,
+  'public/ocherokee/' => 1,
+  'public/oinuit/' => 1,
+  'public/omega/' => 1,
+  'public/phaistos/' => 1,
+  'public/pl/' => 1,
+  'public/pxfonts/' => 1,
+  'public/rsfs/' => 1,
+  'public/starfont/' => 1,	# reported to author 4oct10
+  'public/staves/' => 1,
+  'public/stmaryrd/' => 1,	# blue values not defined, not maintained
+  'public/tabvar/' => 1,
+  'public/tex-gyre/' => 1,
+  'public/txfonts/' => 1,
+  'public/txfontsb/' => 1,
+  'public/wasy/' => 1,
+  'public/xypic/' => 1,
+  'public/yhmath/' => 1,
+  'uhc/umj/' => 1,
+  'urw/avantgar/' => 1,
+  'urw/bookman/' => 1,
+  'urw/courier/' => 1,
+  'urw/helvetic/' => 1,
+  'urw/ncntrsbk/' => 1,
+  'urw/palatino/' => 1,
+  'urw/symbol/' => 1,
+  'urw/times/' => 1,
+  'urw/zapfding/' => 1,
+  'vntex/arevvn/' => 1,
+  'vntex/comicsansvn/' => 1,
+  'vntex/txttvn/' => 1,
+  'vntex/urwvn/' => 1,
+  'vntex/vnr/' => 1,
+  'wadalab/dgj/' => 1,
+  'wadalab/dmj/' => 1,
+  'wadalab/mcj/' => 1,
+  'wadalab/mrj/' => 1,
+  'tlpkg/texworks/fonts/' => 1,	# these come from gs
+};
+# mpg: are these files actually broken?? Should look for the actual errors and
+# check with a font expert which are dummy, then filter them out.
+# For remaining packages, we'll have to contact upstream authors.
+
+# the value has no meaning here
+my $exclude_tfm = { '*base*' => 'texmf-dist/fonts/tfm',
+  'jknappen/ec/' => 1,
+  'jknappen/fc/' => 1,
+  'public/arev/' => 1,
+  'public/chess/' => 1,  # original has extra bytes, not worth fixing
+  'public/cmcyr/' => 1,
+  'public/dozenal/' => 1,
+  'public/gfsbodoni/' => 1,
+  'public/malayalam/' => 1,
+  'public/wnri/' => 1,
+  'public/wsuipa/' => 1,
+};
+
+# the value has no meaning here
+my $exclude_vf = { '*base*' => 'texmf-dist/fonts/vf',
+  'public/bgreek/' => 1,
+  'public/eco/' => 1,
+  'public/epigrafica/' => 1,
+  'public/gfsartemisia/' => 1,
+  'public/gfscomplutum/' => 1,
+  'public/gfsdidot/' => 1,
+  'public/gfsneohellenic/' => 1,
+  'public/gfsporson/' => 1,
+  'public/gfssolomos/' => 1,
+  'public/hfoldsty/' => 1,
+  'public/kerkis/' => 1,
+  'mathdesign/mdbch/' => 1,
+  'mathdesign/mdput/' => 1,
+  'mathdesign/mdugm/' => 1,
+  'public/txfontsb/' => 1,
+  'vntex/comicsansvn/' => 1,
+  'public/zefonts/' => 1,
+  'public/ae/' => 1,
+};
+
+# value has no meaning here
+my $exclude_otf = { '*base*' => 'texmf-dist/fonts/opentype',
+  'texmf-dist/doc/fonts/cm-unicode/Fontmap.CMU.otf' => 1,
+
+};
+
+my $tmpdir = File::Temp::tempdir(CLEANUP => 1);
+
+exit(main());
+
+
+sub main
+{
+  my @files = get_file_list();
+  for my $file (grep { /\.pdf$/ } @files) {
+    check_pdf($file);
+  }
+  for my $file (grep { /\.pfb$/ } @files) {
+    check_pfb($file);
+  }
+  for my $file (grep { /\.tfm$/ } @files) {
+    check_tfm($file);
+  }
+  for my $file (grep { /\.vf$/ } @files) {
+    check_vf($file);
+  }
+  for my $file (grep { /\.otf$/ } @files) {
+    check_otf($file);
+  }
+  return 0;
+}
+
+# get the list of files in the database of a TL installation
+sub get_file_list
+{
+  my $tlpdb = TeXLive::TLPDB->new(root => $tlroot);
+  my @files = ();
+  for my $tlpname ($tlpdb->list_packages) {
+    my $tlp = $tlpdb->get_package($tlpname);
+    push(@files, $tlp->docfiles, $tlp->runfiles, $tlp->srcfiles);
+  }
+  # ptex font files are in their own formats; don't bother checking,
+  # or adding individual entries to the exclude lists.
+  @files = grep ($_ !~ m!/ptex/!, @files);
+  return @files;
+}
+
+
+# return the value in exclude list associated to a file, or undef
+sub exclude_value
+{
+  my ($exclude, $file) = @_;
+  my $base = $exclude->{'*base*'};
+  $file =~ s!$base/!! if $base;
+  (my $filedir = $file) =~ s![^/]*$!!;
+  return $exclude->{$file} || $exclude->{$filedir};
+}
+
+# check a pdf file
+sub check_pdf
+{
+  my ($file) = @_;
+  my $errfile = "$tmpdir/pdferr";
+  unlink($errfile);
+  my $bad_exit = system("pdfinfo $tlroot/$file >/dev/null 2>$errfile");
+  my $badness = $bad_exit ? 2 : -s $errfile ? 1 : 0;
+  my $limit = exclude_value($exclude_pdf, $file) || 0;
+  return if $badness <= $limit;
+  print "Broken PDF: $file\n" if $badness == 2;
+  print "Damaged PDF: $file\n" if $badness == 1;
+}
+
+# check a pfb file
+sub check_pfb
+{
+  my ($file) = @_;
+  return if defined exclude_value($exclude_pfb, $file);
+  my $errfile = "$tmpdir/pfberr";
+  unlink($errfile);
+  my $bad = system("t1lint -q $tlroot/$file");
+  print "Bad PFB: $file\n" if $bad;
+}
+
+# check a tfm file
+sub check_tfm
+{
+  my ($file) = @_;
+  return if defined exclude_value($exclude_tfm, $file);
+  my $outfile = "$tmpdir/tfmout.pl";
+  my $errfile = "$tmpdir/tfmerr";
+  unlink($errfile);
+  system("tftopl $tlroot/$file $outfile 2>$errfile");
+  print "Broken tfm: $file\n" if -s $errfile;
+}
+
+# check a vf file
+sub check_vf
+{
+  my ($file) = @_;
+  return if defined exclude_value($exclude_vf, $file);
+  (my $tfmfile = $file) =~ s!/vf/!/tfm/!;
+  $tfmfile =~ s/\.vf$/.tfm/;
+  return if defined exclude_value($exclude_tfm, $tfmfile);
+  my $outfile = "$tmpdir/vfout.vp";
+  my $errfile = "$tmpdir/vferr";
+  unlink($errfile);
+  system("vftovp $tlroot/$file $tlroot/$tfmfile $outfile 2>$errfile");
+  print "Broken vf: $file\n" if -s $errfile;
+}
+
+# check an otf file
+sub check_otf
+{
+  my ($file) = @_;
+  return if defined exclude_value($exclude_otf, $file);
+  my $bad = system("otfinfo --info $tlroot/$file >/dev/null 2>&1");
+  print "Broken otf: $file\n" if $bad;
+}
+
+# vim: sw=2 expandtab
