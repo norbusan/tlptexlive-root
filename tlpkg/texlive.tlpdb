@@ -230,7 +230,7 @@ name pmetapost.x86_64-linux
 category Package
 revision 8
 shortdesc x86_64-linux files of pmetapost
-binfiles arch=x86_64-linux size=137
+binfiles arch=x86_64-linux size=142
  bin/x86_64-linux/pdvitomp
  bin/x86_64-linux/pmpost
 
@@ -261,6 +261,20 @@ binfiles arch=i386-netbsd size=569
  bin/i386-netbsd/ppltotf
  bin/i386-netbsd/ptex
  bin/i386-netbsd/ptftopl
+
+name ptex.x86_64-linux
+category Package
+revision 27000
+binfiles arch=x86_64-linux size=626
+ bin/x86_64-linux/eptex
+ bin/x86_64-linux/makejvf
+ bin/x86_64-linux/mendex
+ bin/x86_64-linux/pbibtex
+ bin/x86_64-linux/pdvitype
+ bin/x86_64-linux/platex
+ bin/x86_64-linux/ppltotf
+ bin/x86_64-linux/ptex
+ bin/x86_64-linux/ptftopl
 
 name pxdvi
 category TLCore
@@ -333,7 +347,7 @@ name pxdvi.x86_64-linux
 category TLCore
 revision 9
 shortdesc x86_64-linux files of pxdvi
-binfiles arch=x86_64-linux size=372
+binfiles arch=x86_64-linux size=375
  bin/x86_64-linux/pxdvi
  bin/x86_64-linux/pxdvi-xaw
 
@@ -364,4 +378,18 @@ binfiles arch=i386-netbsd size=543
  bin/i386-netbsd/uptex
  bin/i386-netbsd/uptftopl
  bin/i386-netbsd/wovp2ovf
+
+name uptex.x86_64-linux
+category Package
+revision 27000
+binfiles arch=x86_64-linux size=591
+ bin/x86_64-linux/convbkmk
+ bin/x86_64-linux/euptex
+ bin/x86_64-linux/upbibtex
+ bin/x86_64-linux/updvitype
+ bin/x86_64-linux/uplatex
+ bin/x86_64-linux/uppltotf
+ bin/x86_64-linux/uptex
+ bin/x86_64-linux/uptftopl
+ bin/x86_64-linux/wovp2ovf
 
