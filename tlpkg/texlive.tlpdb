@@ -3,12 +3,10 @@ category TLCore
 revision 1
 depend container_format/xz
 depend release/2012-ptexlive
-depend minrelease/2010
+depend minrelease/2012
 depend container_format/xz
 depend container_split_doc_files/1
 depend container_split_src_files/1
-depend minrelease/2012
-depend release/2012
 depend revision/1
 
 name 00texlive.installation
