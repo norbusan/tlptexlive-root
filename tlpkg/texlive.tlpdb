@@ -7,6 +7,8 @@ depend minrelease/2012
 depend container_format/xz
 depend container_split_doc_files/1
 depend container_split_src_files/1
+depend minrelease/2012
+depend release/2012
 depend revision/1
 
 name 00texlive.installation
@@ -234,7 +236,7 @@ binfiles arch=x86_64-linux size=142
 
 name ptex.i386-linux
 category Package
-revision 27000
+revision 27001
 binfiles arch=i386-linux size=457
  bin/i386-linux/eptex
  bin/i386-linux/makejvf
@@ -248,7 +250,7 @@ binfiles arch=i386-linux size=457
 
 name ptex.i386-netbsd
 category Package
-revision 27000
+revision 27001
 binfiles arch=i386-netbsd size=439
  bin/i386-netbsd/eptex
  bin/i386-netbsd/makejvf
@@ -262,7 +264,7 @@ binfiles arch=i386-netbsd size=439
 
 name ptex.x86_64-linux
 category Package
-revision 27000
+revision 27001
 binfiles arch=x86_64-linux size=496
  bin/x86_64-linux/eptex
  bin/x86_64-linux/makejvf
@@ -321,7 +323,7 @@ name pxdvi.i386-netbsd
 category TLCore
 revision 9
 shortdesc i386-netbsd files of pxdvi
-binfiles arch=i386-netbsd size=307
+binfiles arch=i386-netbsd size=308
  bin/i386-netbsd/pxdvi
  bin/i386-netbsd/pxdvi-xaw
 
@@ -351,8 +353,8 @@ binfiles arch=x86_64-linux size=375
 
 name uptex.i386-linux
 category Package
-revision 27000
-binfiles arch=i386-linux size=419
+revision 27001
+binfiles arch=i386-linux size=418
  bin/i386-linux/convbkmk
  bin/i386-linux/euptex
  bin/i386-linux/upbibtex
@@ -365,8 +367,8 @@ binfiles arch=i386-linux size=419
 
 name uptex.i386-netbsd
 category Package
-revision 27000
-binfiles arch=i386-netbsd size=411
+revision 27001
+binfiles arch=i386-netbsd size=410
  bin/i386-netbsd/convbkmk
  bin/i386-netbsd/euptex
  bin/i386-netbsd/upbibtex
@@ -379,8 +381,8 @@ binfiles arch=i386-netbsd size=411
 
 name uptex.x86_64-linux
 category Package
-revision 27000
-binfiles arch=x86_64-linux size=459
+revision 27001
+binfiles arch=x86_64-linux size=458
  bin/x86_64-linux/convbkmk
  bin/x86_64-linux/euptex
  bin/x86_64-linux/upbibtex
