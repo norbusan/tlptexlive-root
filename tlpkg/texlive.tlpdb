@@ -205,9 +205,9 @@ binfiles arch=i386-netbsd size=123
 
 name pmetapost.universal-darwin
 category Package
-revision 5
+revision 8
 shortdesc universal-darwin files of pmetapost
-binfiles arch=universal-darwin size=398
+binfiles arch=universal-darwin size=395
  bin/universal-darwin/pdvitomp
  bin/universal-darwin/pmpost
 
@@ -220,9 +220,9 @@ binfiles arch=win32 size=136
 
 name pmetapost.x86_64-darwin
 category Package
-revision 5
+revision 8
 shortdesc x86_64-darwin files of pmetapost
-binfiles arch=x86_64-darwin size=163
+binfiles arch=x86_64-darwin size=240
  bin/x86_64-darwin/pdvitomp
  bin/x86_64-darwin/pmpost
 
@@ -261,6 +261,34 @@ binfiles arch=i386-netbsd size=439
  bin/i386-netbsd/ppltotf
  bin/i386-netbsd/ptex
  bin/i386-netbsd/ptftopl
+
+name ptex.universal-darwin
+category Package
+revision 27001
+binfiles arch=universal-darwin size=1383
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
+
+name ptex.x86_64-darwin
+category Package
+revision 27001
+binfiles arch=x86_64-darwin size=794
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
 
 name ptex.x86_64-linux
 category Package
@@ -329,17 +357,17 @@ binfiles arch=i386-netbsd size=308
 
 name pxdvi.universal-darwin
 category TLCore
-revision 7
+revision 9
 shortdesc universal-darwin files of pxdvi
-binfiles arch=universal-darwin size=973
+binfiles arch=universal-darwin size=977
  bin/universal-darwin/pxdvi
  bin/universal-darwin/pxdvi-xaw
 
 name pxdvi.x86_64-darwin
 category TLCore
-revision 7
+revision 9
 shortdesc x86_64-darwin files of pxdvi
-binfiles arch=x86_64-darwin size=390
+binfiles arch=x86_64-darwin size=603
  bin/x86_64-darwin/pxdvi
  bin/x86_64-darwin/pxdvi-xaw
 
@@ -378,6 +406,34 @@ binfiles arch=i386-netbsd size=410
  bin/i386-netbsd/uptex
  bin/i386-netbsd/uptftopl
  bin/i386-netbsd/wovp2ovf
+
+name uptex.universal-darwin
+category Package
+revision 27001
+binfiles arch=universal-darwin size=1310
+ bin/universal-darwin/convbkmk
+ bin/universal-darwin/euptex
+ bin/universal-darwin/upbibtex
+ bin/universal-darwin/updvitype
+ bin/universal-darwin/uplatex
+ bin/universal-darwin/uppltotf
+ bin/universal-darwin/uptex
+ bin/universal-darwin/uptftopl
+ bin/universal-darwin/wovp2ovf
+
+name uptex.x86_64-darwin
+category Package
+revision 27001
+binfiles arch=x86_64-darwin size=749
+ bin/x86_64-darwin/convbkmk
+ bin/x86_64-darwin/euptex
+ bin/x86_64-darwin/upbibtex
+ bin/x86_64-darwin/updvitype
+ bin/x86_64-darwin/uplatex
+ bin/x86_64-darwin/uppltotf
+ bin/x86_64-darwin/uptex
+ bin/x86_64-darwin/uptftopl
+ bin/x86_64-darwin/wovp2ovf
 
 name uptex.x86_64-linux
 category Package

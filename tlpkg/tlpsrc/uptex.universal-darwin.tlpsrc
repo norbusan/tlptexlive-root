@@ -1,0 +1,9 @@
+binpattern f/universal-darwin bin/universal-darwin/convbkmk
+binpattern f/universal-darwin bin/universal-darwin/euptex
+binpattern f/universal-darwin bin/universal-darwin/upbibtex
+binpattern f/universal-darwin bin/universal-darwin/updvitype
+binpattern f/universal-darwin bin/universal-darwin/uplatex
+binpattern f/universal-darwin bin/universal-darwin/uppltotf
+binpattern f/universal-darwin bin/universal-darwin/uptftopl
+binpattern f/universal-darwin bin/universal-darwin/uptex
+binpattern f/universal-darwin bin/universal-darwin/wovp2ovf

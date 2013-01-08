@@ -1,0 +1,9 @@
+binpattern f/x86_64-darwin bin/x86_64-darwin/convbkmk
+binpattern f/x86_64-darwin bin/x86_64-darwin/euptex
+binpattern f/x86_64-darwin bin/x86_64-darwin/upbibtex
+binpattern f/x86_64-darwin bin/x86_64-darwin/updvitype
+binpattern f/x86_64-darwin bin/x86_64-darwin/uplatex
+binpattern f/x86_64-darwin bin/x86_64-darwin/uppltotf
+binpattern f/x86_64-darwin bin/x86_64-darwin/uptftopl
+binpattern f/x86_64-darwin bin/x86_64-darwin/uptex
+binpattern f/x86_64-darwin bin/x86_64-darwin/wovp2ovf
