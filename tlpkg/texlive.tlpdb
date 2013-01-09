@@ -205,9 +205,9 @@ binfiles arch=i386-netbsd size=123
 
 name pmetapost.universal-darwin
 category Package
-revision 8
+revision 9
 shortdesc universal-darwin files of pmetapost
-binfiles arch=universal-darwin size=395
+binfiles arch=universal-darwin size=387
  bin/universal-darwin/pdvitomp
  bin/universal-darwin/pmpost
 
@@ -264,8 +264,8 @@ binfiles arch=i386-netbsd size=439
 
 name ptex.universal-darwin
 category Package
-revision 27001
-binfiles arch=universal-darwin size=1383
+revision 27002
+binfiles arch=universal-darwin size=1416
  bin/universal-darwin/eptex
  bin/universal-darwin/makejvf
  bin/universal-darwin/mendex
@@ -357,9 +357,9 @@ binfiles arch=i386-netbsd size=308
 
 name pxdvi.universal-darwin
 category TLCore
-revision 9
+revision 10
 shortdesc universal-darwin files of pxdvi
-binfiles arch=universal-darwin size=977
+binfiles arch=universal-darwin size=972
  bin/universal-darwin/pxdvi
  bin/universal-darwin/pxdvi-xaw
 
@@ -409,8 +409,8 @@ binfiles arch=i386-netbsd size=410
 
 name uptex.universal-darwin
 category Package
-revision 27001
-binfiles arch=universal-darwin size=1310
+revision 27002
+binfiles arch=universal-darwin size=1346
  bin/universal-darwin/convbkmk
  bin/universal-darwin/euptex
  bin/universal-darwin/upbibtex
