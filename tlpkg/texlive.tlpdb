@@ -213,7 +213,7 @@ binfiles arch=universal-darwin size=387
 
 name pmetapost.win32
 category Package
-revision 8
+revision 9
 shortdesc win32 files of pmetapost
 binfiles arch=win32 size=136
  bin/win32/pmpost.exe
@@ -275,6 +275,22 @@ binfiles arch=universal-darwin size=1416
  bin/universal-darwin/ppltotf
  bin/universal-darwin/ptex
  bin/universal-darwin/ptftopl
+
+name ptex.win32
+category Package
+revision 27002
+binfiles arch=win32 size=617
+ bin/win32/eptex.dll
+ bin/win32/eptex.exe
+ bin/win32/makejvf.exe
+ bin/win32/mendex.exe
+ bin/win32/pbibtex.exe
+ bin/win32/pdvitype.exe
+ bin/win32/platex.exe
+ bin/win32/ppltotf.exe
+ bin/win32/ptex.dll
+ bin/win32/ptex.exe
+ bin/win32/ptftopl.exe
 
 name ptex.x86_64-darwin
 category Package
@@ -420,6 +436,22 @@ binfiles arch=universal-darwin size=1346
  bin/universal-darwin/uptex
  bin/universal-darwin/uptftopl
  bin/universal-darwin/wovp2ovf
+
+name uptex.win32
+category Package
+revision 27002
+binfiles arch=win32 size=546
+ bin/win32/convbkmk.exe
+ bin/win32/euptex.dll
+ bin/win32/euptex.exe
+ bin/win32/upbibtex.exe
+ bin/win32/updvitype.exe
+ bin/win32/uplatex.exe
+ bin/win32/uppltotf.exe
+ bin/win32/uptex.dll
+ bin/win32/uptex.exe
+ bin/win32/uptftopl.exe
+ bin/win32/wovp2ovf.exe
 
 name uptex.x86_64-darwin
 category Package

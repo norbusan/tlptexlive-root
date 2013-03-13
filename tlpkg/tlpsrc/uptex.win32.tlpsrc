@@ -1,0 +1,9 @@
+binpattern f/win32 bin/win32/convbkmk
+binpattern f/win32 bin/win32/euptex
+binpattern f/win32 bin/win32/upbibtex
+binpattern f/win32 bin/win32/updvitype
+binpattern f/win32 bin/win32/uplatex
+binpattern f/win32 bin/win32/uppltotf
+binpattern f/win32 bin/win32/uptftopl
+binpattern f/win32 bin/win32/uptex
+binpattern f/win32 bin/win32/wovp2ovf

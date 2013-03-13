@@ -12,7 +12,7 @@ pmetapost.i386-freebsd 		5
 pmetapost.i386-linux 		8
 pmetapost.i386-netbsd 		8
 pmetapost.universal-darwin 	9
-pmetapost.win32 		8
+pmetapost.win32 		9
 pmetapost.x86_64-darwin 	8
 pmetapost.x86_64-linux 		8
 
@@ -44,6 +44,7 @@ ptex.i386-netbsd 	27001
 ptex.x86_64-linux	27001
 ptex.universal-darwin	27002
 ptex.x86_64-darwin	27001
+ptex.win32		27002
 
 uptex.BIN	
 		27002 rebuild for universal darwin
@@ -57,3 +58,4 @@ uptex.i386-netbsd 	27000
 uptex.x86_64-linux	27001
 uptex.universal-darwin	27002
 uptex.x86_64-darwin	27001
+uptex.win32		27002
