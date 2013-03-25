@@ -7,4 +7,4 @@ binpattern f/win32 bin/win32/platex
 binpattern f/win32 bin/win32/ppltotf
 binpattern f/win32 bin/win32/ptex
 binpattern f/win32 bin/win32/ptftopl
-binpattern f/win32 bin/win32/kpathsea610.dll
+binpattern f/win32 bin/win32/kpathsea611.dll

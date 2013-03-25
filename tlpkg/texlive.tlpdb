@@ -278,10 +278,11 @@ binfiles arch=universal-darwin size=1416
 
 name ptex.win32
 category Package
-revision 27002
-binfiles arch=win32 size=617
+revision 27003
+binfiles arch=win32 size=635
  bin/win32/eptex.dll
  bin/win32/eptex.exe
+ bin/win32/kpathsea611.dll
  bin/win32/makejvf.exe
  bin/win32/mendex.exe
  bin/win32/pbibtex.exe

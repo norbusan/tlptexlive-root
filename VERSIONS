@@ -44,7 +44,7 @@ ptex.i386-netbsd 	27001
 ptex.x86_64-linux	27001
 ptex.universal-darwin	27002
 ptex.x86_64-darwin	27001
-ptex.win32		27002
+ptex.win32		27003 (for libkpathsea inclusion)
 
 uptex.BIN	
 		27002 rebuild for universal darwin
