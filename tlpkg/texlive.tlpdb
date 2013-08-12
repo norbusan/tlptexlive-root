@@ -2,18 +2,18 @@ name 00texlive.config
 category TLCore
 revision 1
 depend container_format/xz
-depend release/2012-ptexlive
-depend minrelease/2012
+depend release/2013-ptexlive
+depend minrelease/2013
 depend container_format/xz
 depend container_split_doc_files/1
 depend container_split_src_files/1
-depend minrelease/2012
-depend release/2012
+depend minrelease/2013
+depend release/2013
 depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-linux x86_64-darwin i386-netbsd i386-freebsd universal-darwin win32 amd64-freebsd x86_64-linux i386-cygwin
+depend setting_available_architectures:i386-linux x86_64-darwin i386-netbsd i386-freebsd universal-darwin amd64-freebsd x86_64-linux i386-cygwin
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -28,6 +28,23 @@ depend opt_sys_bin:/usr/local/bin
 depend opt_sys_info:/usr/local/share/info
 depend opt_sys_man:/usr/local/share/man
 depend opt_w32_multi_user:0
+
+name dvipdfmx.x86_64-linux
+category Package
+revision 31000
+binfiles arch=x86_64-linux size=206
+ bin/x86_64-linux/dvipdfm
+ bin/x86_64-linux/dvipdfmx
+ bin/x86_64-linux/dvipdft
+ bin/x86_64-linux/ebb
+ bin/x86_64-linux/extractbb
+
+name dvips.x86_64-linux
+category Package
+revision 31000
+binfiles arch=x86_64-linux size=88
+ bin/x86_64-linux/afm2tfm
+ bin/x86_64-linux/dvips
 
 name hiraprop
 category Package
@@ -163,154 +180,18 @@ depend pmetapost.ARCH
 runfiles size=1
  texmf-dist/metapost/pmetapost/pmpost.mp
 
-name pmetapost.amd64-freebsd
-category Package
-revision 5
-shortdesc amd64-freebsd files of pmetapost
-binfiles arch=amd64-freebsd size=139
- bin/amd64-freebsd/pdvitomp
- bin/amd64-freebsd/pmpost
-
-name pmetapost.i386-cygwin
-category Package
-revision 8
-shortdesc i386-cygwin files of pmetapost
-binfiles arch=i386-cygwin size=128
- bin/i386-cygwin/pdvitomp
- bin/i386-cygwin/pmpost.exe
-
-name pmetapost.i386-freebsd
-category Package
-revision 5
-shortdesc i386-freebsd files of pmetapost
-binfiles arch=i386-freebsd size=130
- bin/i386-freebsd/pdvitomp
- bin/i386-freebsd/pmpost
-
-name pmetapost.i386-linux
-category Package
-revision 8
-shortdesc i386-linux files of pmetapost
-binfiles arch=i386-linux size=129
- bin/i386-linux/pdvitomp
- bin/i386-linux/pmpost
-
-name pmetapost.i386-netbsd
-category Package
-revision 8
-shortdesc i386-netbsd files of pmetapost
-binfiles arch=i386-netbsd size=123
- bin/i386-netbsd/pdvitomp
- bin/i386-netbsd/pmpost
-
-name pmetapost.universal-darwin
-category Package
-revision 9
-shortdesc universal-darwin files of pmetapost
-binfiles arch=universal-darwin size=387
- bin/universal-darwin/pdvitomp
- bin/universal-darwin/pmpost
-
-name pmetapost.win32
-category Package
-revision 9
-shortdesc win32 files of pmetapost
-binfiles arch=win32 size=136
- bin/win32/pmpost.exe
-
-name pmetapost.x86_64-darwin
-category Package
-revision 8
-shortdesc x86_64-darwin files of pmetapost
-binfiles arch=x86_64-darwin size=240
- bin/x86_64-darwin/pdvitomp
- bin/x86_64-darwin/pmpost
-
 name pmetapost.x86_64-linux
 category Package
-revision 8
+revision 20
 shortdesc x86_64-linux files of pmetapost
-binfiles arch=x86_64-linux size=142
- bin/x86_64-linux/pdvitomp
+binfiles arch=x86_64-linux size=886
  bin/x86_64-linux/pmpost
-
-name ptex.i386-linux
-category Package
-revision 27001
-binfiles arch=i386-linux size=457
- bin/i386-linux/eptex
- bin/i386-linux/makejvf
- bin/i386-linux/mendex
- bin/i386-linux/pbibtex
- bin/i386-linux/pdvitype
- bin/i386-linux/platex
- bin/i386-linux/ppltotf
- bin/i386-linux/ptex
- bin/i386-linux/ptftopl
-
-name ptex.i386-netbsd
-category Package
-revision 27001
-binfiles arch=i386-netbsd size=439
- bin/i386-netbsd/eptex
- bin/i386-netbsd/makejvf
- bin/i386-netbsd/mendex
- bin/i386-netbsd/pbibtex
- bin/i386-netbsd/pdvitype
- bin/i386-netbsd/platex
- bin/i386-netbsd/ppltotf
- bin/i386-netbsd/ptex
- bin/i386-netbsd/ptftopl
-
-name ptex.universal-darwin
-category Package
-revision 27002
-binfiles arch=universal-darwin size=1416
- bin/universal-darwin/eptex
- bin/universal-darwin/makejvf
- bin/universal-darwin/mendex
- bin/universal-darwin/pbibtex
- bin/universal-darwin/pdvitype
- bin/universal-darwin/platex
- bin/universal-darwin/ppltotf
- bin/universal-darwin/ptex
- bin/universal-darwin/ptftopl
-
-name ptex.win32
-category Package
-revision 27003
-binfiles arch=win32 size=635
- bin/win32/eptex.dll
- bin/win32/eptex.exe
- bin/win32/kpathsea611.dll
- bin/win32/makejvf.exe
- bin/win32/mendex.exe
- bin/win32/pbibtex.exe
- bin/win32/pdvitype.exe
- bin/win32/platex.exe
- bin/win32/ppltotf.exe
- bin/win32/ptex.dll
- bin/win32/ptex.exe
- bin/win32/ptftopl.exe
-
-name ptex.x86_64-darwin
-category Package
-revision 27001
-binfiles arch=x86_64-darwin size=794
- bin/x86_64-darwin/eptex
- bin/x86_64-darwin/makejvf
- bin/x86_64-darwin/mendex
- bin/x86_64-darwin/pbibtex
- bin/x86_64-darwin/pdvitype
- bin/x86_64-darwin/platex
- bin/x86_64-darwin/ppltotf
- bin/x86_64-darwin/ptex
- bin/x86_64-darwin/ptftopl
+ bin/x86_64-linux/upmpost
 
 name ptex.x86_64-linux
 category Package
-revision 27001
-binfiles arch=x86_64-linux size=496
+revision 31000
+binfiles arch=x86_64-linux size=499
  bin/x86_64-linux/eptex
  bin/x86_64-linux/makejvf
  bin/x86_64-linux/mendex
@@ -396,83 +277,10 @@ binfiles arch=x86_64-linux size=375
  bin/x86_64-linux/pxdvi
  bin/x86_64-linux/pxdvi-xaw
 
-name uptex.i386-linux
-category Package
-revision 27001
-binfiles arch=i386-linux size=418
- bin/i386-linux/convbkmk
- bin/i386-linux/euptex
- bin/i386-linux/upbibtex
- bin/i386-linux/updvitype
- bin/i386-linux/uplatex
- bin/i386-linux/uppltotf
- bin/i386-linux/uptex
- bin/i386-linux/uptftopl
- bin/i386-linux/wovp2ovf
-
-name uptex.i386-netbsd
-category Package
-revision 27001
-binfiles arch=i386-netbsd size=410
- bin/i386-netbsd/convbkmk
- bin/i386-netbsd/euptex
- bin/i386-netbsd/upbibtex
- bin/i386-netbsd/updvitype
- bin/i386-netbsd/uplatex
- bin/i386-netbsd/uppltotf
- bin/i386-netbsd/uptex
- bin/i386-netbsd/uptftopl
- bin/i386-netbsd/wovp2ovf
-
-name uptex.universal-darwin
-category Package
-revision 27002
-binfiles arch=universal-darwin size=1346
- bin/universal-darwin/convbkmk
- bin/universal-darwin/euptex
- bin/universal-darwin/upbibtex
- bin/universal-darwin/updvitype
- bin/universal-darwin/uplatex
- bin/universal-darwin/uppltotf
- bin/universal-darwin/uptex
- bin/universal-darwin/uptftopl
- bin/universal-darwin/wovp2ovf
-
-name uptex.win32
-category Package
-revision 27002
-binfiles arch=win32 size=546
- bin/win32/convbkmk.exe
- bin/win32/euptex.dll
- bin/win32/euptex.exe
- bin/win32/upbibtex.exe
- bin/win32/updvitype.exe
- bin/win32/uplatex.exe
- bin/win32/uppltotf.exe
- bin/win32/uptex.dll
- bin/win32/uptex.exe
- bin/win32/uptftopl.exe
- bin/win32/wovp2ovf.exe
-
-name uptex.x86_64-darwin
-category Package
-revision 27001
-binfiles arch=x86_64-darwin size=749
- bin/x86_64-darwin/convbkmk
- bin/x86_64-darwin/euptex
- bin/x86_64-darwin/upbibtex
- bin/x86_64-darwin/updvitype
- bin/x86_64-darwin/uplatex
- bin/x86_64-darwin/uppltotf
- bin/x86_64-darwin/uptex
- bin/x86_64-darwin/uptftopl
- bin/x86_64-darwin/wovp2ovf
-
 name uptex.x86_64-linux
 category Package
-revision 27001
-binfiles arch=x86_64-linux size=458
- bin/x86_64-linux/convbkmk
+revision 31000
+binfiles arch=x86_64-linux size=460
  bin/x86_64-linux/euptex
  bin/x86_64-linux/upbibtex
  bin/x86_64-linux/updvitype

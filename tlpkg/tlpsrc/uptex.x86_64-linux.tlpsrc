@@ -1,4 +1,3 @@
-binpattern f/x86_64-linux bin/x86_64-linux/convbkmk
 binpattern f/x86_64-linux bin/x86_64-linux/euptex
 binpattern f/x86_64-linux bin/x86_64-linux/upbibtex
 binpattern f/x86_64-linux bin/x86_64-linux/updvitype

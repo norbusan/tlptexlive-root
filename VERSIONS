@@ -1,21 +1,15 @@
 
+pmetapost
+=========
 pmetapost:	3
-pmetapost.BIN:
-		5 20120119 patches
-		8 >= svn rev 26228
-		9 >= rebuild for universal darwin
+pmetapost.BIN: 	>=20 	TL2013
 
 pmetapost 3
-pmetapost.amd64-freebsd 	5
-pmetapost.i386-cygwin 		8
-pmetapost.i386-freebsd 		5
-pmetapost.i386-linux 		8
-pmetapost.i386-netbsd 		8
-pmetapost.universal-darwin 	9
-pmetapost.win32 		9
-pmetapost.x86_64-darwin 	8
-pmetapost.x86_64-linux 		8
+pmetapost.x86_64-linux 		20
 
+
+pxdvi
+=====
 pxdvi:		5
 pxdvi.BIN:	
 		10	rebuild for universal-darwin
@@ -32,30 +26,25 @@ pxdvi.universal-darwin 	10
 pxdvi.x86_64-darwin 	9
 pxdvi.x86_64-linux 	9
 
+ptex
+====
 ptex.BIN:
-		27002 >= rebuild for universal-darwin
-		27001 >= svn r28720 ptex/uptex fix
-		27000 >= svn r28408 eptex/euptex fix
-		25500 >= svn rev 26228
-		25000 old build around svn 25437
+		31000 TL2013
+ptex.x86_64-linux	31000
 
-ptex.i386-linux 	27001
-ptex.i386-netbsd 	27001
-ptex.x86_64-linux	27001
-ptex.universal-darwin	27002
-ptex.x86_64-darwin	27001
-ptex.win32		27003 (for libkpathsea inclusion)
-
+uptex
+=====
 uptex.BIN	
-		27002 rebuild for universal darwin
-		27001 >= svn r28720 ptex/uptex fix
-		27000 >= svn r28408 eptex/euptex fix
-		13 >= svn rev 26228 (v1.1)
-		8 v1.0 plus wovf2ovp, around svn 25437
+		31000 TL2013
+uptex.x86_64-linux	31000
 
-uptex.i386-linux 	27000
-uptex.i386-netbsd 	27000
-uptex.x86_64-linux	27001
-uptex.universal-darwin	27002
-uptex.x86_64-darwin	27001
-uptex.win32		27002
+dvipdfmx
+========
+dvipdfmx.BIN	31000 TL2013
+dvipdfmx.x86_64-linux	31000
+
+dvips
+=====
+dvips.BIN	31000 TL2013
+dvips.x86_64-linux	31000
+
