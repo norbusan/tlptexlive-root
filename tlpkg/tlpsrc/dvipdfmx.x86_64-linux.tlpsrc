@@ -1,0 +1,5 @@
+binpattern f bin/${ARCH}/dvipdfm
+binpattern f bin/${ARCH}/dvipdfmx
+binpattern f bin/${ARCH}/dvipdft
+binpattern f bin/${ARCH}/ebb
+binpattern f bin/${ARCH}/extractbb
