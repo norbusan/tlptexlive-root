@@ -1,22 +1,22 @@
 
 pmetapost
 =========
-pmetapost:	3
+pmetapost:	4
 pmetapost.BIN: 	>=20 	TL2013
 
-pmetapost 3
+pmetapost 4
 pmetapost.x86_64-linux 		20
 
 
 pxdvi
 =====
-pxdvi:		5
+pxdvi:		6
 pxdvi.BIN:	
 		10	rebuild for universal-darwin
 		9	>= svn rev 26228
 		7	old build around svn 25437
 
-pxdvi 5
+pxdvi 6
 pxdvi.amd64-freebsd 	7
 pxdvi.i386-cygwin 	9
 pxdvi.i386-freebsd 	7

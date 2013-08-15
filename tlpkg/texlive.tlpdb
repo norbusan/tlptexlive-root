@@ -175,10 +175,11 @@ runfiles size=135
 
 name pmetapost
 category Package
-revision 3
+revision 4
 depend pmetapost.ARCH
-runfiles size=1
+runfiles size=2
  texmf-dist/metapost/pmetapost/pmpost.mp
+ texmf-dist/metapost/upmetapost/upmpost.mp
 
 name pmetapost.x86_64-linux
 category Package
@@ -204,14 +205,14 @@ binfiles arch=x86_64-linux size=499
 
 name pxdvi
 category TLCore
-revision 5
+revision 6
 depend pxdvi.ARCH
 docfiles size=31
- texmf/doc/man/man1/pxdvi.1
+ texmf-dist/doc/man/man1/pxdvi.1
 runfiles size=5
- texmf/fonts/map/pxdvi/xdvi-ptex.map
- texmf/xdvi/pxdvi.cfg
- texmf/xdvi/xdvi-ptex.map.sample
+ texmf-dist/fonts/map/pxdvi/xdvi-ptex.map
+ texmf-dist/xdvi/pxdvi.cfg
+ texmf-dist/xdvi/xdvi-ptex.map.sample
 
 name pxdvi.amd64-freebsd
 category TLCore
