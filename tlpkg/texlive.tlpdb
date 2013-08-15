@@ -29,6 +29,26 @@ depend opt_sys_info:/usr/local/share/info
 depend opt_sys_man:/usr/local/share/man
 depend opt_w32_multi_user:0
 
+name dvipdfmx.i386-linux
+category Package
+revision 31000
+binfiles arch=i386-linux size=182
+ bin/i386-linux/dvipdfm
+ bin/i386-linux/dvipdfmx
+ bin/i386-linux/dvipdft
+ bin/i386-linux/ebb
+ bin/i386-linux/extractbb
+
+name dvipdfmx.i386-netbsd
+category Package
+revision 31000
+binfiles arch=i386-netbsd size=173
+ bin/i386-netbsd/dvipdfm
+ bin/i386-netbsd/dvipdfmx
+ bin/i386-netbsd/dvipdft
+ bin/i386-netbsd/ebb
+ bin/i386-netbsd/extractbb
+
 name dvipdfmx.x86_64-linux
 category Package
 revision 31000
@@ -38,6 +58,20 @@ binfiles arch=x86_64-linux size=206
  bin/x86_64-linux/dvipdft
  bin/x86_64-linux/ebb
  bin/x86_64-linux/extractbb
+
+name dvips.i386-linux
+category Package
+revision 31000
+binfiles arch=i386-linux size=79
+ bin/i386-linux/afm2tfm
+ bin/i386-linux/dvips
+
+name dvips.i386-netbsd
+category Package
+revision 31000
+binfiles arch=i386-netbsd size=75
+ bin/i386-netbsd/afm2tfm
+ bin/i386-netbsd/dvips
 
 name dvips.x86_64-linux
 category Package
@@ -181,6 +215,22 @@ runfiles size=2
  texmf-dist/metapost/pmetapost/pmpost.mp
  texmf-dist/metapost/upmetapost/upmpost.mp
 
+name pmetapost.i386-linux
+category Package
+revision 20
+shortdesc i386-linux files of pmetapost
+binfiles arch=i386-linux size=804
+ bin/i386-linux/pmpost
+ bin/i386-linux/upmpost
+
+name pmetapost.i386-netbsd
+category Package
+revision 20
+shortdesc i386-netbsd files of pmetapost
+binfiles arch=i386-netbsd size=744
+ bin/i386-netbsd/pmpost
+ bin/i386-netbsd/upmpost
+
 name pmetapost.x86_64-linux
 category Package
 revision 20
@@ -188,6 +238,34 @@ shortdesc x86_64-linux files of pmetapost
 binfiles arch=x86_64-linux size=886
  bin/x86_64-linux/pmpost
  bin/x86_64-linux/upmpost
+
+name ptex.i386-linux
+category Package
+revision 31000
+binfiles arch=i386-linux size=458
+ bin/i386-linux/eptex
+ bin/i386-linux/makejvf
+ bin/i386-linux/mendex
+ bin/i386-linux/pbibtex
+ bin/i386-linux/pdvitype
+ bin/i386-linux/platex
+ bin/i386-linux/ppltotf
+ bin/i386-linux/ptex
+ bin/i386-linux/ptftopl
+
+name ptex.i386-netbsd
+category Package
+revision 31000
+binfiles arch=i386-netbsd size=440
+ bin/i386-netbsd/eptex
+ bin/i386-netbsd/makejvf
+ bin/i386-netbsd/mendex
+ bin/i386-netbsd/pbibtex
+ bin/i386-netbsd/pdvitype
+ bin/i386-netbsd/platex
+ bin/i386-netbsd/ppltotf
+ bin/i386-netbsd/ptex
+ bin/i386-netbsd/ptftopl
 
 name ptex.x86_64-linux
 category Package
@@ -277,6 +355,32 @@ shortdesc x86_64-linux files of pxdvi
 binfiles arch=x86_64-linux size=375
  bin/x86_64-linux/pxdvi
  bin/x86_64-linux/pxdvi-xaw
+
+name uptex.i386-linux
+category Package
+revision 31000
+binfiles arch=i386-linux size=418
+ bin/i386-linux/euptex
+ bin/i386-linux/upbibtex
+ bin/i386-linux/updvitype
+ bin/i386-linux/uplatex
+ bin/i386-linux/uppltotf
+ bin/i386-linux/uptex
+ bin/i386-linux/uptftopl
+ bin/i386-linux/wovp2ovf
+
+name uptex.i386-netbsd
+category Package
+revision 31000
+binfiles arch=i386-netbsd size=410
+ bin/i386-netbsd/euptex
+ bin/i386-netbsd/upbibtex
+ bin/i386-netbsd/updvitype
+ bin/i386-netbsd/uplatex
+ bin/i386-netbsd/uppltotf
+ bin/i386-netbsd/uptex
+ bin/i386-netbsd/uptftopl
+ bin/i386-netbsd/wovp2ovf
 
 name uptex.x86_64-linux
 category Package

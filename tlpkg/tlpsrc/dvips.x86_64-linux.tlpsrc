@@ -1,2 +1,2 @@
-binpattern f bin/${ARCH}/afm2tfm
-binpattern f bin/${ARCH}/dvips
+binpattern f/x86_64-linux bin/${ARCH}/afm2tfm
+binpattern f/x86_64-linux bin/${ARCH}/dvips

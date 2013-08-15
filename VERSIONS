@@ -1,11 +1,11 @@
 
 pmetapost
 =========
-pmetapost:	4
-pmetapost.BIN: 	>=20 	TL2013
-
-pmetapost 4
-pmetapost.x86_64-linux 		20
+pmetapost:		4
+pmetapost.BIN: 		>=20 	TL2013
+pmetapost.x86_64-linux 	20
+pmetapost.i386-linux	20
+pmetapost.i386-netbsd	20
 
 
 pxdvi
@@ -15,7 +15,6 @@ pxdvi.BIN:
 		10	rebuild for universal-darwin
 		9	>= svn rev 26228
 		7	old build around svn 25437
-
 pxdvi 6
 pxdvi.amd64-freebsd 	7
 pxdvi.i386-cygwin 	9
@@ -28,23 +27,29 @@ pxdvi.x86_64-linux 	9
 
 ptex
 ====
-ptex.BIN:
-		31000 TL2013
+ptex.BIN: 		31000 TL2013
 ptex.x86_64-linux	31000
+ptex.i386-linux		31000
+ptex.i386-netbsd	31000
 
 uptex
 =====
-uptex.BIN	
-		31000 TL2013
+uptex.BIN		31000 TL2013
 uptex.x86_64-linux	31000
+uptex.i386-linux	31000
+uptex.i386-netbsd	31000
 
 dvipdfmx
 ========
-dvipdfmx.BIN	31000 TL2013
+dvipdfmx.BIN		31000 TL2013
 dvipdfmx.x86_64-linux	31000
+dvipdfmx.i386-linux	31000
+dvipdfmx.i386-netbsd	31000
 
 dvips
 =====
-dvips.BIN	31000 TL2013
+dvips.BIN		31000 TL2013
 dvips.x86_64-linux	31000
+dvips.i386-linux	31000
+dvips.i386-netbsd	31000
 

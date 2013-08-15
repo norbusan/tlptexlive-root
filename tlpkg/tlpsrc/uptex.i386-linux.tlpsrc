@@ -1,0 +1,8 @@
+binpattern f/i386-linux bin/i386-linux/euptex
+binpattern f/i386-linux bin/i386-linux/upbibtex
+binpattern f/i386-linux bin/i386-linux/updvitype
+binpattern f/i386-linux bin/i386-linux/uplatex
+binpattern f/i386-linux bin/i386-linux/uppltotf
+binpattern f/i386-linux bin/i386-linux/uptftopl
+binpattern f/i386-linux bin/i386-linux/uptex
+binpattern f/i386-linux bin/i386-linux/wovp2ovf
