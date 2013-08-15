@@ -1,41 +1,54 @@
 #!/usr/bin/env perl
-# $Id: check-files-by-format 28224 2012-11-10 00:50:20Z karl $
+# $Id: check-files-by-format 31348 2013-08-04 23:57:05Z karl $
 #
 # Check that files in various formats are in good shape.
 #
-# The following formats are checked currently: pdf, pfb, tfm, vf.
+# The following formats are checked currently: pdf, pfb, tfm, vf, otf.
 #
-# For each format, there is one routine &check_<format> and an exclusion 'list'
-# (hash reference) $exclude_<format>: the keys are either a directory name if
-# they have a trailing slash, or a file name. If a key named '*base*' is
-# present, then the paths are relative to this base, otherwise to $tlroot. The
-# values of the keys may be free or have a special meaning depending on the
-# associated check_<format> routine.
+# For each format, there is one routine &check_<format> and an exclusion
+# 'list' (hash reference) $exclude_<format>: the keys are either a
+# directory name if they have a trailing slash, or a file name. If a key
+# named '*base*' is present, then the paths are relative to this base,
+# otherwise to $tlroot. The values of the keys may be free or have a
+# special meaning depending on the associated check_<format> routine.
 #
 # Formats that might be added:
 # - afm with (afm2pl?)
 #
-# Manuel P\'egouri\'e-Gonnard, 2010-2012. WTFPL v2.
-
-use warnings;
-use File::Basename;
-use File::Temp;
+# Manuel P\'egouri\'e-Gonnard, 2010-2013. WTFPL v2.
 
 BEGIN {
-  my $mydir = dirname($0);
+#  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
   $tlroot = "$mydir/../..";
   unshift (@INC, "$tlroot/tlpkg");
 }
 
+use File::Basename;
+use File::Temp;
+use Pod::Usage;
+use Getopt::Long;
+
 use TeXLive::TLPDB;
 
 
+# Most of these breakages need to be reported upstream, or documented
+# that they are unavoidable.  Add comments if you pursue any of them.
+
+# value has no meaning here
+my $exclude_otf = { '*base*' => 'texmf-dist/fonts/opentype',
+  'texmf-dist/doc/fonts/cm-unicode/Fontmap.CMU.otf' => 1,
+};
+
 # 1 means pdfinfo issues errors but still exits successfully
 # 2 means pdfinfo exits non-zero
 my $exclude_pdf = {
      # 14nov11 author cannot fix:
   'texmf-dist/doc/fonts/frcursive/frcursive.pdf' => 1,
-  'texmf/dvips/tetex/config.pdf' => 2, # not a PDF file
+     # 15dec12 derekn says will be fixed in next xpdf after 3.03:
+     # (causes seg fault now):
+  'texmf-dist/doc/latex/ocgx/demo-ocgx.pdf' => -1,
+  'texmf-dist/dvips/tetex/config.pdf' => -1, # not a PDF file
 };
 
 # the value has no meaning here
@@ -58,7 +71,7 @@ my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
   'public/amsfonts/cm/' => 1,
   'public/amsfonts/cmextra/' => 1,
   'public/arev/' => 1,
-  'public/ascii/' => 1,
+  'public/ascii-font/' => 1,
   'public/aspectratio/' => 1, # 11feb12 reported to author
   'public/augie/' => 1,
   'public/aurical/' => 1,
@@ -93,10 +106,11 @@ my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
   'public/gfssolomos/' => 1,
   'public/hacm/' => 1,
   'public/initials/' => 1,
+  'public/ipaex-type1/' => 1,	# 20may13 too many to bother reporting
   'public/itrans/' => 1,
   'public/kerkis/' => 1,
   'public/kpfonts/' => 1,
-  'public/libertine-legacy/' => 1,
+  'public/libertine/' => 1,	# 5jan13 maintainer declines to fix triviality
   'public/linearA/' => 1,
   'public/lm/' => 1,
   'public/lxfonts/' => 1,
@@ -143,10 +157,8 @@ my $exclude_pfb = { '*base*' => 'texmf-dist/fonts/type1',
   'wadalab/mrj/' => 1,
   'tlpkg/texworks/share/fonts/type1/gsfonts/' => 1, # these come from gs
 };
-# mpg: are these files actually broken?? Should look for the actual errors and
-# check with a font expert which are dummy, then filter them out.
-# For remaining packages, we'll have to contact upstream authors.
 
+
 # the value has no meaning here
 my $exclude_tfm = { '*base*' => 'texmf-dist/fonts/tfm',
   'jknappen/ec/' => 1,
@@ -155,7 +167,7 @@ my $exclude_tfm = { '*base*' => 'texmf-dist/fonts/tfm',
   'public/chess/' => 1,		# original has extra bytes, not worth fixing
   'public/cmcyr/' => 1,
   'public/dozenal/' => 1,	# wrote author 31oct12
-  'public/gfsbodoni/' => 1,
+  'public/gfsbodoni/' => 1,	# wrote author 12dec12
   'public/malayalam/' => 1,
   'public/japanese-otf/' => 1,	# japanese tfm's
   'public/japanese-otf-uptex/' => 1, # japanese tfm's
@@ -163,6 +175,7 @@ my $exclude_tfm = { '*base*' => 'texmf-dist/fonts/tfm',
   'public/wsuipa/' => 1,
 };
 
+
 # the value has no meaning here
 my $exclude_vf = { '*base*' => 'texmf-dist/fonts/vf',
   'public/bgreek/' => 1,
@@ -177,6 +190,7 @@ my $exclude_vf = { '*base*' => 'texmf-dist/fonts/vf',
   'public/gfssolomos/' => 1,
   'public/hfoldsty/' => 1,
   'public/kerkis/' => 1,
+  'public/sansmathfonts' => 2,	# 20may13 ok with cmssbx12.tfm from sauter
   'mathdesign/mdbch/' => 1,
   'mathdesign/mdput/' => 1,
   'mathdesign/mdugm/' => 1,
@@ -186,52 +200,73 @@ my $exclude_vf = { '*base*' => 'texmf-dist/fonts/vf',
   'public/ae/' => 1,
 };
 
-# value has no meaning here
-my $exclude_otf = { '*base*' => 'texmf-dist/fonts/opentype',
-  'texmf-dist/doc/fonts/cm-unicode/Fontmap.CMU.otf' => 1,
-
-};
 
 my $tmpdir = File::Temp::tempdir(CLEANUP => 1);
+
+my $opt_all = 0;
+my $opt_help = 0;
+
+TeXLive::TLUtils::process_logging_options ();
+GetOptions ("all" => \$opt_all,
+            "help|?" => \$opt_help) or pod2usage (2);
+pod2usage ("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
+
 
 exit(&main());
 
 
 sub main {
   my @files = get_file_list();
-  for my $file (grep { /\.pdf$/ } @files) {
-    check_pdf($file);
-  }
-  for my $file (grep { /\.pfb$/ } @files) {
-    check_pfb($file);
-  }
-  for my $file (grep { /\.tfm$/ } @files) {
-    check_tfm($file);
-  }
-  for my $file (grep { /\.vf$/ } @files) {
-    check_vf($file);
-  }
+
   for my $file (grep { /\.otf$/ } @files) {
-    check_otf($file);
-  }
+    check_otf($file);}
+
+  for my $file (grep { /\.pdf$/ } @files) {
+    check_pdf($file); }
+
+  for my $file (grep { /\.pfb$/ } @files) {
+    check_pfb($file); }
+
+  for my $file (grep { /\.tfm$/ } @files) {
+    check_tfm($file); }
+
+  for my $file (grep { /\.vf$/ } @files) {
+    check_vf($file); }
+
   return 0;
 }
 
 # get the list of files in the database of a TL installation
 sub get_file_list {
   my $tlpdb = TeXLive::TLPDB->new(root => $tlroot);
+
   my @files = ();
   for my $tlpname ($tlpdb->list_packages) {
     my $tlp = $tlpdb->get_package($tlpname);
     push(@files, $tlp->docfiles, $tlp->runfiles, $tlp->srcfiles);
   }
-  # ptex font files are in their own formats; don't bother checking,
-  # or adding individual entries to the exclude lists.
+
+  # [u]ptex font files use their own formats; don't bother checking,
+  # or adding lots of individual entries to the exclude lists.
   @files = grep ($_ !~ m!/u?ptex/!, @files);
+
+  # It takes a long time (about an hour) to check every file.  And there
+  # is no value in checking unchanged files every day.  So we filter the
+  # file list (unless --all is given) by mtime ... unless this happens
+  # to be the first of the month, when we'll check everything, just to
+  # be reminded of anything that may have crept in.
+  # 
+  if (! ($opt_all || `date +%d` == 1)) {
+    my @filtered = ();
+    for my $f (@files) {
+      push (@filtered, $f) if (-M "$tlroot/$f" < 4);
+    }
+    @files = @filtered;
+  }
   return @files;
 }
 
-
+
 # return the value in exclude list associated to a file, or undef
 sub exclude_value {
   my ($exclude, $file) = @_;
@@ -241,20 +276,23 @@ sub exclude_value {
   return $exclude->{$file} || $exclude->{$filedir};
 }
 
-# check a pdf file
+
+# the checking routines for each file type.
+
 sub check_pdf {
   my ($file) = @_;
+  my $excl_val = exclude_value($exclude_pdf, $file) || 0;
+  return if $excl_val < 0;
+  #
   my $errfile = "$tmpdir/pdferr";
   unlink($errfile);
   my $bad_exit = system("pdfinfo $tlroot/$file >/dev/null 2>$errfile");
   my $badness = $bad_exit ? 2 : -s $errfile ? 1 : 0;
-  my $limit = exclude_value($exclude_pdf, $file) || 0;
-  return if $badness <= $limit;
+  return if $badness <= $excl_val;
   print "Broken PDF: $file\n" if $badness == 2;
   print "Damaged PDF: $file\n" if $badness == 1;
 }
 
-# check a pfb file
 sub check_pfb {
   my ($file) = @_;
   return if defined exclude_value($exclude_pfb, $file);
@@ -264,7 +302,6 @@ sub check_pfb {
   print "Bad PFB: $file\n" if $bad;
 }
 
-# check a tfm file
 sub check_tfm {
   my ($file) = @_;
   return if defined exclude_value($exclude_tfm, $file);
@@ -275,7 +312,6 @@ sub check_tfm {
   print "Broken tfm: $file\n" if -s $errfile;
 }
 
-# check a vf file
 sub check_vf {
   my ($file) = @_;
   return if defined exclude_value($exclude_vf, $file);
@@ -289,7 +325,6 @@ sub check_vf {
   print "Broken vf: $file\n" if -s $errfile;
 }
 
-# check an otf file
 sub check_otf {
   my ($file) = @_;
   return if defined exclude_value($exclude_otf, $file);

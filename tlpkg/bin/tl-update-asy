@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: tl-update-asy 26755 2012-06-01 00:21:05Z karl $
+# $Id: tl-update-asy 30598 2013-05-20 22:06:04Z karl $
 # Public domain.  Originally written 2008, Karl Berry.
 # Info about updating asymptote.
 # 
@@ -43,18 +43,19 @@ if false && $update_sources_from_ctan; then
 elif test "x$1" = x--build; then
   # this part is about building the i386-linux asymptote on tug.org.
   # Despite all the dire warnings above, this part actually can be run
-  # as a script, because it's so often necessary to run and rerun (and
-  # rerun) the build.
+  # as a script, because it's so often necessary to redo.
   set -e
   PATH=/usr/bin:/bin:/sbin; export PATH  # system gcc for sake of shared libs
   unset GREP_OPTIONS
   
   cd /home/texlive/karl/Build/source/utils/asymptote
+  test -r dot.svn && mv dot.svn .svn
   /usr/local/bin/svn update
   /usr/local/bin/svn revert asy-keywords.el
   mv .svn dot.svn
   if test -f Makefile; then
     make clean
+    svn revert doc/asy-latex.pdf
     rm -f Makefile config.h config.log config.status errors.temp
     rm -rf autom4te.cache
   fi
@@ -79,39 +80,37 @@ elif false && $update_runtime_from_ainst; then
   $cp binaries/i386-win32/texlive/asy.exe $pg/asymptote/
 
   cd /tmp/ainst
-  $cp share/info/{*/,}*.info $xmf/doc/info
-  $cp share/man/man1/asy.1 $xmf/doc/man/man1/asy.1
-  $cp share/man/man1/xasy.1x $xmf/doc/man/man1/xasy.1
-  $cp -r share/doc/asymptote $xmf/doc
+  $cp share/info/{*/,}*.info $xist/doc/info
+  $cp share/man/man1/asy.1 $xist/doc/man/man1/asy.1
+  $cp share/man/man1/xasy.1x $xist/doc/man/man1/xasy.1
+  $cp -r share/doc/asymptote $xist/doc
   #
-  $cp -r share/asymptote $xmf
+  $cp -r share/asymptote $xist
   #
-  $cp latex/asymptote/* $xmf/tex/latex/asymptote/
-  $cp context*/asymptote/* $xmf/tex/context/asymptote/
+  $cp latex/asymptote/* $xist/tex/latex/asymptote/
+  $cp context*/asymptote/* $xist/tex/context/asymptote/
   #
   $cp bin/asy $lb/
   strip $lb/asy
 
-  cd $xmf/doc/man
+  cd $xist/doc/man
   make
   
   ci="$xu/README \
     $xy \
-    $cb \
-    $lb/asy \
-    $pg/asymptote/ \
-    $xmf/asymptote/ \
-    $xmf/doc \
-    $xmf/tex/*/asymptote"
+    $lb/asy $pg/asymptote/ \
+    $xist/doc/info/  $xist/doc/man $xist/doc/asymptote \
+    $xist/asymptote/ $xist/tex/*/asymptote"
 
-  svn status $ci | sed -n 's/^\?//p' | fgrep -v binaries
+  svn status $ci | sed -n 's/^\?//p'
   svn add `!!`
 
   cd /tmp/ainst
-  diff -qr share/asymptote/ /home/texlive/karl/Master/texmf/asymptote/ | fgrep -v .svn
+  xmf=/home/texlive/karl/Master/texmf-dist
+  diff -qr share/asymptote/ $xmf/asymptote/ | fgrep -v .svn
   #svn rm ...
 
-  diff -qr share/doc/asymptote/ /home/texlive/karl/Master/texmf/doc/asymptote/ | fgrep -v .svn
+  diff -qr share/doc/asymptote/ $xmf/doc/asymptote/ | fgrep -v .svn
   #svn rm ...
 
   scom -m"asymptote $ver" $ci

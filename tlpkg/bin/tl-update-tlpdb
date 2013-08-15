@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: tl-update-tlpdb 26755 2012-06-01 00:21:05Z karl $
+# $Id: tl-update-tlpdb 29728 2013-04-07 23:21:01Z karl $
 # convert a set of tlpsrc files (given as arguments) into tlpdb
 # 
 # Copyright 2007-2012 Norbert Preining
@@ -449,7 +449,7 @@ tl-update-tlpdb [OPTION]... [TLPSRC]...
 =item B<--catalogue> I<Catalogue_file>
 
 The I<Catalogue_file> must point to a valid TeX Catalogue as a Perl data
-dump; default is C<Master/texmf/scripts/texlive/var/texcatalogue.data>,
+dump; default is C<Master/texmf-dist/scripts/texlive/var/texcatalogue.data>,
 where C<Master> is the master directory described below.  That file is
 update nightly by the C<tl-update-auto> script.  If this file is given
 and readable, the generated tlpobj files will contain information

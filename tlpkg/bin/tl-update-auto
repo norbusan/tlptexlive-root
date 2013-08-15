@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: tl-update-auto 28265 2012-11-15 00:35:53Z karl $
+# $Id: tl-update-auto 30759 2013-05-28 14:38:08Z karl $
 # Public domain.  Originally written 2003, Karl Berry.
 # 
 # Deal with files that are automatically updated in one way or another.
@@ -36,15 +36,15 @@ add_list=
 
 #  autogenerate README.EN from readme.html.
 # 
-if $config_scripts_only; then :; else
-$mydir/htmltext <readme-html.dir/readme.en.html >$temp
-if $diff readme-txt.dir/README.EN $temp >$temp.en.diff; then
-  $verbose "  README.EN ok."
-else
-  $chicken $cp $temp readme-txt.dir/README.EN
-  update_list="$update_list readme-txt.dir/README.EN"
-fi
-fi # !config_scripts_only
+#if $config_scripts_only; then :; else
+#$mydir/htmltext <readme-html.dir/readme.en.html >$temp
+#if $diff readme-txt.dir/README.EN $temp >$temp.en.diff; then
+#  $verbose "  README.EN ok."
+#else
+#  $chicken $cp $temp readme-txt.dir/README.EN
+#  update_list="$update_list readme-txt.dir/README.EN"
+#fi
+#fi # !config_scripts_only
 
 
 #  modes.mf from elsewhere on tug.org.
@@ -112,7 +112,8 @@ done
 
 fontnameencslave=texmf-dist/fonts/enc/dvips/base
 #
-files=`cd $fontnamemaster && ls *.enc | egrep -vw '(groff|t5|texnansi).enc'`
+files=`cd $fontnamemaster && ls *.enc\
+       | egrep -vw '(groff|t5|texnansi|xt2|xl2).enc'`
 for basef in $files; do
   fontnameencslavef=$fontnameencslave/$basef
   if $diff $fontnameencslavef $fontnamemaster/$basef >$temp.$basef.diff; then
@@ -178,11 +179,11 @@ same_except_for_th ()
   cmp -s $TMPDIR/seft1 $TMPDIR/seft2
 }
 
-mandir=texmf/doc/man
+mandir=texmf-dist/doc/man
 webdir=/home/httpd/html/texlive/doc
 man_update=false
 
-for script in texmf/scripts/texlive/tlmgr.pl install-tl; do
+for script in texmf-dist/scripts/texlive/tlmgr.pl install-tl; do
   pod2man $script >$temp
 
   basescript=`basename $script .pl`
@@ -227,31 +228,6 @@ fi
 fi # !config_scripts_only
 
 
-#  texcatalogue.keywords
-#
-if $config_scripts_only; then :; else
-cat_dump=$TMPDIR/tc.xml
-rm -f $cat_dump.new
-wget --quiet ftp://tug.ctan.org/ftpmaint/az/texcatalogue.xml -O $cat_dump.new \
-&& test -s $cat_dump.new && mv $cat_dump.new $cat_dump
-# if ftp fails, we'll reprocess the old dump, but that should be harmless.
-$mydir/tl-update-keywords -input $cat_dump | tee $temp.keywords \
-| grep -v '# Generated' >$temp.keywords.new
-#
-keywordfile=texmf/scripts/texlive/var/texcatalogue.keywords
-grep -v '# Generated' $keywordfile >$temp.keywords.cur
-#
-if test ! -s $temp.keywords.new; then
-  $verbose "  $temp.keywords.new empty, skipping."
-elif $diff $temp.keywords.cur $temp.keywords.new >$temp.keywords.diff; then
-  $verbose "  $keywordfile ok."
-else
-  $chicken $cp $temp.keywords.new $keywordfile
-  update_list="$update_list $keywordfile"
-fi
-fi # !config_scripts_only
-
-
 #  ctan mirror list from ctan.
 if $config_scripts_only; then :; else
 if test `date +%w` = 0; then             # only update on Sundays
@@ -259,7 +235,7 @@ if test `date +%w` = 0; then             # only update on Sundays
   ctan_mirmon=$TMPDIR/mirmon.state
   mirrors4tl=tlpkg/installer/ctan-mirrors.pl  # massaged for TL
 
-  if wget --quiet http://ctan.org/mirrors -O $ctan_mirrors \
+  if wget --quiet http://ctan.org/tex-archive/CTAN.sites -O $ctan_mirrors \
      && rsync rsync://comedy.dante.de/MirMon/mirmon.state $ctan_mirmon; then
     $mydir/tl-update-ctan-mirrors $ctan_mirrors $ctan_mirmon >$mirrors4tl.new
     if $diff $mirrors4tl $mirrors4tl.new; then

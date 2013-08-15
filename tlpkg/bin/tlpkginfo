@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: tlpkginfo 28240 2012-11-13 00:19:06Z karl $
+# $Id: tlpkginfo 31392 2013-08-08 23:32:00Z karl $
 # Public domain.  Originally written 2005, Karl Berry.
 # 
 # Return information given a TL package name (i.e., a tlpsrc file name).
@@ -17,19 +17,20 @@ sub main {
   
   # erroneous or problematic tds files (when new, tell RobinF and author)
   $erroneous_tds = join ("|",
-    qw(countriesofeurope engpron gost hacm he-she imakeidx imtekda spanish
-    sttools titleps),
+    qw(countriesofeurope engpron gost hacm he-she imtekda 
+       inconsolata mathdesign spanish sttools titleps),
     );
   
   # Heiko's tds files (don't propagate through CTAN fast enough).
   $oberdiek_tds = "hyperref|oberdiek";
 
   # special packages from latex-tds project; used by prepare()
-  $corelatex_tds_pkgs = "babel|cyrillic|graphics|latex|psnfss|tools";
-  $amslatex_tds_pkgs = "amscls|amsmath|amsrefs"; # tlpsrc_find_catalogue() too
-  $latex_tds_pkgs = "latex-tds|knuth|$amslatex_tds_pkgs|$corelatex_tds_pkgs";
+  $amslatex_tds_pkgs = "xamscls|xamsmath|xamsrefs";   # from amslatex.tds
+  $latex_tds_pkgs  = $amslatex_tds_pkgs;
+  $latex_tds_pkgs .= "|cyrillic|graphics|latex|psnfss|tools"; # latex
+  $latex_tds_pkgs .= "|latex-tds|amsfonts|knuth";                   # other
   $latex_tds_dir = "$CTAN/macros/latex/contrib/latex-tds";
-  # (amsfonts and amstex are handled from the originals.)
+  # (amstex handled from the original.)
   
   # the CJK material is split into several packages.
   $cjk_pkgs = "bin-(cjk|ttf)utils|dnp|(|garuda-|norasi-)c90";
@@ -49,8 +50,10 @@ sub main {
     return 0;
 
   } else {
-    die "Usage: $0 --ctan-dir PKGNAME  or  --prepare PKGNAME
-      or --ctan-root  (not \"@ARGV\").\n";
+    die "Usage: $0 --ctan-dir PKGNAME\n" 
+      . "   or:  --prepare PKGNAME\n"
+      . "   or:  --ctan-root\n"
+      . "(not \"@ARGV\").\n";
   }
 }
 
@@ -65,11 +68,9 @@ sub find_ctan_dir {
   # use explicit catalogue name if given in tlpsrc.
   my $me = &tlpsrc_find_catalogue ($pkgname);
   if (! $me) {
-    if ($pkgname =~ /^($amslatex_tds_pkgs)$/) {
-      # ctan (and latex-tds) bundles all ams packages together,
+    if ($pkgname =~ /^($cjk_pkgs)$/) {
+      # ctan bundles these packages together,
       # but we use separate tlp names.
-      $me = "amslatex" ;
-    } elsif ($pkgname =~ /^($cjk_pkgs)$/) {
       $me = "cjk";  # likewise CJK
     } elsif ($pkgname eq "mkgrkindex") {
       $me = "greek-makeindex";  # use directory name
@@ -83,29 +84,33 @@ sub find_ctan_dir {
   my $ctan_dir = &catalogue_find_ctan_path ($me);
   if (! $ctan_dir) {
     # fall back on many special cases
-    (my $menobin = $me) =~ s,^bin-,,;
-    (my $menopowerdot = $me) =~ s,^powerdot-,,;
-    (my $menotype1 = $me) =~ s,-type1$,,;
+#    (my $me_wo_babel = $me) =~ s,^babel-,,;  # remove when Catalogue ready
+    (my $me_wo_beamer = $me) =~ s,^beamertheme,,;
+    (my $me_wo_bin = $me) =~ s,^bin-,,;
+    (my $me_wo_powerdot = $me) =~ s,^powerdot-,,;
+    (my $me_wo_type1 = $me) =~ s,-type1$,,;
 
     for my $dir (
       "macros/latex/contrib/$me",		# most everything
-      "macros/latex/contrib/biblatex/$me",	# authoryear-icomp-tt
+#      "macros/latex/contrib/babel-contrib/$me_wo_babel", # babel-*
+      "macros/latex/contrib/beamer-contrib/themes/$me_wo_beamer",
+      "macros/latex/contrib/biblatex/$me",	# authoryear-icomp-tt      
       "macros/latex/contrib/biblatex-contrib/$me", # biblatex-*
       "macros/latex/contrib/gene/$me",		# eqname
       "macros/latex/contrib/\L$me",		# HA-prosper
-      "macros/latex/contrib/powerdot/contrib/$menopowerdot", # powerdot-doc-vn
+      "macros/latex/contrib/powerdot/contrib/$me_wo_powerdot", # powerdot-doc-vn
       "macros/latex/exptl/$me",			# semioneside
       "macros/latex/required/$me",		# babel
-      "macros/plain/$me",			# plnfss
-      "macros/plain/contrib/$me",		# timetable
-      "macros/context/contrib/$me",		# context
       "macros/xetex/latex/$me",			# xetex
       "macros/xetex/generic/$me",		# harvardkyoto
+      "macros/plain/$me",			# plnfss
+      "macros/plain/contrib/$me",		# timetable
+      "macros/luatex/latex/$me",		# luabidi
       "macros/generic/$me",			# abbr
       "macros/generic/diagrams/$me",		# circ
-      "macros/$me",				# eplain
+      "macros/context/contrib/$me",		# context
       "support/$me",				# thumbpdf
-      "support/$menobin",			# bin-thumbpdf
+      "support/$me_wo_bin",			# bin-thumbpdf
       "language/vietnamese/$me/unpacked",	# vntex
       "language/polish/$me",			# cc-pl
       "language/hyphenation/$me",		# bghyphen
@@ -123,7 +128,7 @@ sub find_ctan_dir {
       "info/$me",				# Type1fonts
       "help/$me",				# es-tex-faq
       "graphics/$me",				# sparklines
-      "graphics/metapost/contrib/tools/$me",	# mptopdf
+      "macros/pdftex/$me",			# mptopdf
       "graphics/metapost/contrib/macros/$me",	# mpattern
       "graphics/pictex/addon/$me",		# autoarea
       "graphics/pstricks/contrib/pedigree/$me",	# pst-pdgr
@@ -131,11 +136,11 @@ sub find_ctan_dir {
       "fonts/$me",				# MnSymbol
       "fonts/utilities/$me",			# accfonts
       "fonts/ps-type1/$me",			# cm-super
-      "fonts/ps-type1/$menotype1",		# esint-type1
-      "fonts/greek/$me",				# lfb
-      "fonts/gothic/$me",				# blacklettert1
-      "fonts/cyrillic/$me/texmf",			# lh
-      "fonts/chess/$me",				# skaknew
+      "fonts/ps-type1/$me_wo_type1",		# esint-type1
+      "fonts/greek/$me",			# lfb
+      "fonts/gothic/$me",			# blacklettert1
+      "fonts/cyrillic/$me/texmf",		# lh
+      "fonts/chess/$me",			# skaknew
       "biblio/bibtex/contrib/$me",		# dk-bib
                  ) {
       if (-d "$CTAN/$dir") {
@@ -164,16 +169,23 @@ sub find_ctan_dir {
     $ctan_dir = "language/hyphenation/elhyphen" if $me eq "hyphen-greek";
     $ctan_dir = "macros/generic" if $me eq "genmisc";
     $ctan_dir = "macros/latex/contrib/misc" if $me eq "ltxmisc";
+    $ctan_dir = "macros/latex/contrib/t2/cyrplain" if $me eq "cyrplain";
 
     # do last, for sake of subdirs above.
     $ctan_dir = "language/hyphenation"
       if $me =~ /^hyphen-/ && ! $ctan_dir;
   }
 
-  # In the case of mathspic, we cannot use the catalogue directory,
-  # since we want to ignore the dos/ subdir and just go with the perl/.
+  # For mathspic, we cannot use the catalogue directory:
+  # we want to ignore the dos/ subdir and just go with the perl/.
   if ($me eq "mathspic") {
     $ctan_dir .= "/perl";
+  }                         
+  
+  # For cs, we need to unpack from multiple tarballs,
+  # so copy the entire cstex directory.
+  if ($pkgname eq "cs") {
+    $ctan_dir = "$CTAN/macros/cstex/base";
   }                         
   
   # prepend ctan root if not an absolute dir (this happens when we make
@@ -283,18 +295,12 @@ sub prepare {
     $tds_path = "/home/ftp/tex/$pkg/$pkg.tds.zip";
     # will be ignored below if it doesn't exist.
 
+  # ...and except for context, and others...
   } elsif ($pkg eq "context") {
-    $tds_path = "/tmp/cont-tmf.zip";
-
-  # ...and except for amsfonts, and others ...
-  } elsif ($pkg eq "amsfonts") {
-    $tds_path = "$CTAN/fonts/amsfonts/amsfonts.zip";
+    $tds_path = "/home/ftp/mirror/www.pragma-ade.com/context/current/cont-tmf.zip";
 
   } elsif ($pkg eq "hfoldsty") {
     $tds_path = glob ("$CTAN/fonts/hfoldsty/hfoldsty-v*.zip");
-
-  } elsif ($pkg eq "libertine-legacy") {
-    $tds_path = "$CTAN/fonts/libertine-legacy/libertine-legacy-texmf.zip";
 
   # ...and except for files in latex-tds...
   } elsif ($pkg =~ /^($latex_tds_pkgs)$/) {

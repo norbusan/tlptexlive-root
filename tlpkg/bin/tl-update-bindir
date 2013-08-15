@@ -2,8 +2,9 @@
 # Public domain.  Originally written 2008, Karl Berry.
 # Update a TeX Live Master/bin/PLATFORM directory.
 
-vc_id='$Id: tl-update-bindir 26690 2012-05-28 17:47:46Z karl $'
+vc_id='$Id: tl-update-bindir 30645 2013-05-22 23:59:16Z karl $'
 unset CDPATH
+unset GREP_OPTIONS
 unset LS_COLORS
 
 tmpdir=${TMPDIR-/tmp}/tlupbin.$$
@@ -98,8 +99,7 @@ for tlname in $tlnames; do
   if test x"$USER" = xkarl; then
    case $tlname in 
    alpha-linux)
-    default_bin_loc=$download_loc
-    $grab http://www.logic.at/people/preining/alpha-linux.tar.gz;;
+    default_bin_loc=/home/preining/alpha-linux.tar.gz;;
    amd64-freebsd)
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
@@ -110,11 +110,21 @@ for tlname in $tlnames; do
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
     $grab ftp://ftp.cea.fr/incoming/y2k01/braslau/x86_64-unknown-kfreebsd9.0-gnu.tar.xz;;
+   amd64-netbsd)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://www.babafou.eu.org/texlive-netbsd/x86_64-unknown-netbsd6.1.tar.xz;;
    armel-linux)
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab http://boris.lk.net/texlive-2012/armv7l-unknown-linux-gnueabi.tgz;;
+    $grab http://boris.lk.net/texlive-2013/armv7l-unknown-linux-gnueabi.tgz;;
+   armhf-linux)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://getthingsfixed.co.uk/texlive/build_1304/texlive-armhf.tar.gz;;
    hppa-hpux)
     default_bin_loc=$download_loc
     $grab http://www.jtartlabs.com/test/hppa2.0-hp-hpux10.20.tar.gz;;
@@ -132,12 +142,12 @@ for tlname in $tlnames; do
     grab="$download -O $download_loc"
     $grab ftp://ftp.cea.fr/incoming/y2k01/braslau/i386-unknown-kfreebsd9.0-gnu.tar.xz;;
    i386-linux)
-    default_bin_loc=/home/texlive/sarge/tmp/source/inst/bin/i686-pc-linux-gnu;;
+    default_bin_loc=/home/texlive/karl/Build/source/inst/bin/i686-pc-linux-gnu;;
    i386-netbsd)
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab http://salmi.ch/~jukka/TL2011/TL2011bin_i386-netbsd.tar.xz;;
+    $grab http://www.babafou.eu.org/texlive-netbsd/i386-unknown-netbsdelf6.0.1.tar.xz;;
    i386-openbsd)
     default_bin_loc=$download_loc
     $grab http://students.dec.bmth.ac.uk/ebarrett/files/tl-bin-20080810.tgz;;
@@ -145,7 +155,12 @@ for tlname in $tlnames; do
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab http://www.math.fsu.edu/~ealdrov/texlive/2012/bin-i386-pc-solaris2.10.tar.gz;;
+    $grab http://www.math.fsu.edu/~ealdrov/texlive/2013/bin-i386-pc-solaris2.10.tar.gz;;
+   mips-irix)
+    download_loc=$tmpdir/tl.$tlname.tar.xz
+    default_bin_loc=$download_loc
+    grab="$download -O $download_loc"
+    $grab http://www.solid.ethz.ch/download/texlive/texlive-mips-irix.tar.xz;;
    mipsel-linux)
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
@@ -155,6 +170,8 @@ for tlname in $tlnames; do
     default_bin_loc=/home/tschmitz/powerpc.tar.bz2;;
    sparc-linux)
     default_bin_loc=/home/karl/s.tgz;;
+   sparc-solaris)
+    default_bin_loc=/home/karl/ss.tgz;;
    universal-darwin)
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
@@ -175,7 +192,7 @@ for tlname in $tlnames; do
     download_loc=$tmpdir/tl.$tlname.tar.xz
     default_bin_loc=$download_loc
     grab="$download -O $download_loc"
-    $grab http://www.math.fsu.edu/~ealdrov/texlive/2012/bin-x86_64-pc-solaris2.10.tar.gz;;
+    $grab http://www.math.fsu.edu/~ealdrov/texlive/2013/bin-x86_64-pc-solaris2.10.tar.gz;;
    esac
   fi
   
@@ -188,6 +205,7 @@ for tlname in $tlnames; do
   fi
 
   $msg "installing from $bin_loc to $destdir via $tmpdir"
+  ls -ld "$bin_loc"
 
   # if we were given a tar file, unpack it.
   if test -f "$bin_loc"; then
@@ -207,11 +225,15 @@ for tlname in $tlnames; do
     exit 1
   fi
   
-  # may need to cd into a subdirectory, depending on how the tar was made.
-  test "`ls $srcdir`" != bin || srcdir=$srcdir/bin
-  test `ls $srcdir | wc -l` != 1 || srcdir=$srcdir/*
+  # in case people mistakenly include .svn dirs in their tars.
+  find "$srcdir" -name .svn | xargs rm -rf
   
-  # state of things.  srcdir is full of the new binaries.
+  # may need to cd into a subdirectory, depending on how the tar was made.
+  while test `ls $srcdir | wc -l` = 1; do
+    srcdir=$srcdir/*
+  done
+  
+  # destdir is what is in the repo now, srcdir has the new binaries.
   (cd $destdir && ls) >$tmpdir/now  
   (cd $srcdir && ls)  >$tmpdir/new
 
@@ -283,6 +305,15 @@ for tlname in $tlnames; do
   if test -n "$badlinks"; then
     $msg "removing svn:executable property from symlinks..."
     svn propdel svn:executable $badlinks
+  fi
+  
+  # revert xindy.mem unless xindy.run changes.
+  if svn status xindy.run | grep '^M' >/dev/null \
+     || svn status xindy-lisp.exe | grep '^M' >/dev/null; then
+    :
+  elif test -r xindy.run || test -r xindy-lisp.exe; then
+    $msg "reverting xindy.mem..."
+    svn revert xindy*.mem
   fi
   
   # check for broken symlinks.

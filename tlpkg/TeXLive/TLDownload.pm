@@ -1,4 +1,4 @@
-# $Id: TLDownload.pm 26615 2012-05-24 00:39:35Z karl $
+# $Id: TLDownload.pm 30038 2013-04-19 16:02:35Z karl $
 # TeXLive::TLDownload.pm - module for abstracting the download modes
 # Copyright 2009-2012 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
@@ -10,7 +10,7 @@ use TeXLive::TLUtils;
 use TeXLive::TLConfig;
 use File::Temp qw/tempfile/;
 
-my $svnrev = '$Revision: 26615 $';
+my $svnrev = '$Revision: 30038 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -28,7 +28,7 @@ my $MAX_ERRORCOUNT = 5;
 our $net_lib_avail = 0;
 eval { require LWP; };
 if ($@) {
-  debug("LWP is not available, falling back to wget mode.\n");
+  debug("LWP is not available, falling back to wget.\n");
   $net_lib_avail = 0;
 } else {
   require LWP::UserAgent;
@@ -101,14 +101,14 @@ sub decr_errorcount
     return($self->errorcount(0));
   }
 }
-sub reset_errorcount
-{
+
+sub reset_errorcount {
   my $self = shift;
   $self->{'errorcount'} = 0;
 }
-sub get_file
-{
-  my ($self, $url, $out, $size) = @_;
+
+sub get_file {
+  my ($self,$url,$out,$size) = @_;
   #
   # automatically disable if error count is getting too big
   if ($self->errorcount > $MAX_ERRORCOUNT) {
@@ -134,8 +134,8 @@ sub get_file
       return $outfh;
     }
   } else {
-    tlwarn("TLDownload::get_file: response error:\n");
-    tlwarn("  " . $response->status_line . "\n");
+    tlwarn("TLDownload::get_file: response error: "
+            . $response->status_line . " (for $url)\n");
     $self->incr_errorcount;
     return;
   }

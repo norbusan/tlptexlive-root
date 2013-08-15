@@ -1,12 +1,12 @@
-# $Id: TLPDB.pm 28293 2012-11-18 08:14:17Z preining $
+# $Id: TLPDB.pm 31361 2013-08-06 01:50:48Z preining $
 # TeXLive::TLPDB.pm - module for using tlpdb files
-# Copyright 2007-2012 Norbert Preining
+# Copyright 2007-2013 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
 package TeXLive::TLPDB;
 
-my $svnrev = '$Revision: 28293 $';
+my $svnrev = '$Revision: 31361 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -69,6 +69,7 @@ C<TeXLive::TLPDB> -- A database of TeX Live Packages
   $tlpdb->add_default_options();
   $tlpdb->settings;
   $tlpdb->setting($key, [$value]);
+  $tlpdb->setting([-clear], $key, [$value]);
   $tlpdb->sizes_of_packages($opt_src, $opt_doc, $ref_arch_list [, @packs ]);
   $tlpdb->install_package($pkg, $dest_tlpdb);
   $tlpdb->remove_package($pkg, %options);
@@ -85,7 +86,7 @@ C<TeXLive::TLPDB> -- A database of TeX Live Packages
   $tlpdb->virtual_get_package($pkg, $tag);
   $tlpdb->candidates($pkg);
   $tlpdb->virtual_candidate($pkg);
-  $tlpdb->virtual_pinning( [@tlpkpins ] );
+  $tlpdb->virtual_pinning( [ $pin_file_TLConfFile ] );
 
 =head1 DESCRIPTION
 
@@ -278,7 +279,11 @@ sub from_file {
     if ($rootpath =~ m,file://*(.*)$,) {
       $rootpath = "/$1";
     }
-    if (-d "$rootpath/texmf/web2c") {
+    if (-d "$rootpath/texmf-dist/web2c") {
+      $media = 'local_uncompressed';
+    } elsif (-d "$rootpath/texmf/web2c") { # older
+      $media = 'local_uncompressed';
+    } elsif (-d "$rootpath/web2c") {
       $media = 'local_uncompressed';
     } elsif (-d "$rootpath/$Archive") {
       $media = 'local_compressed';
@@ -692,22 +697,25 @@ sub _list_packages {
 =item C<< $tlpdb->expand_dependencies(["control",] $tlpdb, ($pkgs)) >>
 
 If the first argument is the string C<"-only-arch">, expands only
-dependencies of the form .ARCH.
+dependencies of the form C<.>I<ARCH>.
 
 If the first argument is C<"-no-collections">, then dependencies between
 "same-level" packages (scheme onto scheme, collection onto collection,
 package onto package) are ignored.
 
+C<-only-arch> and C<-no-collections> cannot be specified together; has
+to be one or the other.
+
 The next (or first) argument is the target TLPDB, then a list of
 packages.
 
-In the virtual case,
-if a package name is tagged with C<@repository-tag> then all the
-dependencies will still be expanded between all included databases.
-Only in case of .ARCH dependencies the repository-tag is sticky.
+In the virtual case, if a package name is tagged with C<@repository-tag>
+then all the dependencies will still be expanded between all included
+databases.  Only in case of C<.>I<ARCH> dependencies the repository-tag
+is sticky.
 
-We return the closure of the package list with respect to the depends
-operator. (Sorry, that was for mathematicians.)
+We return a list of package names, the closure of the package list with
+respect to the depends operator. (Sorry, that was for mathematicians.)
 
 =cut
 
@@ -820,7 +828,7 @@ sub find_file {
 
 =item C<< $tlpdb->collections >>
 
-The C<collections> function returns the list of all collections.
+The C<collections> function returns a list of all collection names.
 
 =cut
 
@@ -839,7 +847,7 @@ sub collections {
 
 =item C<< $tlpdb->schemes >>
 
-The C<collections> function returns the list of all schemes.
+The C<schemes> function returns a list of all scheme names.
 
 =cut
 
@@ -1004,8 +1012,8 @@ sub _generate_listfile {
   # dependencies and inclusion of packages
   foreach my $t (@lot) {
     # strange, schemes mark included collections via -, while collections
-    # themself mark deps on other collections with +. collection are
-    # never referenced in Packages
+    # themselves mark deps on other collections with +. collections are
+    # never referenced in Packages.
     if ($listname =~ m/^scheme/) {
       print TMP "-";
     } else {
@@ -1268,15 +1276,17 @@ sub config_revision {
 =item C<< $tlpdb->sizes_of_packages ( $opt_src, $opt_doc, $ref_arch_list, [ @packs ] ) >>
 
 This function returns a reference to a hash with package names as keys
-and the sizes in bytes as values. The sizes are computed for the arguments,
-or all packages if nothing was given.
+and the sizes in bytes as values. The sizes are computed for the list of
+package names given as the fourth argument, or all packages if not
+specified.
 
-In case something has been computed one addition key is added C<__TOTAL__>
-which contains the total size of all packages under discussion.
+If anything has been computed one additional key is synthesized,
+C<__TOTAL__>, which contains the total size of all packages under
+consideration.
 
 If the third argument is a reference to a list of architectures, then
 only the sizes for the binary packages for these architectures are used,
-otherwise all sizes for all architectures are summed up.
+otherwise all sizes for all architectures are summed.
 
 =cut
 
@@ -1299,7 +1309,8 @@ sub sizes_of_packages {
       warn "STRANGE: $p not to be found in ", $self->root;
       next;
     }
-    $tlpsizes{$p} = $self->size_of_one_package($media, $tlpobjs{$p}, $opt_src, $opt_doc, @archs);
+    $tlpsizes{$p} = $self->size_of_one_package($media, $tlpobjs{$p},
+                                               $opt_src, $opt_doc, @archs);
     $totalsize += $tlpsizes{$p};
   }
   if ($totalsize) {
@@ -1329,7 +1340,7 @@ sub size_of_one_package {
         $size += $foo{$k};
       }
     }
-    # all the packages sizes are in blocks, so transfer that to bytes
+    # packages sizes are stored in blocks; transform that to bytes.
     $size *= $TeXLive::TLConfig::BlockSize;
   }
   return $size;
@@ -1398,8 +1409,12 @@ sub install_package_files {
       tlwarn("TLPDB::install_package_files: couldn't install $what!\n"); 
       next;
     }
-    if ($tlpobj->relocated) {
-      $tlpobj->cancel_reloc_prefix;
+    if ($reloc) {
+      if ($self->setting("usertree")) {
+        $tlpobj->cancel_reloc_prefix;
+      } else {
+        $tlpobj->replace_reloc_prefix;
+      }
       $tlpobj->relocated(0);
     }
     my $tlpod = $self->root . "/tlpkg/tlpobj";
@@ -1416,7 +1431,7 @@ sub install_package_files {
     # Run the post installation code in the postaction tlpsrc entries
     # in case we are on w32 and the admin did install for himself only
     # we switch off admin mode
-    if (win32() && admin() && !$totlpdb->option("w32_multi_user")) {
+    if (win32() && admin() && !$self->option("w32_multi_user")) {
       non_admin();
     }
     # for now desktop_integration maps to both installation
@@ -1582,7 +1597,11 @@ sub not_virtual_install_package {
     # and unset the relocated setting
     # before we save it to the local tlpdb
     if ($tlpobj->relocated) {
-      $tlpobj->cancel_reloc_prefix;
+      if ($totlpdb->setting("usertree")) {
+        $tlpobj->cancel_reloc_prefix;
+      } else {
+        $tlpobj->replace_reloc_prefix;
+      }
       $tlpobj->relocated(0);
     }
     # we have to write out the tlpobj file since it is contained in the
@@ -1649,7 +1668,11 @@ sub _install_package {
       $root = $self->root;
     }
     # if we are installing a reloc, add the RelocTree to the target
-    $target .= "/$TeXLive::TLConfig::RelocTree" if $reloc;
+    if ($reloc) {
+      if (!$totlpdb->setting("usertree")) {
+        $target .= "/$TeXLive::TLConfig::RelocTree";
+      }
+    }
 
     foreach my $file (@$what) {
       # @what is taken, not @filelist!
@@ -1661,7 +1684,11 @@ sub _install_package {
     # we always assume that copy will work
     return(1);
   } elsif ($what =~ m,\.tar(\.xz)?$,) {
-    $target .= "/$TeXLive::TLConfig::RelocTree" if $reloc;
+    if ($reloc) {
+      if (!$totlpdb->setting("usertree")) {
+        $target .= "/$TeXLive::TLConfig::RelocTree";
+      }
+    }
     my $pkg = TeXLive::TLUtils::unpack($what, $target);
     if (!$pkg) {
       tlwarn("TLPDB::_install_package: couldn't unpack $what to $target\n");
@@ -1692,6 +1719,7 @@ sub remove_package {
   my ($self, $pkg, %opts) = @_;
   my $localtlpdb = $self;
   my $tlp = $localtlpdb->get_package($pkg);
+  my $usertree = $localtlpdb->setting("usertree");
   if (!defined($tlp)) {
     tlwarn ("$pkg: package not present, cannot remove\n");
   } else {
@@ -1720,7 +1748,9 @@ sub remove_package {
     # since we don't have user mode 
     if ($tlp->relocated) {
       for (@files) {
-        s:^$RelocPrefix/:$RelocTree/:;
+        if (!$usertree) {
+          s:^$RelocPrefix/:$RelocTree/:;
+        }
       }
     }
     #
@@ -1874,17 +1904,53 @@ sub _set_value_pkg {
   $self->add_tlpobj($pkg);
 }
 
-sub _option_value {
+sub _clear_option {
   my $self = shift;
-  $self->_value_pkg('00texlive.installation', 'opt_', @_);
+  $self->_clear_pkg('00texlive.installation', 'opt_', @_);
 }
 
-sub _setting_value {
+sub _clear_setting {
   my $self = shift;
-  $self->_value_pkg('00texlive.installation', 'setting_', @_);
+  $self->_clear_pkg('00texlive.installation', 'setting_', @_);
 }
 
-sub _value_pkg {
+sub _clear_pkg {
+  my ($self,$pkgname,$pre,$key) = @_;
+  my $k = "$pre$key";
+  my $pkg;
+  if ($self->is_virtual) {
+    $pkg = $self->{'tlpdbs'}{'main'}->get_package($pkgname);
+  } else {
+    $pkg = $self->{'tlps'}{$pkgname};
+  }
+  my @newdeps;
+  if (!defined($pkg)) {
+    return;
+  } else {
+    foreach my $d ($pkg->depends) {
+      if ($d =~ m!^$k:!) {
+        # do nothing, we drop the value
+      } else {
+        push @newdeps, $d;
+      }
+    }
+  }
+  $pkg->depends(@newdeps);
+  $self->add_tlpobj($pkg);
+}
+
+
+sub _get_option_value {
+  my $self = shift;
+  $self->_get_value_pkg('00texlive.installation', 'opt_', @_);
+}
+
+sub _get_setting_value {
+  my $self = shift;
+  $self->_get_value_pkg('00texlive.installation', 'setting_', @_);
+}
+
+sub _get_value_pkg {
   my ($self,$pkg,$pre,$key) = @_;
   my $k = "$pre$key";
   my $tlp;
@@ -1910,7 +1976,7 @@ sub option_pkg {
   my $pkg = shift;
   my $key = shift;
   if (@_) { $self->_set_value_pkg($pkg, "opt_", $key, shift); }
-  my $ret = $self->_value_pkg($pkg, "opt_", $key);
+  my $ret = $self->_get_value_pkg($pkg, "opt_", $key);
   # special case for location == __MASTER__
   if (defined($ret) && $ret eq "__MASTER__" && $key eq "location") {
     return $self->root;
@@ -1921,7 +1987,7 @@ sub option {
   my $self = shift;
   my $key = shift;
   if (@_) { $self->_set_option_value($key, shift); }
-  my $ret = $self->_option_value($key);
+  my $ret = $self->_get_option_value($key);
   # special case for location == __MASTER__
   if (defined($ret) && $ret eq "__MASTER__" && $key eq "location") {
     return $self->root;
@@ -1939,7 +2005,7 @@ sub setting_pkg {
       $self->_set_value_pkg($pkg, "setting_", $key, shift); 
     }
   }
-  my $ret = $self->_value_pkg($pkg, "setting_", $key);
+  my $ret = $self->_get_value_pkg($pkg, "setting_", $key);
   # check the types of the settings, and if it is a "l" return a list
   if ($TLPDBSettings{$key}->[0] eq "l") {
     my @ret;
@@ -1956,6 +2022,11 @@ sub setting_pkg {
 sub setting {
   my $self = shift;
   my $key = shift;
+  if ($key eq "-clear") {
+    my $realkey = shift;
+    $self->_clear_setting($realkey);
+    return;
+  }
   if (@_) { 
     if ($TLPDBSettings{$key}->[0] eq "l") {
       $self->_set_setting_value($key, "@_"); 
@@ -1963,7 +2034,7 @@ sub setting {
       $self->_set_setting_value($key, shift); 
     }
   }
-  my $ret = $self->_setting_value($key);
+  my $ret = $self->_get_setting_value($key);
   # check the types of the settings, and if it is a "l" return a list
   if ($TLPDBSettings{$key}->[0] eq "l") {
     my @ret;
@@ -2341,38 +2412,49 @@ sub virtual_candidate {
   return(undef,undef,undef,undef);
 }
 
-=item C<< $tlpdb->virtual_pinning ( [@pinning_data] ) >>
+=item C<< $tlpdb->virtual_pinning ( [ $pinfile_TLConfFile] ) >>
 
-Without any argument returns the pinning data, or undef. Be reminded that an
-empty pinning data will behave differently to no pinning data.
-
-With an argument it must be a list of pins, where each pin
-must be one hash ref with the following keys:
-C<repo> the tag of the repository,
-C<glob> the glob for matching a package
-C<re> the regexp which corresponds to the glob
-C<line> the line where the glob was found (for warning purpose).
+Sets or returns the C<TLConfFile> object for the pinning data.
 
 =cut
 
-sub virtual_pinning {
+sub virtual_pindata {
   my $self = shift;
-  my (@pins) = @_;
+  return ($self->{'pindata'});
+}
+
+sub virtual_update_pins {
+  my $self = shift;
   if (!$self->is_virtual) {
     tlwarn("Not-virtual databases cannot have pinning data.\n");
     return 0;
   }
-  if (!@pins) {
-    if (!defined($self->{'pindata'})) {
-      my @foo = ();
-      $self->{'pindata'} = \@foo;
+  my $pincf = $self->{'pinfile'};
+  my @pins;
+  for my $k ($pincf->keys) {
+    for my $v ($pincf->value($k)) {
+      # we recompose the values into lines again, as we *might* have
+      # options later, i.e., lines of the format
+      #   repo:pkg:opt
+      push @pins, $self->make_pin_data_from_line("$k:$v");
     }
-    return (@{$self->{'pindata'}});
-  } else {
-    $self->{'pindata'} = \@pins;
-    $self->check_evaluate_pinning();
-    return ($self->{'pindata'});
   }
+  $self->{'pindata'} = \@pins;
+  $self->check_evaluate_pinning();
+  return ($self->{'pindata'});
+}
+sub virtual_pinning {
+  my ($self, $pincf) = @_;
+  if (!$self->is_virtual) {
+    tlwarn("Not-virtual databases cannot have pinning data.\n");
+    return 0;
+  }
+  if (!defined($pincf)) {
+    return ($self->{'pinfile'});
+  }
+  $self->{'pinfile'} = $pincf;
+  $self->virtual_update_pins();
+  return ($self->{'pinfile'});
 }
 
 #
@@ -2451,9 +2533,9 @@ sub check_evaluate_pinning {
   # check that all pinning lines where hit
   for my $p (@pins) {
     next if defined($p->{'hit'});
-    tlwarn("pinning warning: the entry in line\n  ", $p->{'line'},
-           "\nconcerning the package pattern ", $p->{'glob'},
-           "\nis not matched by any package!\n");
+    tlwarn("tlmgr: pinning warning: the package pattern ", $p->{'glob'},
+           " on the line:\n  ", $p->{'line'},
+           "\n  does not match any package\n");
   }
 }
 

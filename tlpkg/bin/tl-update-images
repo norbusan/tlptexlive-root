@@ -1,8 +1,8 @@
 #!/bin/sh
-# $Id: tl-update-images 27122 2012-07-23 22:05:17Z karl $
+# $Id: tl-update-images 30663 2013-05-24 00:17:12Z karl $
 # Create the .iso image(s) for TeX Live.
 # 
-# Copyright 2007, 2008, 2009, 2010, 2011, 2012 Karl Berry.
+# Copyright 2007-2013 Karl Berry.
 # Copyright 2003, 2004, 2005 Sebastian Rahtz.
 #
 # This file is licensed under the GNU General Public License version 2
@@ -12,7 +12,7 @@
 # Historical notes at the end of the script.
 
 NAME=texlive
-V=2012
+V=2013
 D=`date +%Y%m%d`
 target=/home/ftp/texlive/Images/test
 
@@ -81,13 +81,13 @@ MAKEINST ()
   mkdir $imgdir
   
   # files and a few dirs from master.
-  cp -p $master/.mkisofsrc $imgdir              # mkisofs control
-  cp -p $master/* $imgdir 2>/dev/null || true   # intentionally skip dirs
-  cp -pr $master/readme* $master/source $imgdir # do these few dirs
+  cp -p $master/.mkisofsrc $imgdir || exit 1    # mkisofs control
+  cp -p $master/* $imgdir 2>/dev/null           # intentionally skip dirs
+  cp -pr $master/readme* $master/source $imgdir # but do these few dirs
   
   # included preformatted doc in new dir for the DVD.
   mkdir $imgdir/texlive-doc
-  (cd $master/texmf/doc/texlive && tar cf - \
+  (cd $master/texmf-dist/doc/texlive && tar cf - \
      index.html */*.html */*.pdf */*.png \
    | (cd $imgdir/texlive-doc && tar xf -))
   
@@ -98,14 +98,27 @@ MAKEINST ()
   fi
   cp -pr install-tl *.bat tlpkg archive $imgdir
   
+  # remove some platforms to save space on the dvd.
+  # do this here so that they can be kept in the tree,
+  # and thus installed normally over the net.
+  prune="mips-irix alpha-linux powerpc-linux i386-kfreebsd amd64-kfreebsd \
+         mipsel-linux armel-linux armhf-linux"
+  echo "-- pruning platforms $prune..."
+  mkdir $imgdir/tlpkg/bin
+  cp $mydir/tl-prune-platforms $imgdir/tlpkg/bin
+  $imgdir/tlpkg/bin/tl-prune-platforms $prune >/tmp/imgprune
+
+  # some files we don't want in the image after all.
+  rm -rf $imgdir/doc.html $imgdir/tlpkg/texlive.tlpdb.xz $imgdir/tlpkg/bin
+
+  # the actual iso build.
   cd $imgdir || exit 1
-  # cleanups of files we didn't want after all.
-  rm doc.html tlpkg/texlive.tlpdb.xz
   cmd="$mkisofs $common_mkisofs_options -o $iso ."
   echo "-- `date` with: $cmd"
   $cmd
   if test $? -ne 0; then
-    echo "$0: $mkisofs failed, goodbye." >&2
+    echo "$0: $mkisofs failed (status $?), goodbye." >&2
+    exit $?
   fi
   chmod a+rw $iso
   
@@ -136,9 +149,9 @@ MAKEINST ()
 # Make the tar files: the sources, the texmf trees, the binaries, the
 # minor "extra" files.  Each should unpack into its directory name.  We
 # use the GNU tar --transform option to avoid copying the whole
-# hierarchy to temp directory.  This auxiliary function takes that
-# directory name as its first argument, and the files to archive as the
-# rest.
+# hierarchy to a temp directory.  This auxiliary function takes that
+# temp directory name as its first argument, and the files to archive as
+# the rest.
 # 
 do_tar ()
 {
@@ -172,8 +185,20 @@ do_tar ()
 
 MAKETAR ()
 {
+  echo
+  echo "-- `date` Writing tars to $target"
+
   # remove old tarballs and checksums.
   rm -f $target/$NAME-*.tar.*
+
+  # make tar files based on the tree we are running out of.
+  cd $master || exit 1
+  do_tar $NAME-$D-extra \
+         LICENSE* README* autorun.inf *.html install* re* tl-* \
+         tlpkg/TeXLive tlpkg/translations tlpkg/tlpostcode
+
+  cd $master || exit 1
+  do_tar $NAME-$D-texmf texmf*
 
   if $tar_bin_only || $tar_all; then
     cd $master/bin || exit 1
@@ -182,18 +207,15 @@ MAKETAR ()
   fi
   
   if $tar_source_only || $tar_all; then
-    cd $master/../Build/source || exit
+    cd $master/../Build/source || exit 1
     do_tar $NAME-$D-source *
     $tar_source_only && return
   fi
-
+  
+  # one more unusual case: the development sources, which we record in
+  # the 00texlive.image (fake) package; see its .tlpsrc.
   cd $master || exit 1
-  do_tar $NAME-$D-extra \
-         LICENSE* README* autorun.inf *.html install* re* tl-* \
-         tlpkg/TeXLive tlpkg/translations tlpkg/tlpostcode
-
-  cd $master || exit 1
-  do_tar $NAME-$D-texmf texmf*
+  do_tar $NAME-$D-devsource `$mydir/tlpfiles 00texlive.image`
 }
 
 

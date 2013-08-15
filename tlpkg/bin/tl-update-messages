@@ -1,5 +1,5 @@
 #!/bin/sh -e
-# $Id: tl-update-messages 19479 2010-07-16 14:43:39Z mpg $
+# $Id: tl-update-messages 29728 2013-04-07 23:21:01Z karl $
 # Public domain.  Originally written 2009, Norbert Preining.
 # 
 # update the master messages.pot catalog and merge the result into the
@@ -23,7 +23,7 @@ xgettext -o tlpkg/translations/messages.pot	\
         -k__ -k\$__ -k%__ -k__x -k__n:1,2 -k__nx:1,2 -k__xn:1,2 -kN__ -k  \
        tlpkg/installer/install-menu-wizard.pl \
        tlpkg/installer/install-menu-perltk.pl \
-       texmf/scripts/texlive/tlmgrgui.pl      \
+       texmf-dist/scripts/texlive/tlmgrgui.pl \
        $tmpfile
 rm $tmpfile
 

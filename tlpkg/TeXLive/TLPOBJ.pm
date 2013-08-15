@@ -1,4 +1,4 @@
-# $Id: TLPOBJ.pm 24382 2011-10-24 03:18:31Z preining $
+# $Id: TLPOBJ.pm 29883 2013-04-13 05:32:44Z preining $
 # TeXLive::TLPOBJ.pm - module for using tlpobj files
 # Copyright 2007, 2008, 2009, 2010, 2011 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
@@ -15,7 +15,7 @@ use TeXLive::TLTREE;
 our $_tmp;
 my $_containerdir;
 
-my $svnrev = '$Revision: 24382 $';
+my $svnrev = '$Revision: 29883 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -401,6 +401,21 @@ sub writeout_simple {
 sub cancel_reloc_prefix {
   my $self = shift;
   my @docfiles = $self->docfiles;
+  for (@docfiles) { s:^$RelocPrefix/::; }
+  $self->docfiles(@docfiles);
+  my @runfiles = $self->runfiles;
+  for (@runfiles) { s:^$RelocPrefix/::; }
+  $self->runfiles(@runfiles);
+  my @srcfiles = $self->srcfiles;
+  for (@srcfiles) { s:^$RelocPrefix/::; }
+  $self->srcfiles(@srcfiles);
+  # if there are bin files they have definitely NOT the
+  # texmf-dist prefix, so we cannot cancel it anyway
+}
+
+sub replace_reloc_prefix {
+  my $self = shift;
+  my @docfiles = $self->docfiles;
   for (@docfiles) { s:^$RelocPrefix/:$RelocTree/:; }
   $self->docfiles(@docfiles);
   my @runfiles = $self->runfiles;
@@ -716,7 +731,7 @@ sub update_from_catalogue
       $foo =~ s/^.Date: //;
       # trying to extract the interesting part of a subversion date
       # keyword expansion here, e.g.,
-      # $Date: 2011-10-24 12:18:31 +0900 (Mon, 24 Oct 2011) $
+      # $Date: 2013-04-13 14:32:44 +0900 (Sat, 13 Apr 2013) $
       # ->2007-08-15 19:43:35 +0100
       $foo =~ s/ \(.*\)( *\$ *)$//;  # maybe nothing after parens
       $self->cataloguedata->{'date'} = $foo;
@@ -1355,12 +1370,12 @@ with C<|> characters inserted to show the indentation:
   |category TLCore
   |revision 4427
   |docfiles size=959434
-  | texmf/doc/dvips/dvips.html
+  | texmf-dist/doc/dvips/dvips.html
   | ...
   |runfiles size=1702468
-  | texmf/dvips/base/color.pro
+  | texmf-dist/dvips/base/color.pro
   | ...
-  | texmf/scripts/pkfix/pkfix.pl
+  | texmf-dist/scripts/pkfix/pkfix.pl
   |binfiles arch=i386-solaris size=329700
   | bin/i386-solaris/afm2tfm
   | bin/i386-solaris/dvips

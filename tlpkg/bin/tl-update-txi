@@ -1,5 +1,5 @@
 #!/bin/sh -e
-# $Id: tl-update-txi 26690 2012-05-28 17:47:46Z karl $
+# $Id: tl-update-txi 29728 2013-04-07 23:21:01Z karl $
 # Public domain.  Originally written 2008, Karl Berry.
 # 
 # From the Texinfo manuals in TeX Live, simplistically build html/pdf,
@@ -14,7 +14,7 @@ texipdf="texi2pdf --quiet --clean"
 # Convenience variables.
 mydir=`dirname $0`
 Master=`cd $mydir/../.. && pwd`
-docdir=$Master/texmf/doc
+docdir=$Master/texmf-dist/doc
 infodir=$docdir/info  
 
 Build=`cd $Master/../Build && pwd`
@@ -38,7 +38,7 @@ do_dvips() {
   $texihtml $mypkg.texi && mvcp-if-change $mypkg.html $docdir/$mypkg/
   if texi2dvi --quiet --clean $mypkg.texi; then
     # raw PostScript examples
-    mainmap=$Master/texmf/fonts/map/dvips/updmap/psfonts.map
+    mainmap=$Master/texmf-dist/fonts/map/dvips/updmap/psfonts.map
     dvips -q -t letter -u $mainmap $mypkg.dvi
     /usr/bin/ps2pdf $mypkg.ps
     mv -v $mypkg.pdf $docdir/$mypkg/

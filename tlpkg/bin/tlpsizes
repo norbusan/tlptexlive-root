@@ -1,0 +1,148 @@
+#!/usr/bin/env perl
+# $Id: tlpfiles 14621 2009-08-12 00:49:01Z karl $
+# Copyright 2013 Karl Berry.
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+# 
+# Return sizes for TL schemes, collections, and/or packages.
+
+our $mydir;
+
+BEGIN {
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+
+use TeXLive::TLPDB;
+use Pod::Usage;
+use Getopt::Long;
+
+my $opt_schemes = 0;
+my $opt_help = 0;
+
+TeXLive::TLUtils::process_logging_options ();
+GetOptions ("schemes!" => \$opt_schemes,
+            "help|?" => \$opt_help) or pod2usage (2);
+pod2usage ("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
+
+exit (&main ());
+
+
+sub main {
+  chomp (my $Master = `cd $mydir/../.. && pwd`);
+    
+  my $tlpdb = TeXLive::TLPDB->new ("root" => $Master);
+  die "no tlpdb in $Master, goodbye" if ! $tlpdb;
+  
+  if (@ARGV) {
+    warn "$0: -schemes ignored, since explicit names given (@ARGV).\n"
+      if $opt_schemes;
+  } else {
+    # default to reporting on collections.
+    @ARGV = $opt_schemes ? $tlpdb->schemes : $tlpdb->collections; 
+  }
+  
+  my (%c_size, %c_pkgs);
+  my $longest_name = 0;
+  for my $name (@ARGV) {
+    # we want to get only the packages in the collection,
+    # not include other collections; hence -no-collections.
+    my @pkgs = $tlpdb->expand_dependencies ("-no-collections", $tlpdb, $name);
+ 
+    # get sizes of those packages.
+    # args say: include src, include doc, just i386-linux for a
+    # mid-sized sample, just our pkgs.
+    my $pkg_sizes = $tlpdb->sizes_of_packages (1, 1, ["i386-linux"], @pkgs);
+
+    $c_size{$name} = $pkg_sizes->{__TOTAL__};
+    delete $pkg_sizes->{"__TOTAL__"}; # don't need that any more
+    delete $pkg_sizes->{"hyph-utf8"} if $name =~ m/^collection-lang/;
+
+    $c_pkgs{$name} = &pkgs_by_size (%$pkg_sizes);
+    
+    $longest_name = length ($name)  if length ($name) > $longest_name;
+  }
+  
+  for my $c (sort { $c_size{$b} <=> $c_size{$a} }
+                  keys %c_size) {
+    printf "%4d %-${longest_name}s %s\n",
+           $c_size{$c}/1024/1024, $c, $c_pkgs{$c};
+  }
+  
+  return 0;
+}
+
+
+# Return nicely-formatted single-string representation of packages and
+# their sizes (in kb), as comprised in PKG_SIZES, sorted biggest first.
+# 
+sub pkgs_by_size {
+  my (%pkg_sizes) = @_;
+  my $ret ="";
+  
+  for my $p (sort { $pkg_sizes{$b} <=> $pkg_sizes{$a} } 
+                  keys %pkg_sizes) {
+    next if $pkg_sizes{$p} == 0;
+    $ret .= " ";
+    $ret .= $pkg_sizes{$p} / 1024;
+    $ret .= "/$p";
+  }
+  
+  return $ret;
+}
+
+__END__
+
+=head1 NAME
+
+tlpsizes - list sizes of TeX Live schemes, collections, or packages
+
+=head1 SYNOPSIS
+
+  tlpsizes [I<option>]... [I<tlpkg>]...
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-schemes>
+
+Report on all schemes if no I<tlpkg> is given.
+
+=item B<-help>
+
+Print this documentation and exit.
+
+=back
+
+The standard options B<-q>, B<-v>, and B<-logfile>=I<file> are also
+accepted; see the C<process_logging_options> function in
+L<TeXLive::TLUtils> for details.
+
+=head1 DESCRIPTION
+
+Print the size of each I<tlpkg>, in megabytes, largest first.  If no
+names are specified on the command line, list sizes of either all
+collections, or, if C<-schemes> is specified, all schemes.
+
+For collections and schemes, also output (on the same line) the
+constituent packages and their sizes (also largest first), in kilobytes
+this time.
+
+=head1 AUTHORS AND COPYRIGHT
+
+This script and its documentation were written for the TeX Live
+distribution (L<http://tug.org/texlive>) and both are licensed under the
+GNU General Public License Version 2 or later.
+
+=cut
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2: #

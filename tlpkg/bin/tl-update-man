@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: tl-update-man 26689 2012-05-28 17:40:26Z karl $
+# $Id: tl-update-man 29728 2013-04-07 23:21:01Z karl $
 # Public domain.  Originally written 2008, Karl Berry.
 # 
 # This script is run by hand at the end of a release cycle to copy the
@@ -15,11 +15,11 @@ Build_inst=`cd $Build/source/inst && pwd`
 
 for sect in 1 5; do
   # existing:
-  rundir=$Master/texmf/doc/man/man$sect
+  rundir=$Master/texmf-dist/doc/man/man$sect
   (cd $rundir && ls) >$TMPDIR/now
 
   # from a current build:
-  cd $Build_inst/texmf/doc/man/man$sect || exit 1
+  cd $Build_inst/texmf-dist/doc/man/man$sect || exit 1
   ls >$TMPDIR/new
 
   # copy files from build to runtime:

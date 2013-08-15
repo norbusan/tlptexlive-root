@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Copyright 2008, 2009, 2010, 2011 Norbert Preining
+# Copyright 2008-2013 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 #
@@ -7,7 +7,7 @@
 #
 
 BEGIN {
-  $vc_id = '$Id: tl-compare-tlpdbs 26100 2012-04-23 04:20:08Z preining $';
+  $vc_id = '$Id: tl-compare-tlpdbs 29640 2013-04-04 17:31:21Z karl $';
   $^W = 1;
   ($mydir = $0) =~ s,/[^/]*$,,;
   unshift (@INC, "$mydir/..");
@@ -29,9 +29,9 @@ my $opt_help = 0;
 
 TeXLive::TLUtils::process_logging_options();
 GetOptions(
+  "all"   	=> sub { @add_ignored_packs = () },
   "version"	=> \$opt_version,
   "help|?"      => \$opt_help,
-  "all"   => sub { @add_ignored_packs = () },
 ) or pod2usage(1);
 
 pod2usage("-exitstatus" => 0, "-verbose" => 2) if $opt_help;
@@ -40,8 +40,7 @@ if ($opt_version) { print "$vc_id\n"; exit 0; }
 exit (&main());
 
 
-sub main
-{
+sub main {
   chomp(my $Master = `cd $mydir/../.. && pwd`);
 
   # get additional list of disabled packages

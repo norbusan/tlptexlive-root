@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: tl-update-ctan-mirrors 23970 2011-09-15 23:05:44Z karl $
+# $Id: tl-update-ctan-mirrors 28555 2012-12-17 00:00:43Z karl $
 # Copyright 2011 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
@@ -33,10 +33,10 @@ sub main {
 # Return hash of good and bad urls from mirmon state data.
 #
 sub read_mstate {
-  my ($MSTATE) = @_;
+  my ($mstate) = @_;
   my %good_urls;
 
-  open (MSTATE, "<$MSTATE") || die "$0: open($MSTATE) failed: $!\n";
+  open (MSTATE, "<$mstate") || die "$0: open($mstate) failed: $!\n";
   while (<MSTATE>) {
     my ($m, $age, $status_last_probe, $time_last_succesful_probe,
       $probe_history, $state_history, $last_probe)
@@ -49,6 +49,7 @@ sub read_mstate {
   }
   close(MSTATE);
   
+  die "no good urls found in ctan mirmon: $mstate" if keys %good_urls == 0;
   return %good_urls;
 }
 
@@ -56,15 +57,17 @@ sub read_mstate {
 # return hash of CTAN.sites info.
 # 
 sub read_readme_mirror {
-  my ($CTAN_SITES,$good_urls_ref) = @_;
+  my ($ctan_sites,$good_urls_ref) = @_;
   my %mirrors;
   my ($continent, $country, $mirror, %protocols);
 
-  open (CTAN_SITES,"<$CTAN_SITES") || die "$0: open($CTAN_SITES) failed: $!\n";
+  open (CTAN_SITES,"<$ctan_sites") || die "$0: open($ctan_sites) failed: $!\n";
   while (<CTAN_SITES>) {
     chomp;
-    if (m/^ (Africa|Asia|Australasia|Europe|North America|South America)/) {
+     if (m/^ (Africa|Asia|Australasia|Europe|North America|South America)/) {
+#    if (m/>(Africa|Asia|Australasia|Europe|North America|South America)</) {
       my $save_continent = $1;
+      #warn "got continent $save_continent\n";
       if (defined($mirror)) {
         for my $p (keys %protocols) {
 	  add_mirror(\%mirrors,$continent,$country,$mirror,$p,$protocols{$p},
@@ -101,8 +104,10 @@ sub read_readme_mirror {
       $protocols{$1} = "$2/$3";
       next;
     }
-    #print "ignored >>$_<<\n";
+    #warn "ignored >>$_<<\n";
   }
+
+  die "no ctan mirrors found in $ctan_sites" if keys %mirrors == 0;
   return %mirrors;
 }
 

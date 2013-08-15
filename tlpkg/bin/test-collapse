@@ -1,0 +1,158 @@
+#!/usr/bin/env perl
+# $Id: tlprm 11890 2009-01-16 00:42:27Z karl $
+# Copyright 2007, 2008, 2009 TeX Users Group.
+# This file is licensed under the GNU General Public License version 2
+# or any later version.
+
+our $mydir;
+
+BEGIN {
+  $^W = 1;
+  ($mydir = $0) =~ s,/[^/]*$,,;
+  unshift (@INC, "$mydir/..");
+}
+
+use strict;
+
+use TeXLive::TLPDB;
+use Cwd qw/abs_path/;
+
+exit (&main ());
+
+
+sub main
+{
+  my $failure_count = 0;
+
+  chomp (my $Master = `cd $mydir/../.. && pwd`);
+  my $tlpdb = TeXLive::TLPDB->new ("root" => $Master);
+
+  foreach my $f (@ARGV) {
+    my $obj = $tlpdb->get_package ($f);
+    if (! $obj) {
+      warn "$0: no TeX Live package named $f.\n";
+      $failure_count++;
+      next;
+    }
+
+    my @files = $obj->all_files;
+
+    # The paths in tlpdb are relative to Master, so we chdir there so
+    # that Cwd::abs_path can work.
+    chdir ($Master) || die "chdir($Master) failed: $!";
+
+    my @removalsa = &collapse_dirs (@files);
+		my @removalsb = &collapse_dirs (@removalsa);
+		my @removalsc = &collapse_dirs (@removalsb);
+		my @removalsd = &collapse_dirs (@removalsc);
+		@removalsd = &collapse_dirs (@removalsd);
+		@removalsd = &collapse_dirs (@removalsd);
+		@removalsd = &collapse_dirs (@removalsd);
+		@removalsd = &collapse_dirs (@removalsd);
+		@removalsd = &collapse_dirs (@removalsd);
+		@removalsd = &collapse_dirs (@removalsd);
+		@removalsd = &collapse_dirs (@removalsd);
+		my %diffab;
+		my %diffbc;
+		for (@removalsa) { $diffab{$_} = 1; }
+		for (@removalsb) { $diffbc{$_} = 1; delete $diffab{$_}; }
+		for (@removalsc) { delete $diffbc{$_}; }
+		print "$f:\n";
+		for my $t (sort @removalsd) {
+			if (-d $t) {
+				print "  DIR   $t\n";
+			} else {
+			  print "  FILE  $t\n";
+			}
+		}
+		print "diff a b:\n";
+		for my $t (keys %diffab) {
+			if (-d $t) {
+				print "  DIR   $t\n";
+			} else {
+			  print "  FILE  $t\n";
+			}
+		}
+		print "diff b c:\n";
+		for my $t (keys %diffbc) {
+			if (-d $t) {
+				print "  DIR   $t\n";
+			} else {
+			  print "  FILE  $t\n";
+			}
+		}
+  }
+
+  # Instead of rewriting the database here, I think we're better off
+  # just doing it nightly or whatever.  For --svn purposes anyway.
+
+  return $failure_count;
+}
+
+
+# Return FILES, filtered with containing directories.  That is, look at
+# the containing directories of each FILE.  If every file within a given
+# dir is included in FILES, replace those files with the directory name
+# in the return list.  Any files with sibling files not included are
+# retained.
+# 
+# We do not try to check anything recursively.  It doesn't buy us
+# anything, since we will eventually be running svn commands to remove
+# these dirs/files, and it's harmless to list subdirs.
+# 
+sub collapse_dirs
+{
+  my (@files) = @_;
+  my @ret = ();
+  my %by_dir;
+  
+  # construct hash of all directories mentioned, values are lists of the
+  # files in that directory.
+  for my $f (@files) {
+    my $abs_f = abs_path ($f);
+    die ("oops, no abs_path($f) from " . `pwd`) unless $abs_f;
+    (my $d = $abs_f) =~ s,/[^/]*$,,;
+    my @a = exists $by_dir{$d} ? @{$by_dir{$d}} : ();
+    push (@a, $abs_f);
+    $by_dir{$d} = \@a;
+  }
+  
+  # for each of our directories, see if we are removing everything in
+  # the directory.  if so, return the directory; else return the
+  # individual files.
+  for my $d (sort keys %by_dir) {
+    opendir (DIR, $d) || die "opendir($d) failed: $!";
+    my @dirents = readdir (DIR);
+    closedir (DIR) || warn "closedir($d) failed: $!";
+    
+    # initialize test hash with all the files we saw in this dir.
+    # (These idioms are due to "Finding Elements in One Array and Not
+    # Another" in the Perl Cookbook.)
+    my %seen;
+    my @rmfiles = @{$by_dir{$d}};
+    @seen{@rmfiles} = ();
+
+    # see if everything is the same.
+    my @dironly = ();
+    for my $dirent (@dirents) {
+      next if $dirent =~ /^\.(\.|svn)?$/;  # ignore . .. .svn
+
+      my $item = "$d/$dirent";  # prepend directory for comparison
+      if (! exists $seen{$item}) {
+        push (@dironly, $item);
+        last;  # no need to keep looking after the first.
+      }
+    }
+    
+    push (@ret, @dironly ? @{$by_dir{$d}} : $d);
+  }
+  
+  return @ret;
+}
+
+### Local Variables:
+### perl-indent-level: 2
+### tab-width: 2
+### indent-tabs-mode: nil
+### End:
+# vim:set tabstop=2: #

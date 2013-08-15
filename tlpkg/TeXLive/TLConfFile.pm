@@ -1,6 +1,6 @@
-# $Id: TLConfFile.pm 21770 2011-03-20 18:34:02Z karl $
+# $Id: TLConfFile.pm 29725 2013-04-07 18:58:34Z karl $
 # TeXLive::TLConfFile.pm - reading and writing conf files
-# Copyright 2010, 2011 Norbert Preining
+# Copyright 2010, 2011, 2012 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
@@ -9,7 +9,7 @@ package TeXLive::TLConfFile;
 use TeXLive::TLUtils;
 use File::Temp qw/tempfile/;
 
-my $svnrev = '$Revision: 21770 $';
+my $svnrev = '$Revision: 29725 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -23,11 +23,23 @@ sub module_revision {
 sub new
 {
   my $class = shift;
-  my ($fn, $cc, $sep) = @_;
+  my ($fn, $cc, $sep, $typ) = @_;
   my $self = {} ;
   $self{'file'} = $fn;
   $self{'cc'} = $cc;
   $self{'sep'} = $sep;
+  if (defined($typ)) {
+    if ($typ eq 'last-win' || $typ eq 'first-win' || $typ eq 'multiple') {
+      $self{'type'} = $typ;
+    } else {
+      printf STDERR "Unknown type of conffile: $typ\n";
+      printf STDERR "Should be one of: last-win first-win multiple\n";
+      return;
+    }
+  } else {
+    # default type for backward compatibility is last-win
+    $self{'type'} = 'last-win';
+  }
   bless $self, $class;
   return $self->reparse;
 }
@@ -37,6 +49,7 @@ sub reparse
   my $self = shift;
   my %config = parse_config_file($self->file, $self->cc, $self->sep);
   my $lastkey = undef;
+  my $lastkeyline = undef;
   $self{'keyvalue'} = ();
   $self{'confdata'} = \%config;
   $self{'changed'} = 0;
@@ -44,12 +57,13 @@ sub reparse
   for my $i (0..$config{'lines'}) {
     if ($config{$i}{'type'} eq 'comment') {
       $lastkey = undef;
+      $lastkeyline = undef;
       $is_postcomment = 0;
     } elsif ($config{$i}{'type'} eq 'data') {
       $lastkey = $config{$i}{'key'};
-      $self{'keyvalue'}{$lastkey}{'value'} = $config{$i}{'value'};
-      $self{'keyvalue'}{$lastkey}{'line'}  = $i;
-      $self{'keyvalue'}{$lastkey}{'status'} = 'unchanged';
+      $lastkeyline = $i;
+      $self{'keyvalue'}{$lastkey}{$i}{'value'} = $config{$i}{'value'};
+      $self{'keyvalue'}{$lastkey}{$i}{'status'} = 'unchanged';
       if (defined($config{$i}{'postcomment'})) {
         $in_postcomment = 1;
       } else {
@@ -57,11 +71,13 @@ sub reparse
       }
     } elsif ($config{$i}{'type'} eq 'empty') {
       $lastkey = undef;
+      $lastkeyline = undef;
       $is_postcomment = 0;
     } elsif ($config{$i}{'type'} eq 'continuation') {
       if (defined($lastkey)) {
         if (!$in_postcomment) {
-          $self{'keyvalue'}{$lastkey}{'value'} .= $config{$i}{'value'};
+          $self{'keyvalue'}{$lastkey}{$lastkeyline}{'value'} .= 
+            $config{$i}{'value'};
         }
       }
       # otherwise we are in a continuation of a comment!!! so nothing to do
@@ -87,6 +103,11 @@ sub sep
   my $self = shift;
   return($self{'sep'});
 }
+sub type
+{
+  my $self = shift;
+  return($self{'type'});
+}
 
 sub key_present
 {
@@ -100,27 +121,111 @@ sub keys
   return keys(%{$self{'keyvalue'}});
 }
 
+sub keyvaluehash
+{
+  my $self = shift;
+  return \%{$self{'keyvalue'}};
+}
+sub confdatahash
+{
+  my $self = shift;
+  return $self{'confdata'};
+}
+
+sub by_lnr
+{
+  # order of lines
+  # first all the line numbers >= 0,
+  # then the negative line numbers in reverse order
+  # (negative line numbers refer to new entries in the conffile)
+  # example: 
+  # line number in order: 0 3 6 7 9 -1 -2 -3
+  return ($a >= 0 && $b >= 0 ? $a <=> $b : $b <=> $a);
+}
+
 sub value
 {
-  my ($self, $key, $value) = @_;
+  my ($self, $key, $value, @restvals) = @_;
+  my $t = $self->type;
   if (defined($value)) {
     if (defined($self{'keyvalue'}{$key})) {
-      if ($self{'keyvalue'}{$key}{'value'} ne $value) {
-        $self{'keyvalue'}{$key}{'value'} = $value;
-        # as long as the key/value pair is not new, we set its status to changed
-        if ($self{'keyvalue'}{$key}{'status'} ne 'new') {
-          $self{'keyvalue'}{$key}{'status'} = 'changed';
+      my @key_lines = sort by_lnr CORE::keys %{$self{'keyvalue'}{$key}};
+      if ($t eq 'multiple') {
+        my @newval = ( $value, @restvals );
+        my $newlen = $#newval;
+        # in case of assigning to a multiple value stuff,
+        # we assign to the first n elements, delete superficial
+        # or add new ones if necessary
+        # $value should be a reference to an array of values
+        my $listp = $self{'keyvalue'}{$key};
+        my $oldlen = $#key_lines;
+        my $minlen = ($newlen < $oldlen ? $newlen : $oldlen);
+        for my $i (0..$minlen) {
+          if ($listp->{$key_lines[$i]}{'value'} ne $newval[$i]) {
+            $listp->{$key_lines[$i]}{'value'} = $newval[$i];
+            if ($listp->{$key_lines[$i]}{'status'} ne 'new') {
+              $listp->{$key_lines[$i]}{'status'} = 'changed';
+            }
+            $self{'changed'} = 1;
+          }
         }
-        $self{'changed'} = 1;
+        if ($minlen < $oldlen) {
+          # we are assigning less values to more lines, so we have to
+          # remove the remaining ones
+          for my $i (($minlen+1)..$oldlen) {
+            $listp->{$key_lines[$i]}{'status'} = 'deleted';
+          }
+          $self{'changed'} = 1;
+        }
+        if ($minlen < $newlen) {
+          # we have new values
+          my $ll = $key_lines[$#key_lines];
+          # if we are adding the first new entry, set line to -1,
+          # otherwise decrease the line number (already negative
+          # for new lines)
+          $ll = ($ll >= 0 ? -1 : $ll-1);
+          for my $i (($minlen+1)..$newlen) {
+            $listp->{$ll}{'status'} = 'new';
+            $listp->{$ll}{'value'} = $newval[$i];
+            $ll--;
+          }
+          $self{'changed'} = 1;
+        }
+      } else {
+        # select element based on first-win or last-win type
+        my $ll = $key_lines[($t eq 'first-win' ? 0 : $#key_lines)];
+        print "lastwin = $ll\n";
+        if ($self{'keyvalue'}{$key}{$ll}{'value'} ne $value) {
+          $self{'keyvalue'}{$key}{$ll}{'value'} = $value;
+          # as long as the key/value pair is not new,
+          # we set its status to changed
+          if ($self{'keyvalue'}{$key}{$ll}{'status'} ne 'new') {
+            $self{'keyvalue'}{$key}{$ll}{'status'} = 'changed';
+          }
+          $self{'changed'} = 1;
+        }
       }
-    } else {
-      $self{'keyvalue'}{$key}{'value'} = $value;
-      $self{'keyvalue'}{$key}{'status'} = 'new';
+    } else { # all new key
+      my @newval = ( $value, @restvals );
+      my $newlen = $#newval;
+      for my $i (0..$newlen) {
+        $self{'keyvalue'}{$key}{-($i+1)}{'value'} = $value;
+        $self{'keyvalue'}{$key}{-($i+1)}{'status'} = 'new';
+      }
       $self{'changed'} = 1;
     }
   }
   if (defined($self{'keyvalue'}{$key})) {
-    return $self{'keyvalue'}{$key}{'value'};
+    my @key_lines = sort by_lnr CORE::keys %{$self{'keyvalue'}{$key}};
+    if ($t eq 'first-win') {
+      return $self{'keyvalue'}{$key}{$key_lines[0]}{'value'};
+    } elsif ($t eq 'last-win') {
+      return $self{'keyvalue'}{$key}{$key_lines[$#key_lines]}{'value'};
+    } elsif ($t eq 'multiple') {
+      return map { $self{'keyvalue'}{$key}{$_}{'value'} } @key_lines;
+    } else {
+      die "That should not happen: wrong type: $!";
+    }
   }
   return;
 }
@@ -130,7 +235,9 @@ sub delete_key
   my ($self, $key) = @_;
   %config = %{$self{'confdata'}};
   if (defined($self{'keyvalue'}{$key})) {
-    $self{'keyvalue'}{$key}{'status'} = 'deleted';
+    for my $l (CORE::keys %{$self{'keyvalue'}{$key}}) {
+      $self{'keyvalue'}{$key}{$l}{'status'} = 'deleted';
+    }
     $self{'changed'} = 1;
   }
 }
@@ -216,14 +323,14 @@ sub save
       print $fhout ($config{$i}{'multiline'} ? "\\\n" : "\n");
     } elsif ($config{$i}{'type'} eq 'data') {
       # we have to check whether the original data has been changed!!
-      if ($self{'keyvalue'}{$config{$i}{'key'}}{'status'} eq 'changed') {
+      if ($self{'keyvalue'}{$config{$i}{'key'}}{$i}{'status'} eq 'changed') {
         $is_changed = 1;
-        print $fhout "$config{$i}{'key'} $config{'sep'} $self{'keyvalue'}{$config{$i}{'key'}}{'value'}";
+        print $fhout "$config{$i}{'key'} $config{'sep'} $self{'keyvalue'}{$config{$i}{'key'}}{$i}{'value'}";
         if (defined($config{$i}{'postcomment'})) {
           print $fhout $config{$i}{'postcomment'};
         }
         print $fhout ($config{$i}{'multiline'} ? "\\\n" : "\n");
-      } elsif ($self{'keyvalue'}{$config{$i}{'key'}}{'status'} eq 'deleted') {
+      } elsif ($self{'keyvalue'}{$config{$i}{'key'}}{$i}{'status'} eq 'deleted') {
         $is_changed = 1;
       } else {
         print $fhout "$config{$i}{'original'}";
@@ -241,8 +348,10 @@ sub save
   #
   # save new keys
   for my $k (CORE::keys %{$self{'keyvalue'}}) {
-    if ($self{'keyvalue'}{$k}{'status'} eq 'new') {
-      print $fhout "$k $config{'sep'} $self{'keyvalue'}{$k}{'value'}\n";
+    for my $l (CORE::keys %{$self{'keyvalue'}{$k}}) {
+      if ($self{'keyvalue'}{$k}{$l}{'status'} eq 'new') {
+        print $fhout "$k $config{'sep'} $self{'keyvalue'}{$k}{$l}{'value'}\n";
+      }
     }
   }
   close $fhout if $closeit;
@@ -431,13 +540,14 @@ C<TeXLive::TLConfFile> -- TeX Live Config File Access Module
 
   use TeXLive::TLConfFile;
 
-  $conffile = TeXLive::TLConfFile->new($file_name, $comment_char, $separator);
+  $conffile = TeXLive::TLConfFile->new($file_name, $comment_char, $separator, $type);
   $conffile->file;
   $conffile->cc;
   $conffile->sep;
+  $conffile->type
   $conffile->key_present($key);
   $conffile->keys;
-  $conffile->value($key [, $value]);
+  $conffile->value($key [, $value, ...]);
   $conffile->is_changed;
   $conffile->save;
   $conffile->reparse;
@@ -445,7 +555,11 @@ C<TeXLive::TLConfFile> -- TeX Live Config File Access Module
 =head1 DESCRIPTION
 
 This module allows parsing, changing, saving of configuration files
-of a general style.
+of a general style. It also supports three different paradigma 
+with respect to multiple occurrences of keys: C<first-win> specifies
+a configuration file where the first occurrence of a key specifies
+the value, C<last-win> specifies that the last wins, and
+C<multiple> that all keys are kept.
 
 The configuration files (henceforth conffiles) can contain comments
 initiated by the $comment_char defined at instantiation time.
@@ -471,7 +585,7 @@ a comment will be ignored, and in fact not written out on save.
 
 =over 4
 
-=item B<< $conffile = TeXLive::TLConfFile->new($file_name, $comment_char, $separator) >>
+=item B<< $conffile = TeXLive::TLConfFile->new($file_name, $comment_char, $separator [, $type]) >>
 
 instantiates a new TLConfFile and returns the object. The file specified
 by C<$file_name> does not have to exist, it will be created at save time.
@@ -480,6 +594,9 @@ The C<$comment_char> can actually be any regular expression, but
 embedding grouping is a bad idea as it will break parsing.
 
 The C<$separator> can also be any regular expression.
+
+The C<$type>, if present, has to be one of C<last-win> (the default),
+C<first-win>, or C<multiple>.
 
 =item B<< $conffile->file >>
 
@@ -493,6 +610,10 @@ Returns the comment character.
 
 Returns the separator.
 
+=item B<< $conffile->type >>
+
+Returns the type.
+
 =item B<< $conffile->key_present($key) >>
 
 Returns true (1) if the given key is present in the config file, otherwise
@@ -502,13 +623,22 @@ returns false (0).
 
 Returns the list of keys currently set in the config file.
 
-=item B<< $conffile->value($key [, $value]) >>
+=item B<< $conffile->value($key [, $value, ...]) >>
 
 With one argument, returns the current setting of C<$key>, or undefined
-if the key is not set.
+if the key is not set. If the configuration file is of C<multiple>
+type a list of keys ordered by occurrence in the file is returned.
 
-With two arguments changes (or adds) the key/value pair to the config
-file and returns the I<new> value.
+With two (or more) arguments changes (or adds) the key/value pair to 
+the config file and returns the I<new> value.
+In case of C<first-win> or C<last-win>, the respective occurrence
+of the key is changed, and the others left intact. In this case only
+the first C<$value> is used.
+
+In case of C<multiple> the C<$values> are assigned to the keys in the 
+order of occurrence in the file. If extra values are present, they
+are added. If on the contrary less values then already existing
+keys are passed, the remaining keys are deleted.
 
 =item B<< $conffile->rename_key($oldkey, $newkey) >>
 
@@ -540,7 +670,7 @@ Reparses the configuration file.
 
 For parsing a C<texmf.cnf> file you can use
 
-  $tmfcnf = TeXLive::TLConfFile->new(".../texmf/web2c", "[#%]", "=");
+  $tmfcnf = TeXLive::TLConfFile->new(".../texmf-dist/web2c", "[#%]", "=");
 
 since the allowed comment characters for texmf.cnf files are # and %.
 After that you can query keys:

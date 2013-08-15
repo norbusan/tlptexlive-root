@@ -1,6 +1,6 @@
-# $Id: TLPSRC.pm 26458 2012-05-16 23:22:30Z karl $
+# $Id: TLPSRC.pm 30037 2013-04-19 15:48:28Z karl $
 # TeXLive::TLPSRC.pm - module for handling tlpsrc files
-# Copyright 2007, 2008, 2009, 2010, 2011, 2012 Norbert Preining
+# Copyright 2007-2013 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
@@ -15,7 +15,7 @@ use TeXLive::TLTREE;
 my $_tmp;
 my %autopatterns;  # computed once internally
 
-my $svnrev = '$Revision: 26458 $';
+my $svnrev = '$Revision: 30037 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -83,6 +83,7 @@ sub from_file {
   my $foundnametag = 0;
   my $finished = 0;
   my $savedline = "";
+  my %tlpvars;
 
   my $lineno = 0;
   for my $line (@lines) {
@@ -119,6 +120,12 @@ sub from_file {
       $foundnametag && die "$srcfile: second name directive not allowed: $name";
       $foundnametag = 1;
     } else {
+      # expand tlpvars while reading in
+      # that means we have to respect *order* and define variables
+      # first in the tlpsrc file
+      for my $k (keys %tlpvars) {
+        $line =~ s/\$\{\Q$k\E\}/$tlpvars{$k}/g;
+      }
       # we default to the file name as package name
       # $started || die "$srcfile: first directive must be `name', not $line";
       if ($line =~ /^shortdesc\s*(.*)$/) {
@@ -159,6 +166,9 @@ sub from_file {
         next;
       } elsif ($line =~ /^postaction\s+(.*)$/) {
         push @postactions, $1 if ($1 ne "");
+        next;
+      } elsif ($line =~ /^tlpsetvar\s+([-_a-zA-Z0-9]+)\s+(.*)$/) {
+        $tlpvars{$1} = $2;
         next;
       } else {
         tlwarn("$srcfile:$lineno: unknown tlpsrc directive, fix fix: $line\n");
@@ -420,7 +430,8 @@ sub make_tlpobj {
       if (!@archfiles) {
         if (($arch ne "win32") || defined($::tlpsrc_pattern_warn_win)) {
           tlwarn("$self->{name} ($arch): no hit on negative binpattern $finalp\n")
-            unless defined($::tlpsrc_pattern_no_warn_negative);
+            unless $::tlpsrc_pattern_no_warn_negative;
+            # see comments in libexec/place script.
         }
       }
       $tlp->remove_binfiles($arch,@archfiles);
@@ -443,7 +454,8 @@ sub _do_normal_pattern {
   my @matchfiles = $tltree->get_matching_files($type, $p, $self->{'name'});
   if (!$is_default_pattern && !@matchfiles
       && ($p !~ m,^f ignore,) && ($p !~ m,^d tlpkg/backups,)) {
-    tlwarn("$self->{name}: no hit for pattern $p\n");
+    tlwarn("$self->{name}: no hit for pattern $p\n")
+      unless $negative && $::tlpsrc_pattern_no_warn_negative;
   }
   if (defined($negative) && $negative == 1) {
     $tlp->remove_files($type,@matchfiles);
@@ -849,6 +861,13 @@ If the C<filew32> argument is given this script is run on Windows systems
 instead of the one given via C<file>.
 
 =back
+
+=item C<tlpsetvar> I<var> I<val>
+
+sets variable I<var> to I<val>, for use within the current C<.tlpsrc>
+only.  Order matters.  The variable can be expanded with
+C<${>I<var>C<}> (after it is defined).  Characters allowed in the I<var>
+name are C<-_a-zA-Z0-9>.
 
 =item C<(src|run|doc|bin)pattern> I<pattern>
 

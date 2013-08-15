@@ -1,15 +1,15 @@
 #!/bin/sh -e
-# Copyright 2008, 2009, 2010, 2011, 2012 Norbert Preining
+# Copyright 2008-2013 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 # 
 # Update a TeX Live tlnet area, with testing.
 
-vc_id='$Id: tl-update-tlnet 26418 2012-05-15 23:26:55Z karl $'
+vc_id='$Id: tl-update-tlnet 30954 2013-06-26 22:45:47Z karl $'
 unset CDPATH
 unset LS_COLORS
 
-yyyy=2012
+yyyy=2013
 
 chicken=false
 critical=
@@ -115,17 +115,23 @@ option_fmt 1
 option_letter 0
 option_src 1
 option_path 0
+option_adjustrepo 1
 " >texlive.profile
 
-echo "$0: Running test install (log: `pwd`/install.log)..."
-perl install-tl -location $tltry -profile texlive.profile >install.log 2>&1\
-|| true # install-tl can fail, but we test the output, so don't abort.
+# silence warnings we do not need to see.
+TEXLIVE_INSTALL_ENV_NOCHECK=1; export TEXLIVE_INSTALL_ENV_NOCHECK
+
+tlnet_install_log=`pwd`/install.log
+echo "$0: Running test install (log: $tlnet_install_log)..."
+perl install-tl -location $tltry -profile texlive.profile \
+  >$tlnet_install_log 2>&1 \
+  || true # install-tl can fail, but we test the output, so don't abort.
 
 # the following long grep command should filter away all *normal*
 # installation messages.
 # if there are any other messages they will end up on stdout and 
 # thus be noticed.
-unexpected_output=`cat install.log \
+unexpected_output=`cat $tlnet_install_log \
   | sed '/The following environment variables/,/^ ------/d' \
   | grep -Ev '^ ------' \
   | grep -Ev '^Automated TeX Live installation using profile' \
@@ -156,6 +162,7 @@ unexpected_output=`cat install.log \
   | grep -Ev '^ Add ' \
   | grep -Ev '^ Most importantly, add ' \
   | grep -Ev '^ to your PATH for current and future sessions' \
+  | grep -Ev ' \(if not dynamically found\)' \
   | grep -Ev '^ Welcome to TeX Live' \
   | grep -Ev 'install-tl: done' \
   | grep -Ev '^Logfile: ' \
@@ -170,6 +177,7 @@ unexpected_output=`cat install.log \
 failure=false
 if test -n "$unexpected_output"; then
   failure=true
+  echo >&2
   echo "$0: Test installation failed." >&2
   echo "$0: Here is the unexpected output:" >&2
   echo "$unexpected_output" >&2
@@ -178,9 +186,9 @@ fi
 # more consistency checks.
 if test $failure = false; then
   for cmd in \
-      "$tltryinst/$yyyy/bin/*/tlmgr --repository $tltry update --list" \
-      "$Master/tlpkg/bin/check-tlnet-consistency --location=$tltry" \
-      "$Master/tlpkg/bin/tl-compare-tlpdbs $critical $tltry/tlpkg/texlive.tlpdb" \
+   "$tltryinst/$yyyy/bin/*/tlmgr --repository $tltry update --list" \
+   "$Master/tlpkg/bin/check-tlnet-consistency --location=$tltry" \
+   "$Master/tlpkg/bin/tl-compare-tlpdbs $critical $tltry/tlpkg/texlive.tlpdb" \
   ; do
     cmdname=`echo "$cmd" | awk '{print $1}'`
     basecmd=`basename $cmdname`
@@ -196,11 +204,25 @@ if test $failure = false; then
   done
 fi
 
+# Format creation check.  Unfortunately we have never got exit codes right.
+install_tl_log=$tltryinst/$yyyy/install-tl.log
+
+if grep -i '^fmtutil: Error' $install_tl_log >/dev/null; then
+  echo >&2
+  echo "$0: seems fmtutil failed, check $install_tl_log." >&2
+  failure=true
+fi
+
+# In all cases, make copies in /tmp for inspection in case of
+# undetected failure.
+cp -f $tlnet_install_log $install_tl_log /tmp
+
 if $failure; then
-  echo
-  echo "$0: Full transcript file: `pwd`/install.log" >&2
-  echo "$0: install-tl complete log file: $tltryinst/$yyyy/install-tl.log" >&2
-  echo "$0: Remember to clean up the trial dir, please." >&2
+  echo >&2
+  echo "$0: Our transcript file: $tlnet_install_log" >&2
+  echo "$0: install-tl log file: $install_tl_log" >&2
+  echo "$0: Copies of both are in /tmp." >&2
+  echo "$0: Please rm -rf the trial dir." >&2
   exit 1
 fi
 

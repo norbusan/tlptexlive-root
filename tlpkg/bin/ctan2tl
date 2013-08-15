@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: ctan2tl 15493 2009-09-28 00:03:40Z karl $
+# $Id: ctan2tl 30220 2013-05-03 23:36:50Z karl $
 # Public domain.  Originally written 2005, Karl Berry.
 #
 # Attempt to push a package from CTAN into TL.
@@ -107,6 +107,12 @@ fi
 # clean up the tmpdir possibly created by tlpkginfo --prepare.
 ctan_root=`tlpkginfo --ctan-root`
 if echo "$ctan_dir" | egrep "^$ctan_root" >/dev/null; then :; else
+  ctan_dir=`cd $ctan_dir && pwd`  # canonicalize
+  slashes=`echo $ctan_dir | tr -cd /`
+  if test "$slashes" = /; then
+    echo "$0: only one directory level in CTAN directory: $ctan_dir" >&2
+    exit 1
+  fi
   rm -rf $ctan_dir
 fi
 fi  # end of copying from CTAN.
@@ -123,7 +129,8 @@ cd $cooked || exit 1
 printf "\n\f cooked\n"
 find $pkg -name TDS_READY -exec rm '{}' \;  # remove sentinel file
 find -depth -type d | xargs rmdir 2>/dev/null  # remove empty directories
-find $pkg \! -type d -printf "%TY%Tm%Td.%TH%TM %p\n" | sort -k2
+find $pkg \! -type d -printf "%TY%Tm%Td.%TH%TM %p\n" | sort -k2 \
+| tee ${TMPDIR-/tmp}/ctan2tl.files
 
 printf "\n$0: calling place $place_chicken $pkg\n"
 rm -rf $pkg.done

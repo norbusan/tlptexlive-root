@@ -1,6 +1,6 @@
-# $Id: TLWinGoo.pm 28457 2012-12-07 15:41:08Z siepo $
+# $Id: TLWinGoo.pm 30367 2013-05-10 12:56:49Z siepo $
 # TeXLive::TLWinGoo.pm - Windows nastiness
-# Copyright 2008-2012 Siep Kroonenberg, Norbert Preining
+# Copyright 2008-2013 Siep Kroonenberg, Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
@@ -11,7 +11,7 @@
 
 package TeXLive::TLWinGoo;
 
-my $svnrev = '$Revision: 28457 $';
+my $svnrev = '$Revision: 30367 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -288,6 +288,7 @@ sub reg_country {
     }
   }
 }
+
 
 =pod
 
@@ -1203,19 +1204,14 @@ the job.
 =cut
 
 sub create_uninstaller {
-  my ($tdfw, $tdsvfw, $tdscfw) = @_;
+  my $td_fw = shift;
   # TEXDIR, TEXMFSYSVAR, TEXMFSYSCONFIG
-  $tdfw =~ s![\\/]$!!;
-  my $td = $tdfw;
+  $td_fw =~ s![\\/]$!!;
+  my $td = $td_fw;
   $td =~ s!/!\\!g;
 
-  $tdsvfw =~ s![\\/]$!!;
-  my $tdsv = $tdsvfw;
-  $tdsv =~ s!/!\\!g;
-
-  $tdscfw =~ s![\\/]$!!;
-  my $tdsc = $tdscfw;
-  $tdsc =~ s!/!\\!g;
+  my $tdmain = `$td\\bin\\win32\\kpsewhich -var-value=TEXMFMAIN`;
+  chomp $tdmain;
 
   my $uninst_key = $Registry -> Open((admin() ? "LMachine" : "CUser") .
     "/software/microsoft/windows/currentversion/",
@@ -1227,14 +1223,33 @@ sub create_uninstaller {
   $k->{'/DisplayVersion'} = $::TeXLive::TLConfig::ReleaseYear;
   $k->{'/URLInfoAbout'} = "http://www.tug.org/texlive";
 
-  mkdirhier("$tdfw/tlpkg/installer"); # wasn't this done yet?
-  if (open UNINST, ">$tdfw/tlpkg/installer/uninst.bat") {
+  mkdirhier("$td_fw/tlpkg/installer"); # wasn't this done yet?
+  if (open UNINST, ">$td_fw/tlpkg/installer/uninst.bat") {
     print UNINST <<UNEND;
 \@echo off
 setlocal
 path $td\\tlpkg\\tlperl\\bin;$td\\bin\\win32;%path%
 set PERL5LIB=$td\\tlpkg\\tlperl\\lib
-perl.exe \"$td\\texmf\\scripts\\texlive\\uninstall-win32.pl\"
+rem Clean environment from other Perl variables
+set PERL5OPT=
+set PERLIO=
+set PERLIO_DEBUG=
+set PERLLIB=
+set PERL5DB=
+set PERL5DB_THREADED=
+set PERL5SHELL=
+set PERL_ALLOW_NON_IFS_LSP=
+set PERL_DEBUG_MSTATS=
+set PERL_DESTRUCT_LEVEL=
+set PERL_DL_NONLAZY=
+set PERL_ENCODING=
+set PERL_HASH_SEED=
+set PERL_HASH_SEED_DEBUG=
+set PERL_ROOT=
+set PERL_SIGNALS=
+set PERL_UNICODE=
+
+perl.exe \"$tdmain\\scripts\\texlive\\uninstall-win32.pl\"
 if errorlevel 1 goto :eof
 rem test for taskkill and try to stop exit tray menu
 taskkill /? >nul 2>&1
@@ -1246,22 +1261,19 @@ UNEND
 ;
   close UNINST;
   } else {
-    warn "Cannot open $tdfw/tlpkg/installer/uninst.bat for append";
+    warn "Cannot open $td_fw/tlpkg/installer/uninst.bat for append";
   }
 
   # We could simply delete everything under the root at one go,
   # but this might be catastrophic if TL doesn't have its own root.
-  if (open UNINST2, ">$tdfw/tlpkg/installer/uninst2.bat") {
+  if (open UNINST2, ">$td_fw/tlpkg/installer/uninst2.bat") {
     print UNINST2 <<UNEND2;
 rmdir /s /q \"$td\\bin\"
 rmdir /s /q \"$td\\readme-html.dir\"
 rmdir /s /q \"$td\\readme-txt.dir\"
 if exist \"$td\\temp\" rmdir /s /q \"$td\\temp\"
-rmdir /s /q \"$td\\texmf\"
 rmdir /s /q \"$td\\texmf-dist\"
 rmdir /s /q \"$td\\tlpkg\"
-rmdir /s /q \"$tdsc\"
-rmdir /s /q \"$tdsv\"
 del /q \"$td\\README.*\"
 del /q \"$td\\LICENSE.*\"
 if exist \"$td\\doc.html\" del /q \"$td\\doc.html\"
@@ -1272,17 +1284,28 @@ del /q \"$td\\install-tl*.*\"
 del /q \"$td\\tl-tray-menu.exe\"
 rem del /q \"$td\\texlive.profile\"
 del /q \"$td\\release-texlive.txt\"
-set test=
-for \%\%f in (\"$td\\*.*\") do \@set test=nonempty
-if x\%test\%==x rd \"$td\"
+UNEND2
+;
+    for my $d ('TEXMFSYSVAR', 'TEXMFSYSCONFIG') {
+      my $kd = `$td\\bin\\win32\\kpsewhich -var-value=$d`;
+      chomp $kd;
+      print UNINST2 "rmdir /s /q \"", $kd, "\"\r\n";
+    }
+    if ($td !~ /^.:$/) {
+      print UNINST2 <<UNEND3;
+for \%\%f in (\"$td\\*\") do goto :done
+for /d \%\%f in (\"$td\\*\") do goto :done
+rd \"$td\"
+:done
 \@echo Done uninstalling TeXLive.
 \@pause
 del \"%0\"
-UNEND2
+UNEND3
 ;
+    }
     close UNINST2;
   } else {
-    warn "Cannot open $tdfw/tlpkg/installer/uninst2.bat for writing";
+    warn "Cannot open $td_fw/tlpkg/installer/uninst2.bat for writing";
   }
 }
 

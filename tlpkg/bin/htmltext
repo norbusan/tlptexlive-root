@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: htmltext 9581 2008-07-15 17:16:38Z karl $
+# $Id: htmltext 30411 2013-05-11 23:39:35Z karl $
 # Public domain.  Originally written 2003, Karl Berry.
 # Dump a url (or -stdin) to text using lynx.
 
@@ -19,5 +19,6 @@ for url in "$@"; do
   # Since the reference list is useful, we fix it up by hand instead of
   # using -nolist.
   lynx -dump -nocolor -hiddenlinks=ignore "$url" \
-  | sed 's,file://localhost/tmp/,file:,'
+  | sed -e 's,file://localhost/home/texlive/karl/Master/,file:../,' \
+        -e 's,file://localhost/home/texlive/karl/,file:../../,'
 done

@@ -1,15 +1,16 @@
 #!/usr/bin/env perl
-# Copyright 2012 Norbert Preining
+# Copyright 2012-2013 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 #
-# Prune (remove) platforms from a tlnet distribution tree
+# Prune (remove) platforms from a tlnet distribution tree.
+# Run from tl-update-images.
 
 my $vc_id;
 my $mydir;
 
 BEGIN {
-  $vc_id = '$Id: tl-prune-platforms 27168 2012-07-26 12:08:31Z preining $';
+  $vc_id = '$Id: tl-prune-platforms 30535 2013-05-17 22:42:44Z karl $';
   $^W = 1;
   ($mydir = $0) =~ s,/[^/]*$,,;
   unshift (@INC, "$mydir/..");
@@ -51,7 +52,7 @@ sub main
 
   my $format = $tlpdb->config_container_format;
   my $type = "xz";
-  if ($format ne "xz") {
+  if ($format ne $type) {
     tlwarn("$0: unknown container format $format in 00texlive.config; ",
            "ignoring and continuing with $type");
   }
@@ -61,8 +62,7 @@ sub main
   my @all_archs = $tlpdb->available_architectures;
   for my $a (@ARGV) {
     if (!TeXLive::TLUtils::member($a, @all_archs)) {
-      print "Platform $a not installed, cannot prune, exiting\n";
-      exit 1;
+      die "platform $a not installed, cannot prune, goodbye";
     }
   }
 
@@ -75,8 +75,8 @@ sub main
     
     my $tlp = $tlpdb->get_package($pkg);
     if (!$tlp) {
-      # that is a package foobar.$a that has already been remove but
-      # is still in the list above, so ignore that
+      # that is a package foobar.$a that has already been removed but
+      # is still in the list above, so ignore it.
       next;
     }
     foreach my $dep ($tlp->depends) {
@@ -140,12 +140,12 @@ pseudo-package C<00texlive.config>.  See L<TeXLive::TLPDB>.
 
 =head1 DESCRIPTION
 
-This program removes all traces of all platforms given as arguments,
-that is: remove the binfiles entries in the tlpdb, and remove the
-containers. 
+This program removes the binary directories of the platforms given as
+arguments; that is, remove the binfiles entries in the tlpdb, and remove
+the containers.  (Any xz and wget binaries for the installer remain, though.)
 
-It is used during DVD production to exclude certain
-platforms, and is run from the L<tl-update-image> script.
+It is used during DVD production to exclude certain platforms, and is
+run from the L<tl-update-images> script.
 
 =head1 AUTHORS AND COPYRIGHT
 
