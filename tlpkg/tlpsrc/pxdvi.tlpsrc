@@ -2,8 +2,8 @@ category TLCore
 binpattern f bin/${ARCH}/pxdvi
 binpattern f bin/${ARCH}/pxdvi-*
 #
-runpattern f texmf/fonts/map/pxdvi/xdvi-ptex.map
-runpattern f texmf/xdvi/pxdvi.cfg
-runpattern f texmf/xdvi/xdvi-ptex.map.sample
+runpattern f texmf-dist/fonts/map/pxdvi/xdvi-ptex.map
+runpattern f texmf-dist/xdvi/pxdvi.cfg
+runpattern f texmf-dist/xdvi/xdvi-ptex.map.sample
 #
-docpattern f texmf/doc/man/man1/pxdvi.1
+docpattern f texmf-dist/doc/man/man1/pxdvi.1
