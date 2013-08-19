@@ -49,6 +49,16 @@ binfiles arch=i386-netbsd size=173
  bin/i386-netbsd/ebb
  bin/i386-netbsd/extractbb
 
+name dvipdfmx.x86_64-darwin
+category Package
+revision 31000
+binfiles arch=x86_64-darwin size=218
+ bin/x86_64-darwin/dvipdfm
+ bin/x86_64-darwin/dvipdfmx
+ bin/x86_64-darwin/dvipdft
+ bin/x86_64-darwin/ebb
+ bin/x86_64-darwin/extractbb
+
 name dvipdfmx.x86_64-linux
 category Package
 revision 31000
@@ -72,6 +82,13 @@ revision 31000
 binfiles arch=i386-netbsd size=75
  bin/i386-netbsd/afm2tfm
  bin/i386-netbsd/dvips
+
+name dvips.x86_64-darwin
+category Package
+revision 31000
+binfiles arch=x86_64-darwin size=99
+ bin/x86_64-darwin/afm2tfm
+ bin/x86_64-darwin/dvips
 
 name dvips.x86_64-linux
 category Package
@@ -231,6 +248,14 @@ binfiles arch=i386-netbsd size=744
  bin/i386-netbsd/pmpost
  bin/i386-netbsd/upmpost
 
+name pmetapost.x86_64-darwin
+category Package
+revision 20
+shortdesc x86_64-darwin files of pmetapost
+binfiles arch=x86_64-darwin size=925
+ bin/x86_64-darwin/pmpost
+ bin/x86_64-darwin/upmpost
+
 name pmetapost.x86_64-linux
 category Package
 revision 20
@@ -266,6 +291,20 @@ binfiles arch=i386-netbsd size=440
  bin/i386-netbsd/ppltotf
  bin/i386-netbsd/ptex
  bin/i386-netbsd/ptftopl
+
+name ptex.x86_64-darwin
+category Package
+revision 31000
+binfiles arch=x86_64-darwin size=586
+ bin/x86_64-darwin/eptex
+ bin/x86_64-darwin/makejvf
+ bin/x86_64-darwin/mendex
+ bin/x86_64-darwin/pbibtex
+ bin/x86_64-darwin/pdvitype
+ bin/x86_64-darwin/platex
+ bin/x86_64-darwin/ppltotf
+ bin/x86_64-darwin/ptex
+ bin/x86_64-darwin/ptftopl
 
 name ptex.x86_64-linux
 category Package
@@ -381,6 +420,19 @@ binfiles arch=i386-netbsd size=410
  bin/i386-netbsd/uptex
  bin/i386-netbsd/uptftopl
  bin/i386-netbsd/wovp2ovf
+
+name uptex.x86_64-darwin
+category Package
+revision 31000
+binfiles arch=x86_64-darwin size=544
+ bin/x86_64-darwin/euptex
+ bin/x86_64-darwin/upbibtex
+ bin/x86_64-darwin/updvitype
+ bin/x86_64-darwin/uplatex
+ bin/x86_64-darwin/uppltotf
+ bin/x86_64-darwin/uptex
+ bin/x86_64-darwin/uptftopl
+ bin/x86_64-darwin/wovp2ovf
 
 name uptex.x86_64-linux
 category Package
