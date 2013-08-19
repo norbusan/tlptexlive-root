@@ -1,0 +1,2 @@
+binpattern f/x86_64-darwin bin/${ARCH}/afm2tfm
+binpattern f/x86_64-darwin bin/${ARCH}/dvips

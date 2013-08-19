@@ -1,0 +1,8 @@
+binpattern f/x86_64-darwin bin/${ARCH}/euptex
+binpattern f/x86_64-darwin bin/${ARCH}/upbibtex
+binpattern f/x86_64-darwin bin/${ARCH}/updvitype
+binpattern f/x86_64-darwin bin/${ARCH}/uplatex
+binpattern f/x86_64-darwin bin/${ARCH}/uppltotf
+binpattern f/x86_64-darwin bin/${ARCH}/uptftopl
+binpattern f/x86_64-darwin bin/${ARCH}/uptex
+binpattern f/x86_64-darwin bin/${ARCH}/wovp2ovf

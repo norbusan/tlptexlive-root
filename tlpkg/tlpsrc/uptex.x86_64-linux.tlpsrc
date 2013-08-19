@@ -1,8 +1,8 @@
-binpattern f/x86_64-linux bin/x86_64-linux/euptex
-binpattern f/x86_64-linux bin/x86_64-linux/upbibtex
-binpattern f/x86_64-linux bin/x86_64-linux/updvitype
-binpattern f/x86_64-linux bin/x86_64-linux/uplatex
-binpattern f/x86_64-linux bin/x86_64-linux/uppltotf
-binpattern f/x86_64-linux bin/x86_64-linux/uptftopl
-binpattern f/x86_64-linux bin/x86_64-linux/uptex
-binpattern f/x86_64-linux bin/x86_64-linux/wovp2ovf
+binpattern f/x86_64-linux bin/${ARCH}/euptex
+binpattern f/x86_64-linux bin/${ARCH}/upbibtex
+binpattern f/x86_64-linux bin/${ARCH}/updvitype
+binpattern f/x86_64-linux bin/${ARCH}/uplatex
+binpattern f/x86_64-linux bin/${ARCH}/uppltotf
+binpattern f/x86_64-linux bin/${ARCH}/uptftopl
+binpattern f/x86_64-linux bin/${ARCH}/uptex
+binpattern f/x86_64-linux bin/${ARCH}/wovp2ovf

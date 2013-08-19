@@ -1,0 +1,9 @@
+binpattern f/x86_64-darwin bin/${ARCH}/eptex
+binpattern f/x86_64-darwin bin/${ARCH}/makejvf
+binpattern f/x86_64-darwin bin/${ARCH}/mendex
+binpattern f/x86_64-darwin bin/${ARCH}/pbibtex
+binpattern f/x86_64-darwin bin/${ARCH}/pdvitype
+binpattern f/x86_64-darwin bin/${ARCH}/platex
+binpattern f/x86_64-darwin bin/${ARCH}/ppltotf
+binpattern f/x86_64-darwin bin/${ARCH}/ptex
+binpattern f/x86_64-darwin bin/${ARCH}/ptftopl

@@ -1,0 +1,5 @@
+binpattern f/x86_64-darwin bin/${ARCH}/dvipdfm
+binpattern f/x86_64-darwin bin/${ARCH}/dvipdfmx
+binpattern f/x86_64-darwin bin/${ARCH}/dvipdft
+binpattern f/x86_64-darwin bin/${ARCH}/ebb
+binpattern f/x86_64-darwin bin/${ARCH}/extractbb
