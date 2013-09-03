@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-linux x86_64-darwin i386-netbsd i386-freebsd universal-darwin amd64-freebsd x86_64-linux i386-cygwin
+depend setting_available_architectures:universal-darwin x86_64-darwin i386-netbsd i386-cygwin x86_64-linux amd64-freebsd i386-freebsd i386-linux
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -61,7 +61,7 @@ binfiles arch=x86_64-darwin size=219
 
 name dvipdfmx.x86_64-linux
 category Package
-revision 31000
+revision 31001
 binfiles arch=x86_64-linux size=206
  bin/x86_64-linux/dvipdfm
  bin/x86_64-linux/dvipdfmx
@@ -92,8 +92,8 @@ binfiles arch=x86_64-darwin size=96
 
 name dvips.x86_64-linux
 category Package
-revision 31000
-binfiles arch=x86_64-linux size=88
+revision 31001
+binfiles arch=x86_64-linux size=89
  bin/x86_64-linux/afm2tfm
  bin/x86_64-linux/dvips
 
@@ -258,9 +258,9 @@ binfiles arch=x86_64-darwin size=904
 
 name pmetapost.x86_64-linux
 category Package
-revision 20
+revision 21
 shortdesc x86_64-linux files of pmetapost
-binfiles arch=x86_64-linux size=886
+binfiles arch=x86_64-linux size=888
  bin/x86_64-linux/pmpost
  bin/x86_64-linux/upmpost
 
@@ -308,8 +308,8 @@ binfiles arch=x86_64-darwin size=558
 
 name ptex.x86_64-linux
 category Package
-revision 31000
-binfiles arch=x86_64-linux size=499
+revision 31001
+binfiles arch=x86_64-linux size=502
  bin/x86_64-linux/eptex
  bin/x86_64-linux/makejvf
  bin/x86_64-linux/mendex
@@ -436,7 +436,7 @@ binfiles arch=x86_64-darwin size=508
 
 name uptex.x86_64-linux
 category Package
-revision 31000
+revision 31001
 binfiles arch=x86_64-linux size=460
  bin/x86_64-linux/euptex
  bin/x86_64-linux/upbibtex
