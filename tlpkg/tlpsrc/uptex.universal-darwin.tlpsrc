@@ -1,0 +1,8 @@
+binpattern f/universal-darwin bin/${ARCH}/euptex
+binpattern f/universal-darwin bin/${ARCH}/upbibtex
+binpattern f/universal-darwin bin/${ARCH}/updvitype
+binpattern f/universal-darwin bin/${ARCH}/uplatex
+binpattern f/universal-darwin bin/${ARCH}/uppltotf
+binpattern f/universal-darwin bin/${ARCH}/uptftopl
+binpattern f/universal-darwin bin/${ARCH}/uptex
+binpattern f/universal-darwin bin/${ARCH}/wovp2ovf

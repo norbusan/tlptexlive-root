@@ -1,0 +1,9 @@
+binpattern f/universal-darwin bin/${ARCH}/eptex
+binpattern f/universal-darwin bin/${ARCH}/makejvf
+binpattern f/universal-darwin bin/${ARCH}/mendex
+binpattern f/universal-darwin bin/${ARCH}/pbibtex
+binpattern f/universal-darwin bin/${ARCH}/pdvitype
+binpattern f/universal-darwin bin/${ARCH}/platex
+binpattern f/universal-darwin bin/${ARCH}/ppltotf
+binpattern f/universal-darwin bin/${ARCH}/ptex
+binpattern f/universal-darwin bin/${ARCH}/ptftopl

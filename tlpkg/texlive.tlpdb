@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:universal-darwin x86_64-darwin i386-netbsd i386-cygwin x86_64-linux amd64-freebsd i386-freebsd i386-linux
+depend setting_available_architectures:i386-linux universal-darwin i386-cygwin i386-freebsd amd64-freebsd x86_64-darwin x86_64-linux i386-netbsd
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -49,6 +49,16 @@ binfiles arch=i386-netbsd size=173
  bin/i386-netbsd/ebb
  bin/i386-netbsd/extractbb
 
+name dvipdfmx.universal-darwin
+category Package
+revision 31000
+binfiles arch=universal-darwin size=557
+ bin/universal-darwin/dvipdfm
+ bin/universal-darwin/dvipdfmx
+ bin/universal-darwin/dvipdft
+ bin/universal-darwin/ebb
+ bin/universal-darwin/extractbb
+
 name dvipdfmx.x86_64-darwin
 category Package
 revision 31001
@@ -82,6 +92,13 @@ revision 31000
 binfiles arch=i386-netbsd size=75
  bin/i386-netbsd/afm2tfm
  bin/i386-netbsd/dvips
+
+name dvips.universal-darwin
+category Package
+revision 31000
+binfiles arch=universal-darwin size=241
+ bin/universal-darwin/afm2tfm
+ bin/universal-darwin/dvips
 
 name dvips.x86_64-darwin
 category Package
@@ -248,6 +265,14 @@ binfiles arch=i386-netbsd size=744
  bin/i386-netbsd/pmpost
  bin/i386-netbsd/upmpost
 
+name pmetapost.universal-darwin
+category Package
+revision 20
+shortdesc universal-darwin files of pmetapost
+binfiles arch=universal-darwin size=4070
+ bin/universal-darwin/pmpost
+ bin/universal-darwin/upmpost
+
 name pmetapost.x86_64-darwin
 category Package
 revision 21
@@ -291,6 +316,20 @@ binfiles arch=i386-netbsd size=440
  bin/i386-netbsd/ppltotf
  bin/i386-netbsd/ptex
  bin/i386-netbsd/ptftopl
+
+name ptex.universal-darwin
+category Package
+revision 31000
+binfiles arch=universal-darwin size=1430
+ bin/universal-darwin/eptex
+ bin/universal-darwin/makejvf
+ bin/universal-darwin/mendex
+ bin/universal-darwin/pbibtex
+ bin/universal-darwin/pdvitype
+ bin/universal-darwin/platex
+ bin/universal-darwin/ppltotf
+ bin/universal-darwin/ptex
+ bin/universal-darwin/ptftopl
 
 name ptex.x86_64-darwin
 category Package
@@ -420,6 +459,19 @@ binfiles arch=i386-netbsd size=410
  bin/i386-netbsd/uptex
  bin/i386-netbsd/uptftopl
  bin/i386-netbsd/wovp2ovf
+
+name uptex.universal-darwin
+category Package
+revision 31000
+binfiles arch=universal-darwin size=1356
+ bin/universal-darwin/euptex
+ bin/universal-darwin/upbibtex
+ bin/universal-darwin/updvitype
+ bin/universal-darwin/uplatex
+ bin/universal-darwin/uppltotf
+ bin/universal-darwin/uptex
+ bin/universal-darwin/uptftopl
+ bin/universal-darwin/wovp2ovf
 
 name uptex.x86_64-darwin
 category Package
