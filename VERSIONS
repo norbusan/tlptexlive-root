@@ -57,9 +57,10 @@ dvipdfmx.i386-netbsd		31000
 dvips
 =====
 dvips.BIN		31000 TL2013
-dvips.x86_64-linux	31001 rebuild on lenny
-dvips.x86_64-darwin	31001 rebuild for fixes
-dvips.universal-darwin	31000
+			31002 svn >= r31547
+dvips.x86_64-linux	31002 rebuild on lenny
+dvips.x86_64-darwin	31002 rebuild for fixes
+dvips.universal-darwin	31002
 dvips.i386-linux	31000
 dvips.i386-netbsd	31000
 

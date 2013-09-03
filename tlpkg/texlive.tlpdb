@@ -95,21 +95,21 @@ binfiles arch=i386-netbsd size=75
 
 name dvips.universal-darwin
 category Package
-revision 31000
+revision 31002
 binfiles arch=universal-darwin size=241
  bin/universal-darwin/afm2tfm
  bin/universal-darwin/dvips
 
 name dvips.x86_64-darwin
 category Package
-revision 31001
+revision 31002
 binfiles arch=x86_64-darwin size=96
  bin/x86_64-darwin/afm2tfm
  bin/x86_64-darwin/dvips
 
 name dvips.x86_64-linux
 category Package
-revision 31001
+revision 31002
 binfiles arch=x86_64-linux size=89
  bin/x86_64-linux/afm2tfm
  bin/x86_64-linux/dvips
