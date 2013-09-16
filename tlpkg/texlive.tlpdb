@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-linux universal-darwin i386-cygwin i386-freebsd amd64-freebsd x86_64-darwin x86_64-linux i386-netbsd
+depend setting_available_architectures:i386-linux i386-cygwin x86_64-linux i386-netbsd amd64-freebsd i386-freebsd x86_64-darwin universal-darwin
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -28,6 +28,16 @@ depend opt_sys_bin:/usr/local/bin
 depend opt_sys_info:/usr/local/share/info
 depend opt_sys_man:/usr/local/share/man
 depend opt_w32_multi_user:0
+
+name dvipdfmx.i386-cygwin
+category Package
+revision 31000
+binfiles arch=i386-cygwin size=203
+ bin/i386-cygwin/dvipdfm
+ bin/i386-cygwin/dvipdfmx.exe
+ bin/i386-cygwin/dvipdft
+ bin/i386-cygwin/ebb
+ bin/i386-cygwin/extractbb
 
 name dvipdfmx.i386-linux
 category Package
@@ -51,8 +61,8 @@ binfiles arch=i386-netbsd size=173
 
 name dvipdfmx.universal-darwin
 category Package
-revision 31000
-binfiles arch=universal-darwin size=557
+revision 31002
+binfiles arch=universal-darwin size=540
  bin/universal-darwin/dvipdfm
  bin/universal-darwin/dvipdfmx
  bin/universal-darwin/dvipdft
@@ -61,8 +71,8 @@ binfiles arch=universal-darwin size=557
 
 name dvipdfmx.x86_64-darwin
 category Package
-revision 31001
-binfiles arch=x86_64-darwin size=219
+revision 31002
+binfiles arch=x86_64-darwin size=289
  bin/x86_64-darwin/dvipdfm
  bin/x86_64-darwin/dvipdfmx
  bin/x86_64-darwin/dvipdft
@@ -78,6 +88,13 @@ binfiles arch=x86_64-linux size=206
  bin/x86_64-linux/dvipdft
  bin/x86_64-linux/ebb
  bin/x86_64-linux/extractbb
+
+name dvips.i386-cygwin
+category Package
+revision 31000
+binfiles arch=i386-cygwin size=86
+ bin/i386-cygwin/afm2tfm.exe
+ bin/i386-cygwin/dvips.exe
 
 name dvips.i386-linux
 category Package
@@ -95,15 +112,15 @@ binfiles arch=i386-netbsd size=75
 
 name dvips.universal-darwin
 category Package
-revision 31002
-binfiles arch=universal-darwin size=241
+revision 31003
+binfiles arch=universal-darwin size=235
  bin/universal-darwin/afm2tfm
  bin/universal-darwin/dvips
 
 name dvips.x86_64-darwin
 category Package
-revision 31002
-binfiles arch=x86_64-darwin size=96
+revision 31003
+binfiles arch=x86_64-darwin size=119
  bin/x86_64-darwin/afm2tfm
  bin/x86_64-darwin/dvips
 
@@ -249,17 +266,27 @@ runfiles size=2
  texmf-dist/metapost/pmetapost/pmpost.mp
  texmf-dist/metapost/upmetapost/upmpost.mp
 
+name pmetapost.i386-cygwin
+category Package
+revision 22
+shortdesc i386-cygwin files of pmetapost
+binfiles arch=i386-cygwin size=925
+ bin/i386-cygwin/pdvitomp
+ bin/i386-cygwin/pmpost.exe
+ bin/i386-cygwin/upmpost.exe
+
 name pmetapost.i386-linux
 category Package
-revision 20
+revision 22
 shortdesc i386-linux files of pmetapost
-binfiles arch=i386-linux size=804
+binfiles arch=i386-linux size=805
+ bin/i386-linux/pdvitomp
  bin/i386-linux/pmpost
  bin/i386-linux/upmpost
 
 name pmetapost.i386-netbsd
 category Package
-revision 20
+revision 22
 shortdesc i386-netbsd files of pmetapost
 binfiles arch=i386-netbsd size=744
  bin/i386-netbsd/pmpost
@@ -267,27 +294,44 @@ binfiles arch=i386-netbsd size=744
 
 name pmetapost.universal-darwin
 category Package
-revision 20
+revision 22
 shortdesc universal-darwin files of pmetapost
-binfiles arch=universal-darwin size=4070
+binfiles arch=universal-darwin size=3996
+ bin/universal-darwin/pdvitomp
  bin/universal-darwin/pmpost
  bin/universal-darwin/upmpost
 
 name pmetapost.x86_64-darwin
 category Package
-revision 21
+revision 22
 shortdesc x86_64-darwin files of pmetapost
-binfiles arch=x86_64-darwin size=904
+binfiles arch=x86_64-darwin size=2058
+ bin/x86_64-darwin/pdvitomp
  bin/x86_64-darwin/pmpost
  bin/x86_64-darwin/upmpost
 
 name pmetapost.x86_64-linux
 category Package
-revision 21
+revision 22
 shortdesc x86_64-linux files of pmetapost
-binfiles arch=x86_64-linux size=888
+binfiles arch=x86_64-linux size=889
+ bin/x86_64-linux/pdvitomp
  bin/x86_64-linux/pmpost
  bin/x86_64-linux/upmpost
+
+name ptex.i386-cygwin
+category Package
+revision 31000
+binfiles arch=i386-cygwin size=500
+ bin/i386-cygwin/eptex.exe
+ bin/i386-cygwin/makejvf.exe
+ bin/i386-cygwin/mendex.exe
+ bin/i386-cygwin/pbibtex.exe
+ bin/i386-cygwin/pdvitype.exe
+ bin/i386-cygwin/platex
+ bin/i386-cygwin/ppltotf.exe
+ bin/i386-cygwin/ptex.exe
+ bin/i386-cygwin/ptftopl.exe
 
 name ptex.i386-linux
 category Package
@@ -319,8 +363,8 @@ binfiles arch=i386-netbsd size=440
 
 name ptex.universal-darwin
 category Package
-revision 31000
-binfiles arch=universal-darwin size=1430
+revision 31002
+binfiles arch=universal-darwin size=1410
  bin/universal-darwin/eptex
  bin/universal-darwin/makejvf
  bin/universal-darwin/mendex
@@ -333,8 +377,8 @@ binfiles arch=universal-darwin size=1430
 
 name ptex.x86_64-darwin
 category Package
-revision 31001
-binfiles arch=x86_64-darwin size=558
+revision 31002
+binfiles arch=x86_64-darwin size=706
  bin/x86_64-darwin/eptex
  bin/x86_64-darwin/makejvf
  bin/x86_64-darwin/mendex
@@ -380,7 +424,7 @@ binfiles arch=amd64-freebsd size=366
 
 name pxdvi.i386-cygwin
 category TLCore
-revision 9
+revision 10
 shortdesc i386-cygwin files of pxdvi
 binfiles arch=i386-cygwin size=332
  bin/i386-cygwin/pxdvi
@@ -412,7 +456,7 @@ binfiles arch=i386-netbsd size=308
 
 name pxdvi.universal-darwin
 category TLCore
-revision 10
+revision 11
 shortdesc universal-darwin files of pxdvi
 binfiles arch=universal-darwin size=972
  bin/universal-darwin/pxdvi
@@ -420,7 +464,7 @@ binfiles arch=universal-darwin size=972
 
 name pxdvi.x86_64-darwin
 category TLCore
-revision 9
+revision 11
 shortdesc x86_64-darwin files of pxdvi
 binfiles arch=x86_64-darwin size=603
  bin/x86_64-darwin/pxdvi
@@ -433,6 +477,19 @@ shortdesc x86_64-linux files of pxdvi
 binfiles arch=x86_64-linux size=375
  bin/x86_64-linux/pxdvi
  bin/x86_64-linux/pxdvi-xaw
+
+name uptex.i386-cygwin
+category Package
+revision 31000
+binfiles arch=i386-cygwin size=461
+ bin/i386-cygwin/euptex.exe
+ bin/i386-cygwin/upbibtex.exe
+ bin/i386-cygwin/updvitype.exe
+ bin/i386-cygwin/uplatex
+ bin/i386-cygwin/uppltotf.exe
+ bin/i386-cygwin/uptex.exe
+ bin/i386-cygwin/uptftopl.exe
+ bin/i386-cygwin/wovp2ovf.exe
 
 name uptex.i386-linux
 category Package
@@ -462,8 +519,8 @@ binfiles arch=i386-netbsd size=410
 
 name uptex.universal-darwin
 category Package
-revision 31000
-binfiles arch=universal-darwin size=1356
+revision 31002
+binfiles arch=universal-darwin size=1341
  bin/universal-darwin/euptex
  bin/universal-darwin/upbibtex
  bin/universal-darwin/updvitype
@@ -475,8 +532,8 @@ binfiles arch=universal-darwin size=1356
 
 name uptex.x86_64-darwin
 category Package
-revision 31001
-binfiles arch=x86_64-darwin size=508
+revision 31002
+binfiles arch=x86_64-darwin size=663
  bin/x86_64-darwin/euptex
  bin/x86_64-darwin/upbibtex
  bin/x86_64-darwin/updvitype
