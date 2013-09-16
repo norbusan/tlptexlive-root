@@ -1,0 +1,9 @@
+binpattern f/i386-cygwin bin/${ARCH}/eptex
+binpattern f/i386-cygwin bin/${ARCH}/makejvf
+binpattern f/i386-cygwin bin/${ARCH}/mendex
+binpattern f/i386-cygwin bin/${ARCH}/pbibtex
+binpattern f/i386-cygwin bin/${ARCH}/pdvitype
+binpattern f/i386-cygwin bin/${ARCH}/platex
+binpattern f/i386-cygwin bin/${ARCH}/ppltotf
+binpattern f/i386-cygwin bin/${ARCH}/ptex
+binpattern f/i386-cygwin bin/${ARCH}/ptftopl

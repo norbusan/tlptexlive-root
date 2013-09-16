@@ -1,0 +1,5 @@
+binpattern f/i386-cygwin bin/${ARCH}/dvipdfm
+binpattern f/i386-cygwin bin/${ARCH}/dvipdfmx
+binpattern f/i386-cygwin bin/${ARCH}/dvipdft
+binpattern f/i386-cygwin bin/${ARCH}/ebb
+binpattern f/i386-cygwin bin/${ARCH}/extractbb

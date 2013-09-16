@@ -1,0 +1,8 @@
+binpattern f/i386-cygwin bin/${ARCH}/euptex
+binpattern f/i386-cygwin bin/${ARCH}/upbibtex
+binpattern f/i386-cygwin bin/${ARCH}/updvitype
+binpattern f/i386-cygwin bin/${ARCH}/uplatex
+binpattern f/i386-cygwin bin/${ARCH}/uppltotf
+binpattern f/i386-cygwin bin/${ARCH}/uptftopl
+binpattern f/i386-cygwin bin/${ARCH}/uptex
+binpattern f/i386-cygwin bin/${ARCH}/wovp2ovf
