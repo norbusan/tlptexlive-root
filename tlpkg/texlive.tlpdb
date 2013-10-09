@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-linux i386-cygwin x86_64-linux i386-netbsd amd64-freebsd i386-freebsd x86_64-darwin universal-darwin
+depend setting_available_architectures:i386-netbsd universal-darwin i386-freebsd x86_64-darwin i386-cygwin x86_64-linux amd64-freebsd i386-linux win32
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -69,6 +69,16 @@ binfiles arch=universal-darwin size=540
  bin/universal-darwin/ebb
  bin/universal-darwin/extractbb
 
+name dvipdfmx.win32
+category Package
+revision 31000
+binfiles arch=win32 size=194
+ bin/win32/dvipdfm.exe
+ bin/win32/dvipdfmx.dll
+ bin/win32/dvipdfmx.exe
+ bin/win32/ebb.exe
+ bin/win32/extractbb.exe
+
 name dvipdfmx.x86_64-darwin
 category Package
 revision 31002
@@ -116,6 +126,13 @@ revision 31003
 binfiles arch=universal-darwin size=235
  bin/universal-darwin/afm2tfm
  bin/universal-darwin/dvips
+
+name dvips.win32
+category Package
+revision 31000
+binfiles arch=win32 size=47
+ bin/win32/afm2tfm.exe
+ bin/win32/dvips.exe
 
 name dvips.x86_64-darwin
 category Package
@@ -301,6 +318,14 @@ binfiles arch=universal-darwin size=3996
  bin/universal-darwin/pmpost
  bin/universal-darwin/upmpost
 
+name pmetapost.win32
+category Package
+revision 22
+shortdesc win32 files of pmetapost
+binfiles arch=win32 size=909
+ bin/win32/pmpost.exe
+ bin/win32/upmpost.exe
+
 name pmetapost.x86_64-darwin
 category Package
 revision 22
@@ -374,6 +399,22 @@ binfiles arch=universal-darwin size=1410
  bin/universal-darwin/ppltotf
  bin/universal-darwin/ptex
  bin/universal-darwin/ptftopl
+
+name ptex.win32
+category Package
+revision 31000
+binfiles arch=win32 size=630
+ bin/win32/eptex.dll
+ bin/win32/eptex.exe
+ bin/win32/makejvf.exe
+ bin/win32/mendex.exe
+ bin/win32/pbibtex.exe
+ bin/win32/pdvitype.exe
+ bin/win32/platex.exe
+ bin/win32/ppltotf.exe
+ bin/win32/ptex.dll
+ bin/win32/ptex.exe
+ bin/win32/ptftopl.exe
 
 name ptex.x86_64-darwin
 category Package
@@ -529,6 +570,21 @@ binfiles arch=universal-darwin size=1341
  bin/universal-darwin/uptex
  bin/universal-darwin/uptftopl
  bin/universal-darwin/wovp2ovf
+
+name uptex.win32
+category Package
+revision 31000
+binfiles arch=win32 size=558
+ bin/win32/euptex.dll
+ bin/win32/euptex.exe
+ bin/win32/upbibtex.exe
+ bin/win32/updvitype.exe
+ bin/win32/uplatex.exe
+ bin/win32/uppltotf.exe
+ bin/win32/uptex.dll
+ bin/win32/uptex.exe
+ bin/win32/uptftopl.exe
+ bin/win32/wovp2ovf.exe
 
 name uptex.x86_64-darwin
 category Package
