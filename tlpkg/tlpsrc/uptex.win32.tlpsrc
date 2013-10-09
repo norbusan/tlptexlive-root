@@ -1,0 +1,8 @@
+binpattern f/win32 bin/${ARCH}/euptex
+binpattern f/win32 bin/${ARCH}/upbibtex
+binpattern f/win32 bin/${ARCH}/updvitype
+binpattern f/win32 bin/${ARCH}/uplatex
+binpattern f/win32 bin/${ARCH}/uppltotf
+binpattern f/win32 bin/${ARCH}/uptftopl
+binpattern f/win32 bin/${ARCH}/uptex
+binpattern f/win32 bin/${ARCH}/wovp2ovf

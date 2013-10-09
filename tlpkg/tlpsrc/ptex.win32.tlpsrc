@@ -1,0 +1,9 @@
+binpattern f/win32 bin/${ARCH}/eptex
+binpattern f/win32 bin/${ARCH}/makejvf
+binpattern f/win32 bin/${ARCH}/mendex
+binpattern f/win32 bin/${ARCH}/pbibtex
+binpattern f/win32 bin/${ARCH}/pdvitype
+binpattern f/win32 bin/${ARCH}/platex
+binpattern f/win32 bin/${ARCH}/ppltotf
+binpattern f/win32 bin/${ARCH}/ptex
+binpattern f/win32 bin/${ARCH}/ptftopl

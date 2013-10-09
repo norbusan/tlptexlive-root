@@ -1,0 +1,2 @@
+binpattern f/win32 bin/${ARCH}/afm2tfm
+binpattern f/win32 bin/${ARCH}/dvips
