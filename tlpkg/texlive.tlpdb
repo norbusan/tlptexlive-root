@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-netbsd universal-darwin i386-freebsd x86_64-darwin i386-cygwin x86_64-linux amd64-freebsd i386-linux win32
+depend setting_available_architectures:i386-freebsd i386-cygwin x86_64-linux i386-netbsd i386-linux win32 x86_64-darwin amd64-freebsd universal-darwin
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -402,12 +402,14 @@ binfiles arch=universal-darwin size=1410
 
 name ptex.win32
 category Package
-revision 31000
-binfiles arch=win32 size=630
+revision 31002
+binfiles arch=win32 size=837
  bin/win32/eptex.dll
  bin/win32/eptex.exe
+ bin/win32/kpathsea620.dll
  bin/win32/makejvf.exe
  bin/win32/mendex.exe
+ bin/win32/msvcr100.dll
  bin/win32/pbibtex.exe
  bin/win32/pdvitype.exe
  bin/win32/platex.exe

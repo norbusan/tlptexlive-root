@@ -7,3 +7,5 @@ binpattern f/win32 bin/${ARCH}/platex
 binpattern f/win32 bin/${ARCH}/ppltotf
 binpattern f/win32 bin/${ARCH}/ptex
 binpattern f/win32 bin/${ARCH}/ptftopl
+binpattern f/win32 bin/${ARCH}/kpathsea620.dll
+binpattern f/win32 bin/${ARCH}/msvcr100.dll

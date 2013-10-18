@@ -39,7 +39,7 @@ ptex.universal-darwin	31002
 ptex.i386-linux		31000
 ptex.i386-cygwin	31000
 ptex.i386-netbsd	31000
-ptex.win32		31000
+ptex.win32		31001 include libkpathsea
 
 uptex
 =====
