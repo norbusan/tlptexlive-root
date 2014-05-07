@@ -2,15 +2,9 @@
 pmetapost
 =========
 pmetapost:		4
-pmetapost.BIN: 		>=20 	TL2013
-			22 add pdvitomp and some rebuilds and new
-pmetapost.x86_64-linux 		22
-pmetapost.x86_64-darwin		22
-pmetapost.universal-darwin	22
-pmetapost.i386-linux		22
-pmetapost.i386-netbsd		22
-pmetapost.i386-cygwin		22
-pmetapost.win32			22
+pmetapost.BIN: 		>=30 	TL2014
+pmetapost.x86_64-linux 		30
+pmetapost.win32			30
 
 
 pxdvi
@@ -29,49 +23,4 @@ pxdvi.i386-netbsd 	9
 pxdvi.universal-darwin 	11
 pxdvi.x86_64-darwin 	11
 pxdvi.x86_64-linux 	9
-
-ptex
-====
-ptex.BIN: 		31000 TL2013
-ptex.x86_64-linux	31001 rebuild on lenny
-ptex.x86_64-darwin	31002 rebuild for fixes
-ptex.universal-darwin	31002
-ptex.i386-linux		31000
-ptex.i386-cygwin	31000
-ptex.i386-netbsd	31000
-ptex.win32		31001 include libkpathsea
-
-uptex
-=====
-uptex.BIN		31000 TL2013
-uptex.x86_64-linux	31001 rebuild on lenny
-uptex.x86_64-darwin	31002 rebuild for fixes
-uptex.universal-darwin	31002
-uptex.i386-linux	31000
-uptex.i386-cygwin	31000
-uptex.i386-netbsd	31000
-uptex.win32		31000
-
-dvipdfmx
-========
-dvipdfmx.BIN			31000 TL2013
-dvipdfmx.x86_64-linux		31001 rebuild on lenny
-dvipdfmx.x86_64-darwin		31002 rebuild for fixes
-dvipdfmx.universal-darwin	31002
-dvipdfmx.i386-linux		31000
-dvipdfmx.i386-cygwin		31000
-dvipdfmx.i386-netbsd		31000
-dvipdfmx.win32			31000
-
-dvips
-=====
-dvips.BIN		31000 TL2013
-			31002 svn >= r31547
-dvips.x86_64-linux	31002 rebuild on lenny
-dvips.x86_64-darwin	31003 rebuild for fixes
-dvips.universal-darwin	31003
-dvips.i386-linux	31000
-dvips.i386-cygwin	31000
-dvips.i386-netbsd	31000
-dvips.win32		31000
 

@@ -1,4 +1,4 @@
 category TLCore
 depend container_format/xz
-depend release/2013-ptexlive
-depend minrelease/2013
+depend release/2014-ptexlive
+depend minrelease/2014

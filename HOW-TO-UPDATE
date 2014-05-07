@@ -2,5 +2,5 @@
 perl tlpkg/bin/tl-update-tlpdb -with-w32-pattern-warning -from-files -no-reverse-revision-check --keep-revisions
 # fix revisions by hand
 
-perl tlpkg/bin/tl-update-containers -location /var/www/norbert/greengeeks/public_html/tlptexlive -all # -recreate
+perl tlpkg/bin/tl-update-containers -location /var/www/norbert/tlptexlive -all # -recreate
 
