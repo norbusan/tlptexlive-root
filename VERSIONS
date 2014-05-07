@@ -5,6 +5,10 @@ pmetapost:		4
 pmetapost.BIN: 		>=30 	TL2014
 pmetapost.x86_64-linux 		30
 pmetapost.win32			30
+pmetapost.amd64-freebsd		30
+pmetapost.i386-freebsd		30
+pmetapost.i386-netbsd		30
+pmetapost.i386-linux		30
 
 
 pxdvi
