@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-netbsd universal-darwin x86_64-darwin x86_64-linux i386-linux i386-freebsd i386-cygwin amd64-freebsd win32
+depend setting_available_architectures:i386-freebsd x86_64-linux amd64-freebsd win32 i386-cygwin i386-linux universal-darwin i386-netbsd x86_64-darwin
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -200,6 +200,15 @@ binfiles arch=i386-netbsd size=815
  bin/i386-netbsd/pmpost
  bin/i386-netbsd/upmpost
 
+name pmetapost.universal-darwin
+category Package
+revision 30
+shortdesc universal-darwin files of pmetapost
+binfiles arch=universal-darwin size=4231
+ bin/universal-darwin/pdvitomp
+ bin/universal-darwin/pmpost
+ bin/universal-darwin/upmpost
+
 name pmetapost.win32
 category Package
 revision 30
@@ -207,6 +216,15 @@ shortdesc win32 files of pmetapost
 binfiles arch=win32 size=934
  bin/win32/pmpost.exe
  bin/win32/upmpost.exe
+
+name pmetapost.x86_64-darwin
+category Package
+revision 30
+shortdesc x86_64-darwin files of pmetapost
+binfiles arch=x86_64-darwin size=2179
+ bin/x86_64-darwin/pdvitomp
+ bin/x86_64-darwin/pmpost
+ bin/x86_64-darwin/upmpost
 
 name pmetapost.x86_64-linux
 category Package
