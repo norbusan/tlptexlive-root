@@ -1,0 +1,16 @@
+depend tex
+depend uptex
+depend latex
+depend adobemapping
+depend ipaex
+depend japanese
+depend japanese-otf
+#
+execute AddFormat name=plain engine=ptex-ng options="-progname=uptex *ptex-ng.ini" patterns=language.def
+execute AddFormat name=platex engine=ptex-ng options="-progname=uplatex *platex-ng.ini" patterns=language.dat
+#
+binpattern f bin/${ARCH}/ptex-ng
+binpattern f bin/${ARCH}/platex-ng
+runpattern f texmf-dist/tex/generic/config/ptex-ng-config.tex
+runpattern f texmf-dist/tex/uptex/config/ptex-ng.ini
+runpattern f texmf-dist/tex/uplatex/config/platex-ng.ini
