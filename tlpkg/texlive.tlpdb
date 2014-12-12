@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-freebsd x86_64-linux amd64-freebsd win32 i386-cygwin i386-linux universal-darwin i386-netbsd x86_64-darwin
+depend setting_available_architectures:win32 i386-cygwin amd64-freebsd i386-linux x86_64-linux universal-darwin i386-freebsd i386-netbsd x86_64-darwin
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -186,7 +186,7 @@ name pmetapost.i386-linux
 category Package
 revision 30
 shortdesc i386-linux files of pmetapost
-binfiles arch=i386-linux size=880
+binfiles arch=i386-linux size=1051
  bin/i386-linux/pdvitomp
  bin/i386-linux/pmpost
  bin/i386-linux/upmpost
@@ -230,10 +230,52 @@ name pmetapost.x86_64-linux
 category Package
 revision 30
 shortdesc x86_64-linux files of pmetapost
-binfiles arch=x86_64-linux size=970
+binfiles arch=x86_64-linux size=1165
  bin/x86_64-linux/pdvitomp
  bin/x86_64-linux/pmpost
  bin/x86_64-linux/upmpost
+
+name ptex-ng
+category Package
+revision 1
+depend tex
+depend uptex
+depend latex
+depend adobemapping
+depend ipaex
+depend japanese
+depend japanese-otf
+depend ptex-ng.ARCH
+execute AddFormat name=plain engine=ptex-ng options="-progname=uptex *ptex-ng.ini" patterns=language.def
+execute AddFormat name=platex engine=ptex-ng options="-progname=uplatex *platex-ng.ini" patterns=language.dat
+runfiles size=3
+ texmf-dist/tex/generic/config/ptex-ng-config.tex
+ texmf-dist/tex/uplatex/config/platex-ng.ini
+ texmf-dist/tex/uptex/config/ptex-ng.ini
+
+name ptex-ng.i386-linux
+category Package
+revision 1
+shortdesc i386-linux files of ptex-ng
+binfiles arch=i386-linux size=331
+ bin/i386-linux/platex-ng
+ bin/i386-linux/ptex-ng
+
+name ptex-ng.win32
+category Package
+revision 1
+shortdesc win32 files of ptex-ng
+binfiles arch=win32 size=440
+ bin/win32/platex-ng.exe
+ bin/win32/ptex-ng.exe
+
+name ptex-ng.x86_64-linux
+category Package
+revision 1
+shortdesc x86_64-linux files of ptex-ng
+binfiles arch=x86_64-linux size=370
+ bin/x86_64-linux/platex-ng
+ bin/x86_64-linux/ptex-ng
 
 name pxdvi
 category TLCore

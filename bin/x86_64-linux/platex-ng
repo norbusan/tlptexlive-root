@@ -1,2 +1,1 @@
-#!/bin/sh
-ptex-ng +platex --progname=uplatex "$*"
+ptex-ng
