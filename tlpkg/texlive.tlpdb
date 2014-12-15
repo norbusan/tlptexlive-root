@@ -8,12 +8,12 @@ depend container_format/xz
 depend container_split_doc_files/1
 depend container_split_src_files/1
 depend minrelease/2013
-depend release/2013
+depend release/2014
 depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:amd64-freebsd x86_64-darwin x86_64-linux i386-linux universal-darwin win32 i386-netbsd i386-freebsd i386-cygwin
+depend setting_available_architectures:i386-linux universal-darwin x86_64-darwin i386-netbsd amd64-freebsd i386-cygwin i386-freebsd x86_64-linux win32
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -27,7 +27,7 @@ depend opt_post_code:1
 depend opt_sys_bin:/usr/local/bin
 depend opt_sys_info:/usr/local/share/info
 depend opt_sys_man:/usr/local/share/man
-depend opt_w32_multi_user:0
+depend opt_w32_multi_user:1
 
 name hiraprop
 category Package
