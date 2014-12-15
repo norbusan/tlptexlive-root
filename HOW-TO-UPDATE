@@ -1,5 +1,5 @@
 
-perl tlpkg/bin/tl-update-tlpdb -with-w32-pattern-warning -from-files -no-reverse-revision-check --keep-revisions
+perl tlpkg/bin/tl-update-tlpdb -with-w32-pattern-warning -from-files -no-reverse-revision-check --keep-revisions -tlpdb-options-from-tlpsrc
 # fix revisions by hand
 
 perl tlpkg/bin/tl-update-containers -location /var/www/norbert/tlptexlive -all # -recreate
