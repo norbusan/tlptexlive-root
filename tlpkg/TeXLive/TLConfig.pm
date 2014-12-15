@@ -1,12 +1,12 @@
-# $Id: TLConfig.pm 29883 2013-04-13 05:32:44Z preining $
+# $Id: TLConfig.pm 35731 2014-12-03 23:17:01Z karl $
 # TeXLive::TLConfig.pm - module exporting configuration values
-# Copyright 2007-2013 Norbert Preining
+# Copyright 2007-2014 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
 package TeXLive::TLConfig;
 
-my $svnrev = '$Revision: 29883 $';
+my $svnrev = '$Revision: 35731 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -48,20 +48,21 @@ BEGIN {
     %TLPDBSettings
     %TLPDBConfigs
     $NetworkTimeout
+    $PartialEngineSupport
   );
   @EXPORT = @EXPORT_OK;
 }
 
 # the year of our release, will be used in the location of the
 # network packages, and in menu names, and other places.
-$ReleaseYear = 2013;
+$ReleaseYear = 2014;
 
 # users can upgrade from this year to the current year; maybe a spread
 # of more than one year will be useful at some point, but not now.
-# $MinRelease = $ReleaseYear - 1;
+$MinRelease = 2013; # upgrade from 2013 to 2015 might work?
 
 # users can NOT upgrade due to internal changes, force a full installation
-$MinRelease = $ReleaseYear;
+#$MinRelease = $ReleaseYear;
 
 # Meta Categories do not ship files, but only call for other packages.
 our @MetaCategories = qw/Collection Scheme/;
@@ -175,7 +176,7 @@ our %TLPDBOptions = (
     [ "p", "/usr/local/share/man", "sys_man",
       "Destination for symlinks for man pages" ],
   "w32_multi_user" =>
-    [ "b", 0, "multiuser",
+    [ "b", 1, "multiuser",
       "Install for all users (w32)" ],
   "generate_updmap" =>
     [ "b", 0, "generate_updmap",
@@ -191,7 +192,9 @@ our %TLPDBSettings = (
 
 our $WindowsMainMenuName = "TeX Live $ReleaseYear";
 
-#
+# Comma-separated list of engines which do not exist on all platforms.
+our $PartialEngineSupport = "luajittex";
+
 # timeout for network connections (wget, LWP) in seconds
 our $NetworkTimeout = 30;
 

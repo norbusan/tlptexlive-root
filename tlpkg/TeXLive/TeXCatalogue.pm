@@ -1,6 +1,6 @@
-# $Id: TeXCatalogue.pm 29762 2013-04-08 20:59:28Z karl $
+# $Id: TeXCatalogue.pm 35744 2014-12-04 23:44:44Z karl $
 # TeXLive::TeXCatalogue - module for accessing the TeX Catalogue
-# Copyright 2007, 2008, 2009, 2010, 2011 Norbert Preining
+# Copyright 2007-2014 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 # 
@@ -13,7 +13,7 @@ use Text::Unidecode;
 
 package TeXLive::TeXCatalogue::Entry;
 
-my $svnrev = '$Revision: 29762 $';
+my $svnrev = '$Revision: 35744 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -56,8 +56,9 @@ sub new {
 sub initialize {
   my $self = shift;
   # parse all the files
-  my $parser = new XML::XPath->new(ioref => $self->{'ioref'}, parser => $_parser) ||
-    die "Failed to parse the given ioref";
+  my $parser
+    = new XML::XPath->new(ioref => $self->{'ioref'}, parser => $_parser)
+      || die "Failed to parse given ioref";
   $self->{'entry'}{'id'} = $parser->findvalue('/entry/@id');
   $self->{'entry'}{'date'} = $parser->findvalue('/entry/@datestamp');
   $self->{'entry'}{'modder'} = $parser->findvalue('/entry/@modifier');
@@ -79,8 +80,8 @@ sub initialize {
   foreach my $node ($docset->get_nodelist) {
     my $docfile = $parser->find('./@href',$node);
     # see comments at end of beautify()
-    my $details = Text::Unidecode::unidecode(
-        $parser->find('./@details',$node));
+    my $details
+      = Text::Unidecode::unidecode($parser->find('./@details',$node));
     my $language = $parser->find('./@language',$node);
     $self->{'docs'}{$docfile}{'available'} = 1;
     if ($details) { $self->{'docs'}{$docfile}{'details'} = $details; }
@@ -186,13 +187,14 @@ sub initialize {
   || die "chdir($self->{location}/entries failed: $!";
   # parse all the files
   foreach (glob("?/*.xml")) {
+    # for debugging, nice to skip everything but: next unless /pst-node/;
     open(my $io,"<$_") or die "open($_) failed: $!";
     our $tce;
     # the XML parser die's on malformed xml entries, so we catch
     # that and continue, simply skipping the entry
     eval { $tce = TeXLive::TeXCatalogue::Entry->new( 'ioref' => $io ); };
     if ($@) {
-      printf STDERR "TeXCatalogue.pm: cannot parse $_, skipping it!\n";
+      warn "TeXCatalogue.pm:$_: cannot parse, skipping: $@\n";
       close($io);
       next;
     }

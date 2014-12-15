@@ -1,12 +1,12 @@
-# $Id: TLUtils.pm 31259 2013-07-21 22:07:38Z karl $
+# $Id: TLUtils.pm 35719 2014-12-02 18:11:31Z karl $
 # TeXLive::TLUtils.pm - the inevitable utilities for TeX Live.
-# Copyright 2007-2013 Norbert Preining, Reinhard Kotucha
+# Copyright 2007-2014 Norbert Preining, Reinhard Kotucha
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
 package TeXLive::TLUtils;
 
-my $svnrev = '$Revision: 31259 $';
+my $svnrev = '$Revision: 35719 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -27,7 +27,7 @@ C<TeXLive::TLUtils> -- utilities used in the TeX Live infrastructure
 
   use TeXLive::TLUtils;
 
-=head2 Platform Detection
+=head2 Platform detection
 
   TeXLive::TLUtils::platform();
   TeXLive::TLUtils::platform_name($canonical_host);
@@ -35,17 +35,18 @@ C<TeXLive::TLUtils> -- utilities used in the TeX Live infrastructure
   TeXLive::TLUtils::win32();
   TeXLive::TLUtils::unix();
 
-=head2 System Tools
+=head2 System tools
 
   TeXLive::TLUtils::getenv($string);
   TeXLive::TLUtils::which($string);
   TeXLive::TLUtils::get_system_tmpdir();
   TeXLive::TLUtils::tl_tmpdir();
   TeXLive::TLUtils::xchdir($dir);
+  TeXLive::TLUtils::wsystem($msg,@args);
   TeXLive::TLUtils::xsystem(@args);
   TeXLive::TLUtils::run_cmd($cmd);
 
-=head2 File Utilities
+=head2 File utilities
 
   TeXLive::TLUtils::dirname($path);
   TeXLive::TLUtils::basename($path);
@@ -65,7 +66,7 @@ C<TeXLive::TLUtils> -- utilities used in the TeX Live infrastructure
   TeXLive::TLUtils::nulldev();
   TeXLive::TLUtils::get_full_line($fh);
 
-=head2 Installer Functions
+=head2 Installer functions
 
   TeXLive::TLUtils::make_var_skeleton($path);
   TeXLive::TLUtils::make_local_skeleton($path);
@@ -175,6 +176,7 @@ BEGIN {
     &create_mirror_list
     &extract_mirror_entry
     &tlmd5
+    &wsystem
     &xsystem
     &run_cmd
     &announce_execute_actions
@@ -191,10 +193,11 @@ BEGIN {
     &mktexupd
     &nulldev
     &get_full_line
+    &sort_archs
   );
   @EXPORT = qw(setup_programs download_file process_logging_options
                tldie tlwarn info log debug ddebug dddebug debug_hash
-               win32 xchdir xsystem run_cmd);
+               win32 xchdir xsystem run_cmd sort_archs);
 }
 
 use Cwd;
@@ -206,8 +209,8 @@ use TeXLive::TLConfig;
 
 $::opt_verbosity = 0;  # see process_logging_options
 
-
-=head2 Platform Detection
+
+=head2 Platform detection
 
 =over 4
 
@@ -299,7 +302,7 @@ sub platform_name {
     chomp (my $sw_vers = `sw_vers -productVersion`);
     my ($os_major,$os_minor) = split (/\./, $sw_vers);
     #
-    chomp (my $sysctl = `sysctl hw.cpu64bit_capable`);
+    chomp (my $sysctl = `PATH=/usr/sbin:\$PATH sysctl hw.cpu64bit_capable`);
     my (undef,$hw_64_bit) = split (" ", $sysctl);
     #
     $CPU = ($os_major >= 10 && $os_minor >= 6 && $hw_64_bit >= 1)
@@ -327,33 +330,34 @@ sub platform_desc {
   my ($platform) = @_;
 
   my %platform_name = (
-    'alpha-linux'      => 'DEC Alpha with GNU/Linux',
-    'amd64-freebsd'    => 'x86_64 with FreeBSD',
-    'amd64-kfreebsd'   => 'x86_64 with GNU/kFreeBSD',
-    'amd64-netbsd'     => 'x86_64 with NetBSD',
-    'armel-linux'      => 'ARM with GNU/Linux',
-    'armhf-linux'      => 'ARMhf with GNU/Linux',
+    'alpha-linux'      => 'GNU/Linux on DEC Alpha',
+    'amd64-freebsd'    => 'FreeBSD on x86_64',
+    'amd64-kfreebsd'   => 'GNU/kFreeBSD on x86_64',
+    'amd64-netbsd'     => 'NetBSD on x86_64',
+    'armel-linux'      => 'GNU/Linux on ARM',
+    'armhf-linux'      => 'GNU/Linux on ARMhf',
     'hppa-hpux'        => 'HP-UX',
-    'i386-cygwin'      => 'Intel x86 with Cygwin',
-    'i386-darwin'      => 'Intel x86 with MacOSX/Darwin',
-    'i386-freebsd'     => 'Intel x86 with FreeBSD',
-    'i386-kfreebsd'    => 'Intel x86 with GNU/kFreeBSD',
-    'i386-openbsd'     => 'Intel x86 with OpenBSD',
-    'i386-netbsd'      => 'Intel x86 with NetBSD',
-    'i386-linux'       => 'Intel x86 with GNU/Linux',
-    'i386-solaris'     => 'Intel x86 with Solaris',
+    'i386-cygwin'      => 'Cygwin on Intel x86',
+    'i386-darwin'      => 'MacOSX/Darwin on Intel x86',
+    'i386-freebsd'     => 'FreeBSD on Intel x86',
+    'i386-kfreebsd'    => 'GNU/kFreeBSD on Intel x86',
+    'i386-openbsd'     => 'OpenBSD on Intel x86',
+    'i386-netbsd'      => 'NetBSD on Intel x86',
+    'i386-linux'       => 'GNU/Linux on Intel x86',
+    'i386-solaris'     => 'Solaris on Intel x86',
     'mips-irix'        => 'SGI IRIX',
-    'mipsel-linux'     => 'MIPSel with GNU/Linux',
-    'powerpc-aix'      => 'PowerPC with AIX',
-    'powerpc-darwin'   => 'PowerPC with MacOSX/Darwin',
-    'powerpc-linux'    => 'PowerPC with GNU/Linux',
-    'sparc-linux'      => 'Sparc with GNU/Linux',
-    'sparc-solaris'    => 'Sparc with Solaris',
-    'universal-darwin' => 'universal binaries for MacOSX/Darwin',
+    'mipsel-linux'     => 'GNU/Linux on MIPSel',
+    'powerpc-aix'      => 'AIX on PowerPC',
+    'powerpc-darwin'   => 'MacOSX/Darwin on PowerPC',
+    'powerpc-linux'    => 'GNU/Linux on PowerPC',
+    'sparc-linux'      => 'GNU/Linux on Sparc',
+    'sparc-solaris'    => 'Solaris on Sparc',
+    'universal-darwin' => 'MacOSX/Darwin universal binaries',
     'win32'            => 'Windows',
-    'x86_64-darwin'    => 'x86_64 with MacOSX/Darwin',
-    'x86_64-linux'     => 'x86_64 with GNU/Linux',
-    'x86_64-solaris'   => 'x86_64 with Solaris',
+    'x86_64-cygwin'    => 'Cygwin on x86_64',
+    'x86_64-darwin'    => 'MacOSX/Darwin on x86_64',
+    'x86_64-linux'     => 'GNU/Linux on x86_64',
+    'x86_64-solaris'   => 'Solaris on x86_64',
   );
 
   # the inconsistency between amd64-freebsd and x86_64-linux is
@@ -481,7 +485,7 @@ sub get_system_tmpdir {
 
 =item C<tl_tmpdir>
 
-Create a temporary directory which is cleaned up as soon as the program
+Create a temporary directory which is removed when the program
 is terminated.
 
 =cut
@@ -503,9 +507,28 @@ sub xchdir {
 }
 
 
+=item C<wsystem($msg, @args)>
+
+Call C<info> about what is being done starting with C<$msg>, then run
+C<system(@args)>; C<tlwarn> if unsuccessful and return the exit status.
+
+=cut
+
+sub wsystem {
+  my ($msg,@args) = @_;
+  info("$msg @args ...\n");
+  my $status = system(@args);
+  if ($status != 0) {
+    tlwarn("$0:  command failed: @args: $!\n");
+  }
+  return $status;
+}
+
+
 =item C<xsystem(@args)>
 
-Run C<system(@args)> and die if unsuccessful.
+Call C<ddebug> about what is being done, then run C<system(@args)>, and
+die if unsuccessful.
 
 =cut
 
@@ -522,24 +545,24 @@ sub xsystem {
 
 =item C<run_cmd($cmd)>
 
-runs a command and captures its output. Then returns a list with the
-output as first element and the return value (exit code) as second.
+Run shell command C<$cmd> and captures its output. Returns a list with CMD's
+output as the first element and the return value (exit code) as second.
 
 =cut
 
 sub run_cmd {
   my $cmd = shift;
   my $output = `$cmd`;
+  $output = "" if ! defined ($output);  # don't return undef
+
   my $retval = $?;
   if ($retval != 0) {
     $retval /= 256 if $retval > 0;
   }
-  return ($output, $retval);
+  return ($output,$retval);
 }
 
 
-
-
 =back
 
 =head2 File Utilities
@@ -711,28 +734,30 @@ a fileserver.
 # real Program Files. Ugh.
 
 sub dir_writable {
-  my $path=shift;
+  my ($path) = @_;
   return 0 unless -d $path;
   $path =~ s!\\!/!g if win32;
   $path =~ s!/$!!;
   my $i = 0;
   my $too_large = 100000;
-  while ((-e $path . "/" . $i) and $i<$too_large) { $i++; }
-  return 0 if $i>=$too_large;
-  my $f = $path."/".$i;
-  return 0 unless open TEST, ">".$f;
+  while ((-e "$path/$i") && $i < $too_large) {
+    $i++;
+  }
+  return 0 if $ i >= $too_large;
+  my $f = "$path/$i";
+  return 0 if ! open (TEST, ">$f");
   my $written = 0;
   $written = (print TEST "\n");
-  close TEST;
-  unlink $f;
+  close (TEST);
+  unlink ($f);
   return $written;
 }
 
 
 =item C<mkdirhier($path, [$mode])>
 
-The function C<mkdirhier> does the same as the UNIX command C<mkdir -p>.
-The optional parameter sets the permission flags.
+The function C<mkdirhier> does the same as the UNIX command C<mkdir -p>,
+and dies on failure.  The optional parameter sets the permission bits.
 
 =cut
 
@@ -1040,9 +1065,6 @@ sub touch {
     }
   }
 }
-
-
-
 
 
 =item C<collapse_dirs(@files)>
@@ -1395,12 +1417,20 @@ sub install_packages {
       $tlpobj->replace_reloc_prefix;
     }
     $totlpdb->add_tlpobj($tlpobj);
+
     # we have to write out the tlpobj file since it is contained in the
-    # archives (.tar.xz) but at uncompressed-media install time we don't have them
+    # archives (.tar.xz), but at uncompressed-media install time we
+    # don't have them.
     my $tlpod = $totlpdb->root . "/tlpkg/tlpobj";
-    mkdirhier( $tlpod );
-    open(TMP,">$tlpod/".$tlpobj->name.".tlpobj") ||
-      die "$0: open tlpobj " . $tlpobj->name . "failed: $!";
+    mkdirhier($tlpod);
+    my $count = 0;
+    my $tlpobj_file = ">$tlpod/" . $tlpobj->name . ".tlpobj";
+    until (open(TMP, $tlpobj_file)) {
+      # The open might fail for no good reason on Windows.
+      # Try again for a while, but not forever.
+      if ($count++ == 100) { die "$0: open($tlpobj_file) failed: $!"; }
+      select (undef, undef, undef, .1);  # sleep briefly
+    }
     $tlpobj->writeout(\*TMP);
     close(TMP);
     $donesize += $tlpsizes{$package};
@@ -1980,27 +2010,38 @@ On Windows it returns undefined.
 =cut
 
 sub add_link_dir_dir {
-  my ($from, $to) = @_;
-  mkdirhier $to;
-  if (-w  $to) {
-    debug("linking files from $from to $to\n");
+  my ($from,$to) = @_;
+  mkdirhier ($to);
+  if (-w $to) {
+    debug ("linking files from $from to $to\n");
     chomp (@files = `ls "$from"`);
     my $ret = 1;
     for my $f (@files) {
-      # skip certain dangerous entries that should never be linked somewhere
+      # don't make a system-dir link to our special "man" link.
       if ($f eq "man") {
-        debug("not linking man into $to.\n");
+        debug ("not linking `man' into $to.\n");
         next;
       }
-      unlink("$to/$f");
-      if (system("ln -s \"$from/$f\" \"$to\"")) {
-        tlwarn("Linking $f from $from to $to failed: $!\n");
+      #
+      # attempt to remove an existing symlink, but nothing else.
+      unlink ("$to/$f") if -l "$to/$f";
+      #
+      # if the destination still exists, skip it.
+      if (-e "$to/$f") {
+        tlwarn ("add_link_dir_dir: $to/$f exists; not making symlink.\n");
+        next;
+      }
+      #
+      # try to make the link.
+      if (system ("ln -s '$from/$f' '$to'") != 0) {
+        tlwarn ("add_link_dir_dir: linking $f from $from to $to failed: $!\n");
         $ret = 0;
       }
     }
     return $ret;
   } else {
-    tlwarn("destination $to not writable, no linking files in $from done.\n");
+    tlwarn ("add_link_dir_dir: destination $to not writable, "
+            . "no links from $from.\n");
     return 0;
   }
 }
@@ -2039,57 +2080,65 @@ sub add_remove_symlinks {
   my ($mode, $Master, $arch, $sys_bin, $sys_man, $sys_info) = @_;
   my $errors = 0;
   my $plat_bindir = "$Master/bin/$arch";
+
+  # nothing to do with symlinks on Windows, of course.
   return if win32();
+
+  my $info_dir = "$Master/texmf-dist/doc/info";
   if ($mode eq "add") {
-    $errors++ unless add_link_dir_dir($plat_bindir, $sys_bin);
-    if (-d "$Master/texmf-dist/doc/info") {
-      $errors++
-        unless add_link_dir_dir("$Master/texmf-dist/doc/info", $sys_info);
+    $errors++ unless add_link_dir_dir($plat_bindir, $sys_bin);   # bin
+    if (-d $info_dir) {
+      $errors++ unless add_link_dir_dir($info_dir, $sys_info);
     }
   } elsif ($mode eq "remove") {
-    $errors++ unless remove_link_dir_dir($plat_bindir, $sys_bin);
-    if (-d "$Master/texmf-dist/doc/info") {
-      $errors++
-        unless remove_link_dir_dir("$Master/texmf-dist/doc/info", $sys_info);
+    $errors++ unless remove_link_dir_dir($plat_bindir, $sys_bin); # bin
+    if (-d $info_dir) {
+      $errors++ unless remove_link_dir_dir($info_dir, $sys_info);
     }
   } else {
     die ("should not happen, unknown mode $mode in add_remove_symlinks!");
   }
-  mkdirhier $sys_man if ($mode eq "add");
-  if (-w  $sys_man && -d "$Master/texmf-dist/doc/man") {
-    debug("$mode symlinks for man pages in $sys_man\n");
-    my $foo = `(cd "$Master/texmf-dist/doc/man" && echo *)`;
-    chomp (my @mans = split (' ', $foo));
-    foreach my $m (@mans) {
-      my $mandir = "$Master/texmf-dist/doc/man/$m";
-      next unless -d $mandir;
-      if ($mode eq "add") {
-        $errors++ unless add_link_dir_dir($mandir, "$sys_man/$m");
-      } else {
-        $errors++ unless remove_link_dir_dir($mandir, "$sys_man/$m");
-      }
-    }
-    # `rmdir "$sys_man" 2>/dev/null` if ($mode eq "remove");
+  
+  # man
+  my $top_man_dir = "$Master/texmf-dist/doc/man";
+  debug("$mode symlinks for man pages to $sys_man from $top_man_dir\n");
+  if (! -d $top_man_dir && $mode eq "add") {
+    ; # better to be silent?
+    #info("skipping add of man symlinks, no source directory $top_man_dir\n");
   } else {
-    tlwarn("destination of man symlink $sys_man not writable, "
-      . "cannot $mode symlinks.\n");
-    $errors++;
+    mkdirhier $sys_man if ($mode eq "add");
+    if (-w $sys_man) {
+      my $foo = `(cd "$top_man_dir" && echo *)`;
+      my @mans = split (' ', $foo);
+      chomp (@mans);
+      foreach my $m (@mans) {
+        my $mandir = "$top_man_dir/$m";
+        next unless -d $mandir;
+        if ($mode eq "add") {
+          $errors++ unless add_link_dir_dir($mandir, "$sys_man/$m");
+        } else {
+          $errors++ unless remove_link_dir_dir($mandir, "$sys_man/$m");
+        }
+      }
+      #`rmdir "$sys_man" 2>/dev/null` if ($mode eq "remove");
+    } else {
+      tlwarn("man symlink destination ($sys_man) not writable,"
+        . "cannot $mode symlinks.\n");
+      $errors++;
+    }
   }
-  # we collected errors in $ret, so return the negation of it
+  
+  # we collected errors in $errors, so return the negation of it
   if ($errors) {
-    info("$mode of symlinks failed $errors times, please see above messages.\n");
+    info("$mode of symlinks had $errors error(s), see messages above.\n");
     return 0;
   } else {
     return 1;
   }
 }
 
-sub add_symlinks {
-  return (add_remove_symlinks("add", @_));
-}
-sub remove_symlinks {
-  return (add_remove_symlinks("remove", @_));
-}
+sub add_symlinks    { return (add_remove_symlinks("add", @_));    }
+sub remove_symlinks { return (add_remove_symlinks("remove", @_)); }
 
 =pod
 
@@ -2338,7 +2387,6 @@ sub read_file_ignore_cr {
 
   return $ret;
 }
-
 
 
 =item C<setup_programs($bindir, $platform)>
@@ -2660,7 +2708,7 @@ sub get_full_line {
   return $line . $cont;
 }
 
-
+
 =back
 
 =head2 Installer Functions
@@ -2677,7 +2725,7 @@ sub make_var_skeleton {
   my ($prefix) = @_;
 
   mkdirhier "$prefix/tex/generic/config";
-  mkdirhier "$prefix/fonts/map/dvipdfm/updmap";
+  mkdirhier "$prefix/fonts/map/dvipdfmx/updmap";
   mkdirhier "$prefix/fonts/map/dvips/updmap";
   mkdirhier "$prefix/fonts/map/pdftex/updmap";
   mkdirhier "$prefix/fonts/pk";
@@ -2714,7 +2762,6 @@ sub make_local_skeleton {
   mkdirhier "$prefix/tlpkg";
   mkdirhier "$prefix/web2c";
 }
-
 
 
 =item C<create_fmtutil($tlpdb, $dest, $localconf)>
@@ -3061,7 +3108,7 @@ sub parse_AddFormat_line {
   return %ret;
 }
 
-
+
 =back
 
 =head2 Miscellaneous
@@ -3909,8 +3956,14 @@ sub report_tlpdb_differences {
   }
 }
 
-#############################################
-#
+sub sort_archs ($$) {
+  my $aa = $_[0];
+  my $bb = $_[1];
+  $aa =~ s/^(.*)-(.*)$/$2-$1/;
+  $bb =~ s/^(.*)-(.*)$/$2-$1/;
+  $aa cmp $bb ;
+}
+
 # Taken from Text::ParseWords
 #
 sub quotewords {
@@ -4065,7 +4118,6 @@ sub mktexupd {
   return $hash;
 }
 
-
 =back
 =cut
 1;

@@ -1,6 +1,6 @@
-# $Id: TLWinGoo.pm 30367 2013-05-10 12:56:49Z siepo $
+# $Id: TLWinGoo.pm 34045 2014-05-15 17:39:06Z karl $
 # TeXLive::TLWinGoo.pm - Windows nastiness
-# Copyright 2008-2013 Siep Kroonenberg, Norbert Preining
+# Copyright 2008-2014 Siep Kroonenberg, Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
@@ -11,7 +11,7 @@
 
 package TeXLive::TLWinGoo;
 
-my $svnrev = '$Revision: 30367 $';
+my $svnrev = '$Revision: 34045 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -336,11 +336,7 @@ from C<%ENV>.
 
 =cut
 
-if ($is_win) {
-  $global_tmp = expand_string(get_system_env()->{'TEMP'}) if $is_win;
-}
-
-my $global_tmp = "/tmp";
+my $global_tmp = $is_win ? expand_string(get_system_env()->{'TEMP'}) : "/tmp";
 
 sub global_tmpdir { return $global_tmp; }
 

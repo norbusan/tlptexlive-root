@@ -1,6 +1,6 @@
-# $Id: TLPOBJ.pm 29883 2013-04-13 05:32:44Z preining $
+# $Id: TLPOBJ.pm 35751 2014-12-05 18:45:04Z karl $
 # TeXLive::TLPOBJ.pm - module for using tlpobj files
-# Copyright 2007, 2008, 2009, 2010, 2011 Norbert Preining
+# Copyright 2007-2014 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
@@ -15,7 +15,7 @@ use TeXLive::TLTREE;
 our $_tmp;
 my $_containerdir;
 
-my $svnrev = '$Revision: 29883 $';
+my $svnrev = '$Revision: 35751 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -118,14 +118,23 @@ sub from_fh {
         # docfiles can have tags, but the parse_line function is so
         # time intense that we try to call it only when necessary
         if (defined $rest) {
-          my @words = &TeXLive::TLUtils::parse_line('\s+', 0, $rest);
-          for (@words) {
-            my ($k, $v) = split('=', $_, 2);
-            if ($k eq 'details' || $k eq 'language') {
-              $self->{'docfiledata'}{$f}{$k} = $v;
-            } else {
-              die "Unknown docfile tag: $line";
-            }
+          # parse_line has problems with double quotes in double quotes
+          # my @words = &TeXLive::TLUtils::parse_line('\s+', 0, $rest);
+          # do manual parsing
+          # this is not optimal, but since we support only two tags there
+          # are not so many cases
+          if ($rest =~ m/^details="(.*)"\s*$/) {
+            $self->{'docfiledata'}{$f}{'details'} = $1;
+          } elsif ($rest =~ m/^language="(.*)"\s*$/) {
+            $self->{'docfiledata'}{$f}{'language'} = $1;
+          } elsif ($rest =~ m/^language="(.*)"\s+details="(.*)"\s*$/) {
+            $self->{'docfiledata'}{$f}{'details'} = $2;
+            $self->{'docfiledata'}{$f}{'language'} = $1;
+          } elsif ($rest =~ m/^details="(.*)"\s+language="(.*)"\s*$/) {
+            $self->{'docfiledata'}{$f}{'details'} = $1;
+            $self->{'docfiledata'}{$f}{'language'} = $2;
+          } else {
+            tlwarn("$0: Unparsable tagging in TLPDB line: $line\n");
           }
         }
       } elsif ($lastcmd eq "binfiles") {
@@ -310,10 +319,14 @@ sub writeout {
     foreach my $f (sort @{$self->{'docfiles'}}) {
       print $fd " $f";
       if (defined($self->{'docfiledata'}{$f}{'details'})) {
-        print $fd ' details="', $self->{'docfiledata'}{$f}{'details'}, '"';
+        my $tmp = $self->{'docfiledata'}{$f}{'details'};
+        #$tmp =~ s/\"/\\\"/g;
+        print $fd ' details="', $tmp, '"';
       }
       if (defined($self->{'docfiledata'}{$f}{'language'})) {
-        print $fd ' language="', $self->{'docfiledata'}{$f}{'language'}, '"';
+        my $tmp = $self->{'docfiledata'}{$f}{'language'};
+        #$tmp =~ s/\"/\\\"/g;
+        print $fd ' language="', $tmp, '"';
       }
       print $fd "\n";
     }
@@ -707,8 +720,7 @@ sub total_size {
 # Update the current TLPOBJ object with the information from the
 # corresponding entry in C<$tlc->entries>.
 #
-sub update_from_catalogue
-{
+sub update_from_catalogue {
   my ($self, $tlc) = @_;
   my $tlcname = $self->name;
   if (defined($self->catalogue)) {
@@ -731,7 +743,7 @@ sub update_from_catalogue
       $foo =~ s/^.Date: //;
       # trying to extract the interesting part of a subversion date
       # keyword expansion here, e.g.,
-      # $Date: 2013-04-13 14:32:44 +0900 (Sat, 13 Apr 2013) $
+      # $Date: 2014-12-06 03:45:04 +0900 (Sat, 06 Dec 2014) $
       # ->2007-08-15 19:43:35 +0100
       $foo =~ s/ \(.*\)( *\$ *)$//;  # maybe nothing after parens
       $self->cataloguedata->{'date'} = $foo;
@@ -769,24 +781,39 @@ sub update_from_catalogue
     # <documentation details='Package documentation' language='de'
     #   href='ctan:/macros/latex/contrib/juramisc/doc/jmgerdoc.pdf'/>
     # <ctan path='/macros/latex/contrib/juramisc'/>
-    my @tcdocfiles = keys %{$entry->docs};
-    my @tlpdocfiles = $self->docfiles;
-    foreach my $tcdocfile (@tcdocfiles) {
-      # basename also kills the ctan: prefix!
+    my @tcdocfiles = keys %{$entry->docs};  # Catalogue doc files.
+    my %tcdocfilebasenames;                 # basenames of those, as we go.
+    my @tlpdocfiles = $self->docfiles;      # TL doc files.
+    foreach my $tcdocfile (sort @tcdocfiles) {  # sort so shortest first
+      #warn "looking at tcdocfile $tcdocfile\n";
       my $tcdocfilebasename = $tcdocfile;
-      # remove the ctan: prefix
-      $tcdocfilebasename =~ s/^ctan://;
-      # remove the ctan path if present
-      my $tcctanpath = $entry->ctan ? $entry->ctan : "";
-      $tcdocfilebasename =~ s/^$tcctanpath//;
+      $tcdocfilebasename =~ s/^ctan://;  # remove ctan: prefix
+      $tcdocfilebasename =~ s,.*/,,;     # remove all but the base file name
+      #warn "  got basename $tcdocfilebasename\n";
+      #
+      # If we've already seen this basename, skip.  This is for the sake
+      # of README files, which can exist in different directories but
+      # get renamed into different files in TL for various annoying reasons;
+      # e.g., ibygrk, rsfs, songbook.  In these cases, it turns out we
+      # always prefer the first entry (top-level README).
+      next if exists $tcdocfilebasenames{$tcdocfilebasename};
+      $tcdocfilebasenames{$tcdocfilebasename} = 1;
+      #
       foreach my $tlpdocfile (@tlpdocfiles) {
-        if ($tlpdocfile =~ m/$tcdocfilebasename$/) {
-          # update the language/detail tags if present!
+        #warn "considering merge into tlpdocfile $tlpdocfile\n";
+        if ($tlpdocfile =~ m,/$tcdocfilebasename$,) {
+          # update the language/detail tags from Catalogue if present.
           if (defined($entry->docs->{$tcdocfile}{'details'})) {
-            $self->{'docfiledata'}{$tlpdocfile}{'details'} = $entry->docs->{$tcdocfile}{'details'};
+            my $tmp = $entry->docs->{$tcdocfile}{'details'};
+            #warn "merging details for $tcdocfile: $tmp\n";
+            # remove all embedded quotes, they are just a pain
+            $tmp =~ s/"//g;
+            $self->{'docfiledata'}{$tlpdocfile}{'details'} = $tmp;
           }
           if (defined($entry->docs->{$tcdocfile}{'language'})) {
-            $self->{'docfiledata'}{$tlpdocfile}{'language'} = $entry->docs->{$tcdocfile}{'language'};
+            my $tmp = $entry->docs->{$tcdocfile}{'language'};
+            #warn "merging lang for $tcdocfile: $tmp\n";
+            $self->{'docfiledata'}{$tlpdocfile}{'language'} = $tmp;
           }
         }
       }

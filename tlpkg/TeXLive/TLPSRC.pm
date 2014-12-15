@@ -1,13 +1,13 @@
-# $Id: TLPSRC.pm 30037 2013-04-19 15:48:28Z karl $
+# $Id: TLPSRC.pm 34044 2014-05-15 17:35:07Z karl $
 # TeXLive::TLPSRC.pm - module for handling tlpsrc files
-# Copyright 2007-2013 Norbert Preining
+# Copyright 2007-2014 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
 package TeXLive::TLPSRC;
 
 use FileHandle;
-use TeXLive::TLConfig qw($CategoriesRegexp);
+use TeXLive::TLConfig qw($CategoriesRegexp $DefaultCategory);
 use TeXLive::TLUtils;
 use TeXLive::TLPOBJ;
 use TeXLive::TLTREE;
@@ -15,7 +15,7 @@ use TeXLive::TLTREE;
 my $_tmp;
 my %autopatterns;  # computed once internally
 
-my $svnrev = '$Revision: 30037 $';
+my $svnrev = '$Revision: 34044 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;

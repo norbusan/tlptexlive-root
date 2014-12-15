@@ -1,12 +1,12 @@
-# $Id: TLTREE.pm 26615 2012-05-24 00:39:35Z karl $
+# $Id: TLTREE.pm 34045 2014-05-15 17:39:06Z karl $
 # TeXLive::TLTREE.pm - work with the tree of all files
-# Copyright 2007-2012 Norbert Preining
+# Copyright 2007-2014 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 
 package TeXLive::TLTREE;
 
-my $svnrev = '$Revision: 26615 $';
+my $svnrev = '$Revision: 34045 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -278,12 +278,12 @@ sub _get_files_matching_glob_pattern
     }
   }
 
-  if ($dirpart =~ m,^bin/(win32|i386-cygwin),
+  if ($dirpart =~ m,^bin/(win[0-9]|.*-cygwin),
       || $dirpart =~ m,tlpkg/installer,) {
-    # for windows-iwsh we want to automatch more extensions.
+    # for windows-ish we want to automatch more extensions.
     foreach my $f (@candfiles) {
       my $w32_binext;
-      if ($dirpart =~ m,^bin/i386-cygwin,) {
+      if ($dirpart =~ m,^bin/.*-cygwin,) {
         $w32_binext = "exe";  # cygwin has .exe but nothing else
       } else {
         $w32_binext = "(exe|dll)(.manifest)?|texlua|bat|cmd";

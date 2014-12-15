@@ -1,6 +1,6 @@
-# $Id: TLPaper.pm 26615 2012-05-24 00:39:35Z karl $
+# $Id: TLPaper.pm 34057 2014-05-16 05:25:02Z preining $
 # TeXLive::TLPaper.pm - query/modify paper sizes for our various programs
-# Copyright 2008-2012 Norbert Preining
+# Copyright 2008-2014 Norbert Preining
 # This file is licensed under the GNU General Public License version 2
 # or any later version.
 #
@@ -11,7 +11,7 @@
 
 package TeXLive::TLPaper;
 
-my $svnrev = '$Revision: 26615 $';
+my $svnrev = '$Revision: 34057 $';
 my $_modulerevision;
 if ($svnrev =~ m/: ([0-9]+) /) {
   $_modulerevision = $1;
@@ -51,13 +51,17 @@ C<TeXLive::TLPaper> -- paper size setting
 
 use TeXLive::TLUtils qw(:DEFAULT dirname merge_into mkdirhier);
 
+#
+# removed the entry for dvipdfm
+# otherwise we continue generating files for dvipdfm
+#  "dvipdfm"  => \&paper_dvipdfm,
 my %paper_sub = (
   "xdvi"     => \&paper_xdvi,
   "pdftex"   => \&paper_pdftex,
   "dvips"    => \&paper_dvips,
   "dvipdfmx" => \&paper_dvipdfmx,
-  "dvipdfm"  => \&paper_dvipdfm,
   "context"  => \&paper_context,
+  "psutils"  => \&paper_psutils,
 );
 
 # Where to write to by default.
@@ -68,6 +72,7 @@ my %default_paper_config_path_component = (
   "dvipdfmx" => "dvipdfmx",
   "dvipdfm"  => "dvipdfm",
   "context"  => "tex/context/user",
+  "psutils"  => "psutils",
 );
 
 my %default_paper_config_name = (
@@ -77,6 +82,7 @@ my %default_paper_config_name = (
   "dvipdfmx" => "dvipdfmx.cfg",
   "dvipdfm"  => "config",
   "context"  => "cont-sys.tex",
+  "psutils"  => "paper.cfg",
 );
 
 # Output is done to the components in this hash.
@@ -151,6 +157,8 @@ my %dvipdfm_papersize = (
   "letter" => 1,
   "tabloid" => 1,
 );
+
+my %psutils_papersize = ( "a4" => 1, "letter" => 1, );
 
 
 
@@ -616,6 +624,33 @@ sub paper_context {
 }
 
 
+# psutils
+# config file "psutils/paper.cfg" only contains two words:
+#    p <papersize>
+#
+sub paper_psutils {
+  my $outtree = shift;
+  my $newpaper = shift;
+
+  my ($outcomp, $filecomp) = setup_names("psutils");
+  my $dftfile = $default_paper_config_name{"psutils"};
+  my $outfile = "$outtree/$outcomp/$filecomp";
+  my $inp = &find_paper_file("psutils", "other text files", $filecomp, $dftfile);
+
+  return unless $inp; 
+  
+
+  my @sizes = keys %psutils_papersize;
+  return &paper_do_simple($inp, "psutils", '^\s*p', '^\s*p\s+(\w+)\s*$', 
+             sub {
+               my ($ll,$np) = @_;
+               $ll =~ s/^\s*p\s+(\w+)\s*$/p $np\n/;
+               return($ll);
+             },
+             $outfile, \@sizes, '(undefined)', 'p a4', $newpaper);
+}
+
+
 # paper_do_simple does the work for single line config files
 # (xdvi, dvipdfm, ...)
 # arguments:
@@ -705,7 +740,7 @@ sub paper_do_simple {
           return;
         }
         for (@newlines) { print TMP; }
-        close(TMP) || warn "$0: close(>$outfile) failed: $!";
+        close(TMP) || warn "$0: close(>$outp) failed: $!";
         TeXLive::TLUtils::announce_execute_actions("regenerate-formats")
           if ($prog eq "context");
       } else {
