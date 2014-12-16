@@ -1,0 +1,130 @@
+            On preparing the FreeFont package for release.
+
+1)  Makefile
+
+    The command
+    	make
+    will build the TrueType font files in the sfd directory.
+    The command
+        make package
+    creates four archive files: one tarball of sources (SFD files), a zip
+    of TrueType fonts, a tarball of OpenType fonts, and a zip of WOFF 
+    format fonts. The naming convention is:
+
+        freefont-src-yyyymmdd.tar.gz
+        freefont-ttf-yyyymmdd.zip
+        freefont-otf-yyyymmdd.tar.gz
+        freefont-woff-yyyymmdd.zip
+
+    where yyyymmdd is the year, month and date of release.
+
+    The Makefile also has other targets, for building individual components
+    of the distribution.
+
+2)  Checking for font problems
+
+    It is important to execute all the available tests before release,
+    and make the fonts pass all of them.  Toward this goal the fonts
+    should also be checked before commits.
+
+    The first check is the FontForge "Verifiy" command.
+    Beyond that are its checks in "Find Problems...".
+
+    Several further FreeFont checks are executed by 
+    	make tests
+
+    Note that failure of some of these will result in visible problems
+    when the font is used.  For example, failure of some of the "ATT"
+    checks may cause whole font features in the lookups to be silently
+    shut off by the font rendering software.
+
+3)  Adding files to the download area
+
+    The gnupload script, which has some connection to automake, is the 
+    neatest way to upload files to Savannah.  You may have to acquire it
+    from somebody.
+
+    Requires 'ncftp'
+
+    /bin/sh ~/bin/gnupload --to ftp.gnu.org:freefont freefont-otf-20080324.zip
+
+    It prompts for a PGP password, creates the signature files required
+    by the Savannah upload procedures, and uploads all of them.
+
+4)  Creating detached signature file, as in the "raw" upload procedures:
+
+    http://www.gnu.org/prep/maintain/maintain.html#Automated-Upload-Registration
+
+    gpg -b freefont-ttf-20060126.zip
+
+    This creates a "detached GPD binary signature" file freefont-ttf.tar.gz.sig
+
+5)  Commiting a SVN file
+
+    svn co svn+ssh://user_name@svn.savannah.gnu.org/freefont/trunk/freefont
+
+    cd freefont/sfd
+    svn commit FreeSans.sfd
+
+6)  a) Tagging a release in SVN
+
+    svn copy svn+ssh://UNAME@svn.savannah.gnu.org/freefont/trunk \
+        svn+ssh://UNAME@svn.savannah.gnu.org/freefont/tags/RELEASE_20120503 \
+	             -m "Tagging the 03.05.2012 release."
+    where UNAME is a Savannah admin user name.
+
+    b) Tagging a release in CVS
+
+    cvs rtag RELEASE_TAG_NAME freefont
+
+    Removing a tag
+
+    cvs rtag -d RELEASE_TAG_NAME freefont
+
+    Retrieving a tagged release
+
+    cvs checkout -P -r RELEASE_TAG_NAME freefont
+
+7)  Using Change Log mode in Emacs
+
+    C-x 4 a adds a new entry to the change log file
+
+8)  New release procedures
+	Update the Changelog.
+	Review the AUTHORS and CREDITS files for competeness.
+        Ensure that "make tests" completes cleanly.
+
+	Tag new releases with tag named RELEASE_date, where date is the date.
+	Add release date field value to bug report field "Release".
+	Upload the archive files to Savannah.
+	Update project web pages.
+	Make news item.
+	Update FSF entry at http://directory.fsf.org/wiki/Freefont
+
+	Write to freefont-announce@gnu.org
+	Write to info-gnu@gnu.org 
+		Subject: GNU FreeFont <verson-no> released
+		Contents: 1 line blurb of what FreeFont is;
+			can also be downloaded from any GNU mirror.  List at
+			   http://www.gnu.org/order/ftp.html.
+	Write to pkg-fonts-devel@lists.alioth.debian.org, 
+		and Debian freefont-ttf packager
+
+	Mark "Fix in source" bug reports as "Fixed"
+
+9) Adding ssh keys to Savannah
+	Otherwise get errors like
+		Permission denied (publickey).
+		cvs [checkout aborted]: end of file from server
+	Log in as Savannah project admin
+	Click My Account Conf (from menu list on far left)
+	Edit the (n) SSH Public Keys registered
+	Paste in a public rsa key (can have up to 5)
+	Click Update.
+
+10) Adding binaries (such as TrueType fonts) to CVS, as for web pages
+	Remember to add with the -kb flag,
+		cvs add -kb myfont.ttf
+	or it will mess the binary up and waste days of your life.
+
+$Id: maintenance.txt 2313 2012-09-12 09:08:50Z Stevan_White $

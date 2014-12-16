@@ -1,0 +1,25 @@
+	Building GNU FreeFont
+
+The only files that are "built" in this project are binary font files.
+They are built using FontForge, which must be installed before any
+build is done.
+
+To build all the font files, just cd to the top directory and type
+	make
+(this will also work from within the sfd/ directory.)
+
+Several special build targets are also present:
+	ttf	TrueType format fonts only
+	otf	OpenType format fonts only
+	woff	WOFF format fonts only
+
+	ttfzip	.zip archive of TrueType format fonts
+	otftar	tarball of OpenType format fonts
+	woffzip	.zip archive of WOFF format fonts
+	srctar	tarball of sources
+
+	tests	run a battery of tests on the sources and built files
+
+	clean
+
+$Id: building.txt,v 1.10 2011-07-16 08:38:06 Stevan_White Exp $

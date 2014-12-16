@@ -1,0 +1,7 @@
+#!/bin/sh
+# Needs George Williams' showttf
+for FILE in Free*.ttf
+do
+    printf "%-23s" $FILE
+    showttf $FILE | grep -a UnicodeRange
+done

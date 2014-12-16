@@ -1,0 +1,54 @@
+# vim: set filetype=python : 
+__license__ = """
+This file is part of GNU FreeFont.
+
+GNU FreeFont is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+GNU FreeFont is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+GNU FreeFont.  If not, see <http://www.gnu.org/licenses/>. 
+"""
+__author__ = "Stevan White"
+__email__ = "stevan.white@googlemail.com"
+__copyright__ = "Copyright 2009, 2010, 2012, Stevan White"
+__date__ = "$Date:: 2013-05-21 05:15:23 +0900#$"
+__version__ = "$Revision: 2589 $"
+
+__doc__ = """
+Convert fonts from FontForge's native SFD format to TrueType format
+First auto-hints whole font
+
+Old-style kern tables seem to be what is actually used by Windows and
+some Linux programs such as OpenOffice.
+
+According to the FAQ, need to pass Flags=(apple) to build Mac fonts.
+But this option seems to rule out old-style kern tables
+"""
+
+import fontforge
+from sys import argv
+from buildutils import *
+
+scriptname = argv[0];
+argc = len( argv )
+
+if argc > 1:
+	for i in range( 1, argc ):
+		f = fontforge.open( argv[i] )
+		ttfile = f.fontname + ".mac.ttf"
+		vstr = trim_version_str( f )
+		print "Generating Mac TrueType file ", ttfile, ' ', vstr
+		f.selection.all()
+		f.autoHint()
+		f.autoInstr()
+		# Mac OS Font Book doesn't like the old-kern flag
+		#f.generate( ttfile, flags=('opentype','old-kern') )
+		f.close()
+else:
+	print "Usage: " + scriptname + " font.sfd [font.sfd ...]"

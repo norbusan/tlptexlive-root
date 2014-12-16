@@ -1,0 +1,60 @@
+# vim: set filetype=python : 
+__license__ = """
+This file is part of GNU FreeFont.
+
+GNU FreeFont is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+GNU FreeFont is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+GNU FreeFont.  If not, see <http://www.gnu.org/licenses/>. 
+"""
+__author__ = "Stevan White"
+__email__ = "stevan.white@googlemail.com"
+__copyright__ = "Copyright 2009, 2010, 2012, Stevan White"
+__date__ = "$Date:: 2013-07-22 07:42:08 +0900#$"
+__version__ = "$Revision: 2679 $"
+__doc__ = """
+Convert fonts from FontForge's native SFD format to TrueType format
+First auto-hints whole font
+
+Old-style kern tables seem to be what is actually used by Windows and
+some Linux programs such as OpenOffice.
+
+According to the FAQ, need to pass Flags=(apple) to build Mac fonts.
+But this option seems to rule out old-style kern tables
+"""
+
+import fontforge
+import sys
+from buildutils import *
+
+scriptname = sys.argv[0];
+argc = len( sys.argv )
+
+if argc > 1:
+	for i in range( 1, argc ):
+		f = fontforge.open( sys.argv[i] )
+		ttfile = f.fontname + ".ttf"
+		vstr = trim_version_str( f )
+		print "Generating TrueType file ", ttfile, ' ', vstr
+		# Wanted to set to 'UniocdeBmp' if there were no high unicodes
+		# but all attemtps to determine that from Python failed.
+		f.encoding = 'UnicodeFull'
+
+		f.layers['Fore'].is_quadratic = True
+		f.selection.all()
+		f.autoHint()
+		f.autoInstr()
+		#f.generate( ttfile, flags=('opentype','no-hints') )
+		f.generate( ttfile,
+			flags=('opentype','no-hints',
+			'old-kern','dummy-dsig','round') )
+		f.close()
+else:
+	print "Usage: " + scriptname + " font.sfd [font.sfd ...]"

@@ -1,0 +1,84 @@
+                        GNU FreeFont as Web Font
+
+The GPL and your web site
+-------------------------
+
+The GPL license permits the use of GNU FreeFont binary files of release
+20100919 or later as Web fonts with the CSS @font-face technology.
+
+Note that releases of the fonts earlier than 20100919 *do not* contain
+adequate license information, and *must not* be used as Web fonts.
+We will refer to the releases dated 20100919 or later as "licensed releases".
+
+Proper use of licensed releases of GPL FreeFont with this technology does
+not in itself incur the requirements of the GPL, either on the Web page
+from which the font is referenced, or the Web site that hosts the font file.
+
+From the point of view of the GPL, the @font-face technology is a distribution
+system of font files.  According to the GPL, the files must be delivered with
+intact notifications of the license, and of where to get the original source
+files.  Furthermore, if the files are modified in any way, a notice must be
+delivered of who modified the files on what date, and what modifications
+were made.
+
+The licensed release font binary files as packaged on the GNU FreeFont
+download page have embedded within them the license and origin notices
+required to re-distribute them unmodified.
+
+Software for reading the contents of font files is readily available for
+anybody who wishes to look at the embedded notices.
+
+Using the fonts without modifications
+-------------------------------------
+
+If you simply distribute the TrueType, OpenType, or WOFF files of licensed
+releases as packaged at the GNU FreeFont download site, the requirements of
+the GPL are already fulfilled.
+
+Modifying the fonts for use as Web fonts
+----------------------------------------
+
+You may wish to modify the fonts for use as web fonts.
+
+For example, perhaps your site needs only a portion of the font's glyphs. 
+As the fonts are very large, it may improve loading speed very much to
+cut out unneeded parts of the font.
+
+If you provide modified versions of the fonts, you must take care to
+satisfy the GPL stipulation that two kinds of notices must be provided
+with any distribution of FreeFont.  These are
+   1) the original GPL license and notifications of origin
+   2) a description of modifications made to the font: who, when, what.
+This information *must* be present in the font binary files delivered
+from the web site.
+
+There is more than one way to satisfy the GPL.
+The simplest strategy would be the following:
+
+Leave undisturbed the original "TTF Names" fields of the licensed release
+font binaries:
+	Version
+	Copyright
+	Manufacturer
+	Vendor
+	Vendor URL
+	License
+	License URL
+
+In the font file's "TTF Names" field with ID "Descriptor", append text
+indicating
+        * who performed the modifications, and their contact information
+	* date of modifications
+	* outline of what was modified
+For example:
+	Modified Oct. 2011 by Steve White <stevan.white@gmail.com>
+	Most character ranges besides Latin were removed.
+
+If you do more than simply trim away character ranges from the font,
+we at the  FreeFont project we would ask you to 
+	* append your own copyright notice to the Copyright field
+	* change the Version string to your own
+	* change Vendor and Vendor URL to your own name and URL.
+(We don't want to be getting bug reports on your modifications!)
+
+$Id: webfont_guidelines.txt 2221 2012-04-16 22:45:30Z Stevan_White $

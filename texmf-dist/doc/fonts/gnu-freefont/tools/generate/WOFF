@@ -1,0 +1,175 @@
+# vim: set filetype=python : 
+__license__ = """
+This file is part of GNU FreeFont.
+
+GNU FreeFont is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+GNU FreeFont is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+GNU FreeFont.  If not, see <http://www.gnu.org/licenses/>. 
+"""
+__author__ = "Stevan White"
+__email__ = "stevan.white@googlemail.com"
+__copyright__ = "Copyright 2011, 2012, Stevan White"
+__date__ = "$Date:: 2013-04-09 12:44:41 +0200#$"
+__version__ = "$Revision: 1863 $"
+__doc__ = """
+Convert fonts from FontForge's native SFD format to Web Open Font Format (WOFF)
+First auto-hints whole font
+
+Mainly, this copies information out of the font's existing TT names strings,
+and uses them to generate XML information for the WOFF metadata.
+Then it just saves the file as *.woff.
+
+The settings should otherwise be like those for generic OpenType fonts.
+
+"""
+
+import fontforge
+import sys
+import xml.dom.minidom
+from buildutils import *
+
+scriptname = sys.argv[0];
+argc = len( sys.argv )
+
+class SFNT_name:
+	def __init__( self, lang, string ):
+		self.lang = lang
+		self.string = string
+
+def fontStrings2dict( font, lang_filter=None ):
+	sfnt_strings = {}
+	for n in font.sfnt_names:
+		if lang_filter:
+			if n[0].startswith( lang_filter ):
+				sfnt_strings[n[1]] = SFNT_name(n[0],n[2])
+		else:
+			sfnt_strings[n[1]] = SFNT_name(n[0],n[2])
+	return sfnt_strings
+
+def stripmeta( meta ):
+	lst = meta.split( '\n' )
+	nlst = []
+	for line in lst[1:-2]:
+		if line.startswith( '\t' ):
+			line = line[1:]
+		nlst.append( line )
+	return '\n'.join( nlst )
+
+def add_text_decorated_with_divs( doc, parent, text ):
+	for line in text.split( '\n' ):
+		if line:
+			div = doc.createElement( 'div' )
+			div.appendChild( doc.createTextNode( line ) )
+			parent.appendChild( div )
+
+def fontInfo2WOFFxml( font ):
+	sfnt_strings = fontStrings2dict( f, 'English' )
+	copyright = sfnt_strings['Copyright'].string
+	license = sfnt_strings['License'].string
+	licenseURL = sfnt_strings['License URL'].string
+	vendorURL = sfnt_strings['Vendor URL'].string
+	version = sfnt_strings['Version'].string
+	fontFamily = sfnt_strings['Family'].string
+	fontStyle = sfnt_strings['SubFamily'].string
+
+	doc = xml.dom.minidom.Document()
+	meta = doc.createElement( 'metadata' )
+	doc.appendChild( meta )
+	# <uniqueid id="org.gnu.freefont.freeserif.1877" />
+	elt = doc.createElement( 'uniqueid' )
+
+	version_prefix = 'Revision: '
+	if version.startswith( version_prefix ):
+		revision = version[len(version_prefix):]
+	else:
+		revision = version
+
+	elt.setAttribute( 'id', 'org.gnu.freefont.' + fontFamily + '.'
+			+ fontStyle + '.' + revision )
+	meta.appendChild( elt )
+
+	# <vendor name="Font Vendor" url="https://savannah.gnu.org/projects/freefont/" />
+	elt = doc.createElement( 'vendor' )
+	elt.setAttribute( 'name', 'Font Vendor' )
+	elt.setAttribute( 'url', vendorURL )
+	meta.appendChild( elt )
+	# <credits>
+        #      <credit name="Font Designer"
+        #              url="https://savannah.gnu.org/projects/freefont/" />
+	# </credits>
+	elt_credits = doc.createElement( 'credits' )
+	elt = doc.createElement( 'credit' )
+	elt.setAttribute( 'name', 'Font Designer' )
+	elt.setAttribute( 'url', vendorURL )
+	elt_credits.appendChild( elt )
+	meta.appendChild( elt_credits )
+	#<description>
+	#    <text xml:lang="en">
+	#    FreeSerif-Medium is a member of the GNU FreeFont font family.
+	#    </text>
+	#</description>
+	elt_description = doc.createElement( 'description' )
+	elt = doc.createElement( 'text' )
+	elt.setAttribute( 'xml:lang', 'en' )
+	text = doc.createTextNode( fontFamily + '-' + fontStyle
+			+ " is a member of the GNU FreeFont font family.")
+	elt.appendChild( text )
+	elt_description.appendChild( elt )
+	meta.appendChild( elt_description )
+	#<license url="http://www.gnu.org/copyleft/gpl.html"
+	#            id="fontvendor-Web-corporate-v2">
+	#         <text xml:lang="en">
+	#        ...
+	elt_license = doc.createElement( 'license' )
+	elt_license.setAttribute( 'url', licenseURL )
+	elt = doc.createElement( 'text' )
+	elt.setAttribute( 'xml:lang', 'en' )
+	add_text_decorated_with_divs( doc, elt, license )
+	elt_license.appendChild( elt )
+	meta.appendChild( elt_license )
+	#<copyright>
+	#<text xml:lang="en">Copyright &#x0089;2002, 2003, 2005, 2008, 2009, 2010, 2011 GNU Freefont contributors.</text>
+	#</copyright>
+	elt_copyright = doc.createElement( 'copyright' )
+	elt = doc.createElement( 'text' )
+	elt.setAttribute( 'xml:lang', 'en' )
+	elt.appendChild( doc.createTextNode( copyright ) )
+	elt_copyright.appendChild( elt )
+	meta.appendChild( elt_copyright )
+	strrep = meta.toprettyxml()
+
+	return stripmeta( strrep )
+
+if argc > 1:
+	for i in range( 1, argc ):
+		f = fontforge.open( sys.argv[i] )
+		woff_file = f.fontname + ".woff"
+		print "Generating WOFF file ", woff_file
+		# Wanted to set to 'UniocdeBmp' if there were no high unicodes
+		# but all attemtps to determine that from Python failed.
+		f.encoding = 'UnicodeFull'
+		f.layers['Fore'].is_quadratic = True
+		f.selection.all()
+		f.autoHint()
+		f.autoInstr()
+		# Copy copyright info etc from the tt tables into the
+		# WOFF XML section.
+		xml = fontInfo2WOFFxml( f )
+		f.woffMajor = 1
+		f.woffMajor = 0
+		f.woffMetadata = xml
+		#f.generate( woff_file, flags=('opentype','round') )
+		f.generate( woff_file,
+			flags=('opentype','no-hints',
+			'old-kern','dummy-dsig','round') )
+		f.close()
+else:
+	print "Usage: " + scriptname + " font.sfd [font.sfd ...]"
