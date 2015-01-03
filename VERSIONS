@@ -5,6 +5,7 @@ ptex-ng:		1
 ptex-ng.BIN:
 	201412~		1
 	20150103	2
+	20150104	3	git f4593a2f985
 
 pmetapost
 =========
