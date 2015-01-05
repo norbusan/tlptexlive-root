@@ -10,7 +10,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-cygwin x86_64-darwin universal-darwin i386-linux i386-netbsd win32 x86_64-linux amd64-freebsd i386-freebsd
+depend setting_available_architectures:i386-cygwin x86_64-linux universal-darwin i386-linux win32 amd64-freebsd i386-netbsd x86_64-darwin i386-freebsd
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -358,9 +358,9 @@ binfiles arch=i386-linux size=331
 
 name ptex-ng.universal-darwin
 category Package
-revision 1
+revision 3
 shortdesc universal-darwin files of ptex-ng
-binfiles arch=universal-darwin size=922
+binfiles arch=universal-darwin size=930
  bin/universal-darwin/platex-ng
  bin/universal-darwin/ptex-ng
 
@@ -374,9 +374,9 @@ binfiles arch=win32 size=447
 
 name ptex-ng.x86_64-darwin
 category Package
-revision 1
+revision 3
 shortdesc x86_64-darwin files of ptex-ng
-binfiles arch=x86_64-darwin size=479
+binfiles arch=x86_64-darwin size=482
  bin/x86_64-darwin/platex-ng
  bin/x86_64-darwin/ptex-ng
 
