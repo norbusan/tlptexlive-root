@@ -366,7 +366,7 @@ binfiles arch=universal-darwin size=930
 
 name ptex-ng.win32
 category Package
-revision 4
+revision 5
 shortdesc win32 files of ptex-ng
 binfiles arch=win32 size=447
  bin/win32/platex-ng.exe
