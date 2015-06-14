@@ -1,5 +1,0 @@
-binpattern f bin/${ARCH}/pdvitomp
-binpattern f bin/${ARCH}/pmpost
-binpattern f bin/${ARCH}/upmpost
-runpattern +f texmf-dist/metapost/pmetapost/pmpost.mp
-runpattern +f texmf-dist/metapost/upmetapost/upmpost.mp

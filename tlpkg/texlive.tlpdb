@@ -2,7 +2,7 @@ name 00texlive.config
 category TLCore
 revision 1
 depend container_format/xz
-depend release/2014-ptexlive
+depend release/2015-ptexlive
 depend minrelease/2013
 depend container_split_doc_files/1
 depend container_split_src_files/1
@@ -10,7 +10,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:x86_64-darwin i386-cygwin universal-darwin amd64-freebsd i386-freebsd win32 i386-linux i386-netbsd x86_64-linux
+depend setting_available_architectures:i386-cygwin i386-freebsd x86_64-linux amd64-freebsd x86_64-darwin i386-netbsd universal-darwin win32 i386-linux
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -250,85 +250,6 @@ runfiles size=135
  texmf-dist/tex/latex/hiraprop/ts1zhmg.fd
  texmf-dist/tex/latex/hiraprop/ts1zhmr.fd
  texmf-dist/tex/latex/hiraprop/ts1zhsf.fd
-
-name pmetapost
-category Package
-revision 4
-depend pmetapost.ARCH
-runfiles size=2
- texmf-dist/metapost/pmetapost/pmpost.mp
- texmf-dist/metapost/upmetapost/upmpost.mp
-
-name pmetapost.amd64-freebsd
-category Package
-revision 30
-shortdesc amd64-freebsd files of pmetapost
-binfiles arch=amd64-freebsd size=1331
- bin/amd64-freebsd/pdvitomp
- bin/amd64-freebsd/pmpost
- bin/amd64-freebsd/upmpost
-
-name pmetapost.i386-freebsd
-category Package
-revision 30
-shortdesc i386-freebsd files of pmetapost
-binfiles arch=i386-freebsd size=1373
- bin/i386-freebsd/pdvitomp
- bin/i386-freebsd/pmpost
- bin/i386-freebsd/upmpost
-
-name pmetapost.i386-linux
-category Package
-revision 30
-shortdesc i386-linux files of pmetapost
-binfiles arch=i386-linux size=1051
- bin/i386-linux/pdvitomp
- bin/i386-linux/pmpost
- bin/i386-linux/upmpost
-
-name pmetapost.i386-netbsd
-category Package
-revision 30
-shortdesc i386-netbsd files of pmetapost
-binfiles arch=i386-netbsd size=815
- bin/i386-netbsd/pdvitomp
- bin/i386-netbsd/pmpost
- bin/i386-netbsd/upmpost
-
-name pmetapost.universal-darwin
-category Package
-revision 30
-shortdesc universal-darwin files of pmetapost
-binfiles arch=universal-darwin size=4231
- bin/universal-darwin/pdvitomp
- bin/universal-darwin/pmpost
- bin/universal-darwin/upmpost
-
-name pmetapost.win32
-category Package
-revision 30
-shortdesc win32 files of pmetapost
-binfiles arch=win32 size=934
- bin/win32/pmpost.exe
- bin/win32/upmpost.exe
-
-name pmetapost.x86_64-darwin
-category Package
-revision 30
-shortdesc x86_64-darwin files of pmetapost
-binfiles arch=x86_64-darwin size=2179
- bin/x86_64-darwin/pdvitomp
- bin/x86_64-darwin/pmpost
- bin/x86_64-darwin/upmpost
-
-name pmetapost.x86_64-linux
-category Package
-revision 30
-shortdesc x86_64-linux files of pmetapost
-binfiles arch=x86_64-linux size=1165
- bin/x86_64-linux/pdvitomp
- bin/x86_64-linux/pmpost
- bin/x86_64-linux/upmpost
 
 name ptex-ng
 category Package
