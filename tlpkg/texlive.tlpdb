@@ -253,7 +253,7 @@ runfiles size=135
 
 name ptex-ng
 category Package
-revision 1
+revision 2
 depend tex
 depend uptex
 depend latex
@@ -261,6 +261,7 @@ depend adobemapping
 depend ipaex
 depend japanese
 depend japanese-otf
+depend jfontmaps
 depend ptex-ng.ARCH
 execute AddFormat name=ptex-ng engine=ptex-ng options="*ptex-ng.ini" patterns=language.def
 execute AddFormat name=platex-ng engine=ptex-ng options="*platex-ng.ini" patterns=language.dat
