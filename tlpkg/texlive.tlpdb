@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-freebsd i386-cygwin x86_64-linux i386-netbsd i386-linux win32 x86_64-darwin amd64-freebsd universal-darwin
+depend setting_available_architectures:i386-netbsd amd64-freebsd x86_64-darwin universal-darwin i386-cygwin i386-freebsd i386-linux x86_64-linux win32
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -274,6 +274,206 @@ runfiles size=135
  texmf-dist/tex/latex/hiraprop/ts1zhmg.fd
  texmf-dist/tex/latex/hiraprop/ts1zhmr.fd
  texmf-dist/tex/latex/hiraprop/ts1zhsf.fd
+
+name jfontmaps
+category Package
+revision 1
+depend jfontmaps.ARCH
+docfiles size=10
+ texmf-dist/doc/fonts/jfontmaps/ChangeLog
+ texmf-dist/doc/fonts/jfontmaps/ChangeLog.pre-git
+ texmf-dist/doc/fonts/jfontmaps/README
+ texmf-dist/doc/fonts/jfontmaps/examples/otf-sample-04.tex
+ texmf-dist/doc/fonts/jfontmaps/examples/otf-sample.tex
+ texmf-dist/doc/fonts/jfontmaps/examples/ptex-sample.tex
+ texmf-dist/doc/fonts/jfontmaps/examples/series-compare.tex
+srcfiles size=254
+ texmf-dist/source/jfontmaps/jis04cmap_exp/JISX0213-2004-H
+ texmf-dist/source/jfontmaps/jis04cmap_exp/JISX0213-2004-V
+ texmf-dist/source/jfontmaps/jis04cmap_exp/README
+ texmf-dist/source/jfontmaps/jis04cmap_exp/cmapdec.lua
+ texmf-dist/source/jfontmaps/jis04cmap_exp/jis-h04-httk.pdf
+ texmf-dist/source/jfontmaps/jis04cmap_exp/jis-h04-httk.tex
+ texmf-dist/source/jfontmaps/jis04cmap_exp/jis-v04-vttk.pdf
+ texmf-dist/source/jfontmaps/jis04cmap_exp/jis-v04-vttk.tex
+ texmf-dist/source/jfontmaps/jis04cmap_exp/jisx0213-2004-8bit-std.txt
+ texmf-dist/source/jfontmaps/jis04cmap_exp/mk_jis_to_aj16_cid.lua
+ texmf-dist/source/jfontmaps/script/updmap-otf.sh
+ texmf-dist/source/jfontmaps/tools/mkmap.lua
+ texmf-dist/source/jfontmaps/tools/release.sh
+runfiles size=113
+ texmf-dist/fonts/cmap/jfontmaps/2004-H
+ texmf-dist/fonts/cmap/jfontmaps/2004-V
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan-pron/otf-hiragino-elcapitan-pron.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan-pron/otf-up-hiragino-elcapitan-pron.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan-pron/ptex-hiragino-elcapitan-pron-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan-pron/ptex-hiragino-elcapitan-pron.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan-pron/uptex-hiragino-elcapitan-pron-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan-pron/uptex-hiragino-elcapitan-pron.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan/otf-hiragino-elcapitan.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan/otf-up-hiragino-elcapitan.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan/ptex-hiragino-elcapitan-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan/ptex-hiragino-elcapitan.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan/uptex-hiragino-elcapitan-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-elcapitan/uptex-hiragino-elcapitan.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-pron/otf-hiragino-pron.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-pron/otf-up-hiragino-pron.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-pron/ptex-hiragino-pron-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-pron/ptex-hiragino-pron.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-pron/uptex-hiragino-pron-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino-pron/uptex-hiragino-pron.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino/otf-hiragino.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino/otf-up-hiragino.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino/ptex-hiragino-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino/ptex-hiragino.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino/uptex-hiragino-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/hiragino/uptex-hiragino.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ipa/otf-ipa.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ipa/otf-up-ipa.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ipa/ptex-ipa.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ipa/uptex-ipa.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ipaex/otf-ipaex.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ipaex/otf-up-ipaex.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ipaex/ptex-ipaex.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ipaex/uptex-ipaex.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6/otf-kozuka-pr6.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6/otf-up-kozuka-pr6.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6/ptex-kozuka-pr6-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6/ptex-kozuka-pr6.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6/uptex-kozuka-pr6-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6/uptex-kozuka-pr6.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6n/otf-kozuka-pr6n.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6n/otf-up-kozuka-pr6n.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6n/ptex-kozuka-pr6n-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6n/ptex-kozuka-pr6n.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6n/uptex-kozuka-pr6n-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka-pr6n/uptex-kozuka-pr6n.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka/otf-kozuka.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka/otf-up-kozuka.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka/ptex-kozuka-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka/ptex-kozuka.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka/uptex-kozuka-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/kozuka/uptex-kozuka.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa-pr6n/otf-morisawa-pr6n.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa-pr6n/otf-up-morisawa-pr6n.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa-pr6n/ptex-morisawa-pr6n-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa-pr6n/ptex-morisawa-pr6n.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa-pr6n/uptex-morisawa-pr6n-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa-pr6n/uptex-morisawa-pr6n.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa/otf-morisawa.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa/otf-up-morisawa.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa/ptex-morisawa-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa/ptex-morisawa.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa/uptex-morisawa-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/morisawa/uptex-morisawa.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ms/otf-ms.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ms/otf-up-ms.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ms/ptex-ms.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/ms/uptex-ms.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/noEmbed/otf-noEmbed.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/noEmbed/otf-up-noEmbed.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/noEmbed/ptex-noEmbed-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/noEmbed/ptex-noEmbed.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/noEmbed/uptex-noEmbed-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/noEmbed/uptex-noEmbed.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-osx/otf-up-yu-osx.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-osx/otf-yu-osx.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-osx/ptex-yu-osx-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-osx/ptex-yu-osx.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-osx/uptex-yu-osx-04.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-osx/uptex-yu-osx.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-win/otf-up-yu-win.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-win/otf-yu-win.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-win/ptex-yu-win.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-win/uptex-yu-win.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-win10/otf-up-yu-win10.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-win10/otf-yu-win10.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-win10/ptex-yu-win10.map
+ texmf-dist/fonts/map/dvipdfmx/jfontmaps/yu-win10/uptex-yu-win10.map
+ texmf-dist/scripts/jfontmaps/kanji-config-updmap-sys.sh
+ texmf-dist/scripts/jfontmaps/kanji-config-updmap.pl
+ texmf-dist/scripts/jfontmaps/kanji-fontmap-creator.pl
+
+name jfontmaps.amd64-freebsd
+category Package
+revision 1
+shortdesc amd64-freebsd files of jfontmaps
+binfiles arch=amd64-freebsd size=3
+ bin/amd64-freebsd/kanji-config-updmap
+ bin/amd64-freebsd/kanji-config-updmap-sys
+ bin/amd64-freebsd/kanji-fontmap-creator
+
+name jfontmaps.i386-cygwin
+category Package
+revision 1
+shortdesc i386-cygwin files of jfontmaps
+binfiles arch=i386-cygwin size=3
+ bin/i386-cygwin/kanji-config-updmap
+ bin/i386-cygwin/kanji-config-updmap-sys
+ bin/i386-cygwin/kanji-fontmap-creator
+
+name jfontmaps.i386-freebsd
+category Package
+revision 1
+shortdesc i386-freebsd files of jfontmaps
+binfiles arch=i386-freebsd size=3
+ bin/i386-freebsd/kanji-config-updmap
+ bin/i386-freebsd/kanji-config-updmap-sys
+ bin/i386-freebsd/kanji-fontmap-creator
+
+name jfontmaps.i386-linux
+category Package
+revision 1
+shortdesc i386-linux files of jfontmaps
+binfiles arch=i386-linux size=3
+ bin/i386-linux/kanji-config-updmap
+ bin/i386-linux/kanji-config-updmap-sys
+ bin/i386-linux/kanji-fontmap-creator
+
+name jfontmaps.i386-netbsd
+category Package
+revision 1
+shortdesc i386-netbsd files of jfontmaps
+binfiles arch=i386-netbsd size=3
+ bin/i386-netbsd/kanji-config-updmap
+ bin/i386-netbsd/kanji-config-updmap-sys
+ bin/i386-netbsd/kanji-fontmap-creator
+
+name jfontmaps.universal-darwin
+category Package
+revision 1
+shortdesc universal-darwin files of jfontmaps
+binfiles arch=universal-darwin size=3
+ bin/universal-darwin/kanji-config-updmap
+ bin/universal-darwin/kanji-config-updmap-sys
+ bin/universal-darwin/kanji-fontmap-creator
+
+name jfontmaps.win32
+category Package
+revision 1
+shortdesc win32 files of jfontmaps
+binfiles arch=win32 size=3
+ bin/win32/kanji-config-updmap-sys.exe
+ bin/win32/kanji-config-updmap.exe
+ bin/win32/kanji-fontmap-creator.exe
+
+name jfontmaps.x86_64-darwin
+category Package
+revision 1
+shortdesc x86_64-darwin files of jfontmaps
+binfiles arch=x86_64-darwin size=3
+ bin/x86_64-darwin/kanji-config-updmap
+ bin/x86_64-darwin/kanji-config-updmap-sys
+ bin/x86_64-darwin/kanji-fontmap-creator
+
+name jfontmaps.x86_64-linux
+category Package
+revision 1
+shortdesc x86_64-linux files of jfontmaps
+binfiles arch=x86_64-linux size=3
+ bin/x86_64-linux/kanji-config-updmap
+ bin/x86_64-linux/kanji-config-updmap-sys
+ bin/x86_64-linux/kanji-fontmap-creator
 
 name pmetapost
 category Package

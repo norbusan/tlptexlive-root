@@ -1,0 +1,32 @@
+
+% TEXT, 90JIS
+uphminl-h	UniJIS-UTF16-H	YuMin-Medium.otf
+uphminl-v	UniJIS-UTF16-V	YuMin-Medium.otf
+uphminr-h	UniJIS-UTF16-H	YuMin-Medium.otf
+uphminr-v	UniJIS-UTF16-V	YuMin-Medium.otf
+uphminb-h	UniJIS-UTF16-H	YuMin-Demibold.otf
+uphminb-v	UniJIS-UTF16-V	YuMin-Demibold.otf
+uphgothr-h	UniJIS-UTF16-H	YuGo-Medium.otf
+uphgothr-v	UniJIS-UTF16-V	YuGo-Medium.otf
+uphgothb-h	UniJIS-UTF16-H	YuGo-Bold.otf
+uphgothb-v	UniJIS-UTF16-V	YuGo-Bold.otf
+uphgotheb-h	UniJIS-UTF16-H	YuGo-Bold.otf
+uphgotheb-v	UniJIS-UTF16-V	YuGo-Bold.otf
+uphmgothr-h	UniJIS-UTF16-H	YuGo-Bold.otf
+uphmgothr-v	UniJIS-UTF16-V	YuGo-Bold.otf
+
+% TEXT, JIS04
+uphminln-h	UniJIS2004-UTF16-H	YuMin-Medium.otf
+uphminln-v	UniJIS2004-UTF16-V	YuMin-Medium.otf
+uphminrn-h	UniJIS2004-UTF16-H	YuMin-Medium.otf
+uphminrn-v	UniJIS2004-UTF16-V	YuMin-Medium.otf
+uphminbn-h	UniJIS2004-UTF16-H	YuMin-Demibold.otf
+uphminbn-v	UniJIS2004-UTF16-V	YuMin-Demibold.otf
+uphgothrn-h	UniJIS2004-UTF16-H	YuGo-Medium.otf
+uphgothrn-v	UniJIS2004-UTF16-V	YuGo-Medium.otf
+uphgothbn-h	UniJIS2004-UTF16-H	YuGo-Bold.otf
+uphgothbn-v	UniJIS2004-UTF16-V	YuGo-Bold.otf
+uphgothebn-h	UniJIS2004-UTF16-H	YuGo-Bold.otf
+uphgothebn-v	UniJIS2004-UTF16-V	YuGo-Bold.otf
+uphmgothrn-h	UniJIS2004-UTF16-H	YuGo-Bold.otf
+uphmgothrn-v	UniJIS2004-UTF16-V	YuGo-Bold.otf

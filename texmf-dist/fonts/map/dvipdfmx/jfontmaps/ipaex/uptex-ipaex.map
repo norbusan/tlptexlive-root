@@ -1,0 +1,10 @@
+urml	UniJIS-UTF16-H	ipaexm.ttf %!PS IPAexMincho
+urmlv	UniJIS-UTF16-V	ipaexm.ttf %!PS IPAexMincho
+ugbm	UniJIS-UTF16-H	ipaexg.ttf %!PS IPAexGothic
+ugbmv	UniJIS-UTF16-V	ipaexg.ttf %!PS IPAexGothic
+uprml-h	UniJIS-UTF16-H	ipaexm.ttf %!PS IPAexMincho
+uprml-v	UniJIS-UTF16-V	ipaexm.ttf %!PS IPAexMincho
+upgbm-h	UniJIS-UTF16-H	ipaexg.ttf %!PS IPAexGothic
+upgbm-v	UniJIS-UTF16-V	ipaexg.ttf %!PS IPAexGothic
+uprml-hq	UniJIS-UCS2-H	ipaexm.ttf %!PS IPAexMincho
+upgbm-hq	UniJIS-UCS2-H	ipaexg.ttf %!PS IPAexGothic

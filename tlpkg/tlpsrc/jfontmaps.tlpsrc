@@ -1,0 +1,5 @@
+runpattern +d texmf-dist/fonts/map/dvipdfmx/jfontmaps
+runpattern +d texmf-dist/fonts/cmap/jfontmaps
+binpattern f bin/${ARCH}/kanji-config-updmap
+binpattern f bin/${ARCH}/kanji-config-updmap-sys
+binpattern f bin/${ARCH}/kanji-fontmap-creator
