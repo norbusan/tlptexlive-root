@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:i386-netbsd amd64-freebsd x86_64-darwin universal-darwin i386-cygwin i386-freebsd i386-linux x86_64-linux win32
+depend setting_available_architectures:x86_64-linux i386-freebsd x86_64-darwin i386-linux amd64-freebsd i386-cygwin win32 i386-netbsd universal-darwin
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -28,6 +28,95 @@ depend opt_sys_bin:/usr/local/bin
 depend opt_sys_info:/usr/local/share/info
 depend opt_sys_man:/usr/local/share/man
 depend opt_w32_multi_user:0
+
+name cjk-gs-integrate
+category Package
+revision 1
+depend cjk-gs-integrate.ARCH
+docfiles size=23
+ texmf-dist/doc/fonts/cjk-gs-integrate/ChangeLog
+ texmf-dist/doc/fonts/cjk-gs-integrate/README
+ texmf-dist/doc/fonts/cjk-gs-integrate/macosx-filelist
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/Makefile
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/adobe-CNS1.tex
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/adobe-GB1-012.tex
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/adobe-GB1-345.tex
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/adobe-GB1.tex
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/adobe-Japan1.tex
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/adobe-Korea1.tex
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/cidtable.sty
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/japanese-updmap-tests/do-tests
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/japanese-updmap-tests/prn-variants.tex
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/japanese-updmap-tests/report
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/otfcidsample.tex
+ texmf-dist/doc/fonts/cjk-gs-integrate/tests/test-runner.sh
+ texmf-dist/doc/fonts/cjk-gs-integrate/tools/mkgsfntspecs.sh
+ texmf-dist/doc/fonts/cjk-gs-integrate/tools/release.sh
+runfiles size=15
+ texmf-dist/scripts/cjk-gs-integrate/cjk-gs-integrate.pl
+
+name cjk-gs-integrate.amd64-freebsd
+category Package
+revision 1
+shortdesc amd64-freebsd files of cjk-gs-integrate
+binfiles arch=amd64-freebsd size=1
+ bin/amd64-freebsd/cjk-gs-integrate
+
+name cjk-gs-integrate.i386-cygwin
+category Package
+revision 1
+shortdesc i386-cygwin files of cjk-gs-integrate
+binfiles arch=i386-cygwin size=1
+ bin/i386-cygwin/cjk-gs-integrate
+
+name cjk-gs-integrate.i386-freebsd
+category Package
+revision 1
+shortdesc i386-freebsd files of cjk-gs-integrate
+binfiles arch=i386-freebsd size=1
+ bin/i386-freebsd/cjk-gs-integrate
+
+name cjk-gs-integrate.i386-linux
+category Package
+revision 1
+shortdesc i386-linux files of cjk-gs-integrate
+binfiles arch=i386-linux size=1
+ bin/i386-linux/cjk-gs-integrate
+
+name cjk-gs-integrate.i386-netbsd
+category Package
+revision 1
+shortdesc i386-netbsd files of cjk-gs-integrate
+binfiles arch=i386-netbsd size=1
+ bin/i386-netbsd/cjk-gs-integrate
+
+name cjk-gs-integrate.universal-darwin
+category Package
+revision 1
+shortdesc universal-darwin files of cjk-gs-integrate
+binfiles arch=universal-darwin size=1
+ bin/universal-darwin/cjk-gs-integrate
+
+name cjk-gs-integrate.win32
+category Package
+revision 1
+shortdesc win32 files of cjk-gs-integrate
+binfiles arch=win32 size=1
+ bin/win32/cjk-gs-integrate.exe
+
+name cjk-gs-integrate.x86_64-darwin
+category Package
+revision 1
+shortdesc x86_64-darwin files of cjk-gs-integrate
+binfiles arch=x86_64-darwin size=1
+ bin/x86_64-darwin/cjk-gs-integrate
+
+name cjk-gs-integrate.x86_64-linux
+category Package
+revision 1
+shortdesc x86_64-linux files of cjk-gs-integrate
+binfiles arch=x86_64-linux size=1
+ bin/x86_64-linux/cjk-gs-integrate
 
 name dvipdfmx.i386-cygwin
 category Package

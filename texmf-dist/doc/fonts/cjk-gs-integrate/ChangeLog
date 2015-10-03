@@ -1,0 +1,328 @@
+2015-10-02  Norbert Preining  <norbert@preining.info>
+
+	* Release 20151002.0 (HEAD -> master) [0cab259]
+
+2015-10-02  Norbert Preining  <norbert@preining.info>
+
+	* update documentation [403383d]
+
+2015-09-28  Norbert Preining  <norbert@preining.info>
+
+	* update README.md for current status (origin/master, origin/HEAD) [789f124]
+
+2015-09-28  Norbert Preining  <norbert@preining.info>
+
+	* add --remove option [fea9b13]
+
+2015-09-28  Norbert Preining  <norbert@preining.info>
+
+	* use only --link-texmf with optional argument [d2ff6f8]
+
+2015-09-25  Norbert Preining  <norbert@preining.info>
+
+	* add HIraginoSans-W2 [10ca035]
+
+2015-09-24  Norbert Preining  <norbert@preining.info>
+
+	* use ttfname also for CIDFSubst link and cidfmap entry, add texmfout option [6acc38a]
+
+2015-09-24  Norbert Preining  <norbert@preining.info>
+
+	* ttf link name support [970dcf0]
+
+2015-09-24  Norbert Preining  <norbert@preining.info>
+
+	* auto-determine type of fontfile, and make type file specific [f8b7032]
+
+2015-09-22  Norbert Preining  <preining@logic.at>
+
+	* Merge pull request #4 from doraTeX/master [fed6b30]
+
+2015-09-22  doraTeX  <taylorkgb@gmail.com>
+
+	* Update font definitions for the latest El Capitan [86d28d1]
+
+2015-07-24  Norbert Preining  <preining@logic.at>
+
+	* Merge pull request #1 from munepi/master [98e37ef]
+
+2015-07-24  Munehiro Yamamoto  <munepixyz@gmail.com>
+
+	* cjk-gs-integrate.pl (encode_list): added 2004-{H,V} for Japan [51f4ffd]
+
+2015-07-24  Norbert Preining  <norbert@preining.info>
+
+	* add ISX 10.11 El Capitan fonts [dbe04b4]
+
+2015-05-07  Norbert Preining  <norbert@preining.info>
+
+	* fix line endings [81f0a82]
+
+2015-05-07  Norbert Preining  <norbert@preining.info>
+
+	* remove x bit from prn-variants.tex [202fc80]
+
+2015-05-07  Norbert Preining  <norbert@preining.info>
+
+	* rename README.md to README on release [25dcf6d]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* Release 20150506.1 (tag: 20150506.1) [daf2e89]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* reactivate aliases for MSung-Light and STFangsong-Light [bf0d437]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* remove debug statement [cf81cb7]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* Release 20150506.0 (tag: 20150506.0) [24db8e7]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* add a release script [593eb64]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* genrated md and help output from the same source [32c57ed]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* add /Library/Fonts/Microsoft to search path, add --link-texmflocal option [fc80300]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* provide family like aliases [32a827a]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* remove provides for two imaginary fonts ;-) [f55f662]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* add more Kozuka fonts (not used in jfontmaps) [32d46e9]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* make gulim provide HyGoThic-Medium in case Dotum is not available [b41adbb]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* STKaiti-Adobe-CNS1 update from Bruno [40ad49f]
+
+2015-05-06  Norbert Preining  <norbert@preining.info>
+
+	* add MidashiGo(Pro) provides, fix FutoMin provides for IPA [a173ce6]
+
+2015-04-24  Norbert Preining  <norbert@preining.info>
+
+	* make link checking more resilient to errors [fa083ce]
+
+2015-04-24  Norbert Preining  <norbert@preining.info>
+
+	* terminate immediately on windows, add some TODOs [8a12b5a]
+
+2015-04-24  Norbert Preining  <norbert@preining.info>
+
+	* adjust prefs, add warning when provide priorities agree [c1fffb1]
+
+2015-04-24  Norbert Preining  <norbert@preining.info>
+
+	* add more fonts from Microsoft 2015 for Apple [d9348d4]
+
+2015-04-24  Norbert Preining  <norbert@preining.info>
+
+	* add --list-all-aliases command [c040122]
+
+2015-04-23  Norbert Preining  <norbert@preining.info>
+
+	* add --force option [e4d9ce5]
+
+2015-04-21  Norbert Preining  <norbert@preining.info>
+
+	* add decomposed form filenames for HFS [28c79ea]
+
+2015-04-21  Norbert Preining  <norbert@preining.info>
+
+	* add support for reading files from file list, fix some fonts [a6a4c34]
+
+2015-04-21  Norbert Preining  <norbert@preining.info>
+
+	* update README.md [3d5090f]
+
+2015-04-21  Norbert Preining  <norbert@preining.info>
+
+	* lots of changes, automated testing [8c73fa0]
+
+2015-04-21  Norbert Preining  <norbert@preining.info>
+
+	* order alias output [66bbe4a]
+
+2015-04-21  Norbert Preining  <norbert@preining.info>
+
+	* really fix Morisawa fonts [21be97b]
+
+2015-04-21  Norbert Preining  <norbert@preining.info>
+
+	* make morisawa fonts work [9462210]
+
+2015-04-21  Norbert Preining  <norbert@preining.info>
+
+	* add Gulim fonts for HYRGoThic-Medium [1acf5f3]
+
+2015-04-20  Norbert Preining  <norbert@preining.info>
+
+	* remove the strange alias with extra - at the end [5105987]
+
+2015-04-20  Norbert Preining  <norbert@preining.info>
+
+	* add ~/Library/Fonts and /Network/Library/Fonts on unix/mac add alas for HYRGoThic-Medium [7c8f87f]
+
+2015-04-20  Norbert Preining  <norbert@preining.info>
+
+	* link ttf fonts *not* into Font dir, but into CIDFSubst [513adae]
+
+2015-04-20  Norbert Preining  <norbert@preining.info>
+
+	* first step in Morisawa support, add PSName to font database [ef59d24]
+
+2015-04-20  Norbert Preining  <norbert@preining.info>
+
+	* provide more Foobar- font names for GhostScript [7288e8c]
+
+2015-04-20  Norbert Preining  <norbert@preining.info>
+
+	* sort alias names, remove last Std alias [2d47a81]
+
+2015-04-20  Norbert Preining  <norbert@preining.info>
+
+	* rank Adobe CK fonts higher, fix list aliases ouput [0d4b693]
+
+2015-04-20  Norbert Preining  <norbert@preining.info>
+
+	* add priority to output of aliases [cb5b296]
+
+2015-04-19  Norbert Preining  <norbert@preining.info>
+
+	* list aliases separated in categories [751a7ee]
+
+2015-04-19  Norbert Preining  <norbert@preining.info>
+
+	* add entries for Adobe's CK fonts [8c9fb77]
+
+2015-04-19  Norbert Preining  <norbert@preining.info>
+
+	* add more strange provides ... [6567c15]
+
+2015-04-19  Norbert Preining  <norbert@preining.info>
+
+	* add more aliases after dicsussion with Bruno [e1d089c]
+
+2015-04-16  Norbert Preining  <norbert@preining.info>
+
+	* formatting [2f07c70]
+
+2015-04-16  Norbert Preining  <norbert@preining.info>
+
+	* README.md and help output editing [ffd1988]
+
+2015-04-16  Norbert Preining  <norbert@preining.info>
+
+	* update README.md [b6667d5]
+
+2015-04-16  Norbert Preining  <norbert@preining.info>
+
+	* lots of updates, in particular ttf linking and user aliases [060376a]
+
+2015-04-14  Norbert Preining  <norbert@preining.info>
+
+	* priorities for file names, unify priority writing [1d2727f]
+
+2015-04-13  Norbert Preining  <norbert@preining.info>
+
+	* remove font-definitions.txt, always outdated [b532745]
+
+2015-04-13  Norbert Preining  <norbert@preining.info>
+
+	* add more alias for Korean [c610bb8]
+
+2015-04-13  Norbert Preining  <norbert@preining.info>
+
+	* add TODO, gitingore, and some tests [8f4de68]
+
+2015-04-13  Norbert Preining  <norbert@preining.info>
+
+	* fixes for Korean [287b64d]
+
+2015-04-11  Norbert Preining  <norbert@preining.info>
+
+	* fix subfonts in ttcs, add more fonts for Korea (not working) [243b61e]
+
+2015-04-08  Norbert Preining  <norbert@preining.info>
+
+	* more name fixes from Bruno [33fb493]
+
+2015-04-08  Norbert Preining  <norbert@preining.info>
+
+	* update font-definitions file [fb1135a]
+
+2015-04-08  Norbert Preining  <norbert@preining.info>
+
+	* Korean support (hopefully), fix some name errors [1bb8aed]
+
+2015-04-08  Norbert Preining  <norbert@preining.info>
+
+	* add some provides for TC SC and Korean, and fixes, thanks Bruno [5b754be]
+
+2015-04-08  Norbert Preining  <norbert@preining.info>
+
+	* fix spaces in file names [d7b1ab8]
+
+2015-04-08  Norbert Preining  <norbert@preining.info>
+
+	* fix Dumper usage [05e5789]
+
+2015-04-08  Norbert Preining  <norbert@preining.info>
+
+	* load Data::Dumper only when debugging [a839074]
+
+2015-04-08  Norbert Preining  <norbert@preining.info>
+
+	* add font-definitions for ease of access, but not really used [35302c0]
+
+2015-04-08  Norbert Preining  <norbert@preining.info>
+
+	* fully working script including aliases [283d64a]
+
+2015-04-07  Norbert Preining  <norbert@preining.info>
+
+	* more or less fully functional [88a478b]
+
+2015-04-07  Norbert Preining  <norbert@preining.info>
+
+	* fix typo in cjk-font-definitons [eed0614]
+
+2015-04-07  Norbert Preining  <norbert@preining.info>
+
+	* bummer [d111a8d]
+
+2015-04-07  Norbert Preining  <norbert@preining.info>
+
+	* fix warning for missing font defs [4130ced]
+
+2015-04-07  Norbert Preining  <norbert@preining.info>
+
+	* don't bail out if gs is not found, for now [b625240]
+
+2015-04-07  Norbert Preining  <norbert@preining.info>
+
+	* more work [5b4489d]
+
+2015-04-07  Norbert Preining  <norbert@preining.info>
+
+	* first commit [8011270]
+

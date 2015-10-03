@@ -1,0 +1,21 @@
+\usepackage[deluxe, expert, multi]{otf}
+\usepackage{pgffor}
+\usepackage{color}
+\setlength{\fboxsep}{0pt}
+%\setlength{\fboxrule}{0.2pt}
+\definecolor{UClightgray}{cmyk}{.15,.10,.10,0}
+\definecolor{UClightpink}{cmyk}{0,.25,.15,0}
+\definecolor{UClightyellowgreen}{cmyk}{.25,0,.80,0}
+\definecolor{UClightskyblue}{cmyk}{.30,0,0,0}
+\definecolor{UCbeige}{cmyk}{0,.25,.45,0}
+\definecolor{UClightgreen}{cmyk}{.45,0,.45,0}
+\definecolor{UCcream}{cmyk}{0,0,.40,0}
+\definecolor{UClightpurple}{cmyk}{.25,.30,0,0}
+
+\newcommand\colorname[1]{\ifcase#1%
+UClightpink\or
+UClightyellowgreen\or UClightskyblue\or UCbeige\or
+UClightgreen\or UCcream\or UClightpurple\fi}
+\newcommand{\colorsample}[1]{{\color{\colorname{#1}}\rule{10pt}{10pt}} \colorname{#1}}
+
+\endinput

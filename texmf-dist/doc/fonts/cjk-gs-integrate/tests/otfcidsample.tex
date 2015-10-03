@@ -1,0 +1,46 @@
+% -*- coding: utf-8-unix -*-
+\documentclass{jsarticle}
+\usepackage[deluxe,multi]{otf}
+\newcommand{\sampleSC}{\UTFC{76F4}\UTFC{9AA8}}
+\newcommand{\sampleTC}{\UTFT{76F4}\UTFT{9AA8}}
+\newcommand{\sampleJ}{\UTF{76F4}\UTF{9AA8}}
+\newcommand{\sampleK}{\UTFK{76F4}\UTFK{9AA8}}
+
+\begin{document}\noindent
+\begin{center}
+ \begin{tabular}{lllll}
+  & SC & TC & J & K\\
+  Serif              
+  & {\sampleSC}                   
+  & %{\sampleTC}                   
+  & {\sampleJ}                   
+  & {\sampleK}                  
+  \\
+  Serif bold         
+  & %{\bfseries\sampleSC}          
+  & %{\bfseries\sampleTC}          
+  & {\bfseries\sampleJ}          
+  & {\bfseries\sampleK}         
+  \\
+  Sans serif         
+  & {\gtfamily\sampleSC}          
+  & %{\gtfamily\sampleTC}          
+  & {\gtfamily\sampleJ}          
+  & {\gtfamily\sampleK}         
+  \\
+  Sans serif bold    
+  & %{\gtfamily\bfseries\sampleSC} 
+  & %{\gtfamily\bfseries\sampleTC} 
+  & {\gtfamily\bfseries\sampleJ} 
+  & {\gtfamily\bfseries\sampleK}
+  \\
+  Sans serif variant 
+  & %{\mgfamily\sampleSC}          
+  & %{\mgfamily\sampleTC}          
+  & {\mgfamily\sampleJ}          
+  & {\mgfamily\sampleK}         
+ \end{tabular}
+\end{center}
+
+Note. SC: Simplified Chinese, TC: Traditional Chinese, J: Japanese, K: Korean.
+\end{document}

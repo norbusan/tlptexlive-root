@@ -1,0 +1,40 @@
+\ifx\dviware\undefined \def\dviware{dvipdfmx}\fi
+\documentclass[\dviware]{jsarticle}
+\usepackage{cidtable}
+
+\begin{document}
+\begin{center}
+Adobe-CNS1 Glyphs\\
+ \begin{tabular}{ll} \hline
+  Supplement & Color \\ \hline
+  0 & \colorsample{0} \\
+  1 & \colorsample{1} \\
+  2 & \colorsample{2} \\
+  3 & \colorsample{3} \\
+  4 & \colorsample{4} \\
+  5 & \colorsample{5} \\
+  6 & \colorsample{6} \\ \hline
+ \end{tabular}
+\end{center}
+
+\newcount\code\global\code=0
+\newcount\supplement\global\supplement=0
+
+\noindent
+\foreach \row in {0,...,957}{%
+\hbox to 7ex{\hfill\number\code}\quad
+\foreach \col in {0,...,19}{%
+\ifcase\supplement%
+\ifnum\code>14098 \global\advance\supplement by 1\fi\or
+\ifnum\code>17407 \global\advance\supplement by 1\fi\or
+\ifnum\code>17600 \global\advance\supplement by 1\fi\or
+\ifnum\code>18845 \global\advance\supplement by 1\fi\or
+\ifnum\code>18964 \global\advance\supplement by 1\fi\or
+\ifnum\code>19087 \global\advance\supplement by 1\fi\fi
+\ifnum\code < 19156
+ \colorbox{\colorname{\supplement}}{\CIDT{\code}}\
+\fi
+\global\advance\code by 1
+}\\
+}
+\end{document}

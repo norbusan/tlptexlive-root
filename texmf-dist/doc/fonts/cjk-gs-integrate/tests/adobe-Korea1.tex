@@ -1,0 +1,32 @@
+\ifx\dviware\undefined \def\dviware{dvipdfmx}\fi
+\documentclass[\dviware]{jsarticle}
+\usepackage{cidtable}
+
+\begin{document}
+\begin{center}
+Adobe-Korea1 Glyphs\\
+ \begin{tabular}{ll} \hline
+  Supplement & Color \\ \hline
+  0 & \colorsample{0} \\
+  1 & \colorsample{1} \\
+  2 & \colorsample{2} \\ \hline
+ \end{tabular}
+\end{center}
+
+\newcount\code\global\code=0
+\newcount\supplement\global\supplement=0
+
+\noindent
+\foreach \row in {0,...,917}{%
+\hbox to 7ex{\hfill\number\code}\quad
+\foreach \col in {0,...,19}{%
+\ifcase\supplement%
+\ifnum\code>9332 \global\advance\supplement by 1\fi\or
+\ifnum\code>18154 \global\advance\supplement by 1\fi\fi
+\ifnum\code < 18352
+ \colorbox{\colorname{\supplement}}{\CIDK{\code}}\
+\fi
+\global\advance\code by 1
+}\\
+}
+\end{document}

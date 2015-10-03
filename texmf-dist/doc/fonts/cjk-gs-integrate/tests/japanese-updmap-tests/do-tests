@@ -1,0 +1,11 @@
+
+PATH=~/tl/2014/bin/x86_64-linux/:$PATH
+export PATH
+
+platex prn-variants.tex
+for i in hiragino hiragino-pron kozuka-pr6n kozuka morisawa yu-win yu-osx ipa ipaex ; do
+	kanji-config-updmap-sys $i
+	dvips prn-variants.dvi -o prn-variants-$i.ps
+	ps2pdf prn-variants-$i.ps
+done
+
