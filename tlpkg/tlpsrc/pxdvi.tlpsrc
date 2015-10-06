@@ -1,4 +1,3 @@
-category TLCore
 binpattern f bin/${ARCH}/pxdvi
 binpattern f bin/${ARCH}/pxdvi-*
 #

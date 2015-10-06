@@ -13,7 +13,7 @@ depend revision/1
 
 name 00texlive.installation
 category TLCore
-depend setting_available_architectures:x86_64-linux i386-freebsd x86_64-darwin i386-linux amd64-freebsd i386-cygwin win32 i386-netbsd universal-darwin
+depend setting_available_architectures:i386-netbsd universal-darwin i386-freebsd i386-linux x86_64-linux win32 amd64-freebsd x86_64-darwin i386-cygwin
 depend opt_autobackup:1
 depend opt_backupdir:tlpkg/backups
 depend opt_create_formats:1
@@ -118,9 +118,72 @@ shortdesc x86_64-linux files of cjk-gs-integrate
 binfiles arch=x86_64-linux size=1
  bin/x86_64-linux/cjk-gs-integrate
 
+name dvipdfmx
+category Package
+revision 1
+depend glyphlist
+depend dvipdfmx-def
+depend dvipdfmx.ARCH
+postaction script file=tlpkg/tlpostcode/dvipdfmx.pl
+docfiles size=146
+ texmf-dist/doc/dvipdfm/Makefile
+ texmf-dist/doc/dvipdfm/dvipdfm.pdf
+ texmf-dist/doc/dvipdfm/dvipdfm.tex
+ texmf-dist/doc/dvipdfm/mwicks.bb
+ texmf-dist/doc/dvipdfm/mwicks.jpeg
+ texmf-dist/doc/dvipdfm/sample.tex
+ texmf-dist/doc/dvipdfm/something.bb
+ texmf-dist/doc/dvipdfm/something.eps
+ texmf-dist/doc/dvipdfm/something.fig
+ texmf-dist/doc/dvipdfm/something.pdf
+ texmf-dist/doc/dvipdfm/transistor.bb
+ texmf-dist/doc/dvipdfm/transistor.eps
+ texmf-dist/doc/dvipdfm/transistor.fig
+ texmf-dist/doc/dvipdfm/transistor.pdf
+ texmf-dist/doc/dvipdfmx/dvipdfmx-special.pdf
+ texmf-dist/doc/dvipdfmx/dvipdfmx-special.tex
+ texmf-dist/doc/man/man1/dvipdfm.1
+ texmf-dist/doc/man/man1/dvipdfm.man1.pdf
+ texmf-dist/doc/man/man1/dvipdfmx.1
+ texmf-dist/doc/man/man1/dvipdfmx.man1.pdf
+ texmf-dist/doc/man/man1/dvipdft.1
+ texmf-dist/doc/man/man1/dvipdft.man1.pdf
+ texmf-dist/doc/man/man1/ebb.1
+ texmf-dist/doc/man/man1/ebb.man1.pdf
+ texmf-dist/doc/man/man1/extractbb.1
+ texmf-dist/doc/man/man1/extractbb.man1.pdf
+ texmf-dist/doc/man/man1/xdvipdfmx.1
+ texmf-dist/doc/man/man1/xdvipdfmx.man1.pdf
+runfiles size=42
+ texmf-dist/dvipdfmx/dvipdfmx.cfg
+ texmf-dist/fonts/cmap/dvipdfmx/EUC-UCS2
+ texmf-dist/fonts/cmap/dvipdfmx/README
+ texmf-dist/fonts/cmap/dvipdfmx/UTF8-UCS2
+ texmf-dist/fonts/map/dvipdfmx/cid-x.map
+ texmf-dist/fonts/map/dvipdfmx/ckx.map
+ texmf-dist/fonts/map/dvipdfmx/updmap/kanjix.map
+ tlpkg/tlpostcode/dvipdfmx.pl
+
+name dvipdfmx-def
+category Package
+revision 1
+docfiles size=35
+ texmf-dist/doc/latex/dvipdfmx-def/README
+ texmf-dist/doc/latex/dvipdfmx-def/doc/Makefile
+ texmf-dist/doc/latex/dvipdfmx-def/doc/image1.tex
+ texmf-dist/doc/latex/dvipdfmx-def/doc/image2.tex
+ texmf-dist/doc/latex/dvipdfmx-def/doc/pagebox-dx.pdf
+ texmf-dist/doc/latex/dvipdfmx-def/doc/pagebox-dx.tex
+ texmf-dist/doc/latex/dvipdfmx-def/doc/pagebox-dx.txt
+ texmf-dist/doc/latex/dvipdfmx-def/doc/pagebox-pd.pdf
+ texmf-dist/doc/latex/dvipdfmx-def/doc/pagebox-pd.tex
+runfiles size=3
+ texmf-dist/tex/latex/dvipdfmx-def/dvipdfmx.def
+
 name dvipdfmx.i386-cygwin
 category Package
 revision 31000
+shortdesc i386-cygwin files of dvipdfmx
 binfiles arch=i386-cygwin size=203
  bin/i386-cygwin/dvipdfm
  bin/i386-cygwin/dvipdfmx.exe
@@ -131,6 +194,7 @@ binfiles arch=i386-cygwin size=203
 name dvipdfmx.i386-linux
 category Package
 revision 31000
+shortdesc i386-linux files of dvipdfmx
 binfiles arch=i386-linux size=182
  bin/i386-linux/dvipdfm
  bin/i386-linux/dvipdfmx
@@ -141,6 +205,7 @@ binfiles arch=i386-linux size=182
 name dvipdfmx.i386-netbsd
 category Package
 revision 31000
+shortdesc i386-netbsd files of dvipdfmx
 binfiles arch=i386-netbsd size=173
  bin/i386-netbsd/dvipdfm
  bin/i386-netbsd/dvipdfmx
@@ -151,6 +216,7 @@ binfiles arch=i386-netbsd size=173
 name dvipdfmx.universal-darwin
 category Package
 revision 31002
+shortdesc universal-darwin files of dvipdfmx
 binfiles arch=universal-darwin size=540
  bin/universal-darwin/dvipdfm
  bin/universal-darwin/dvipdfmx
@@ -161,6 +227,7 @@ binfiles arch=universal-darwin size=540
 name dvipdfmx.win32
 category Package
 revision 31000
+shortdesc win32 files of dvipdfmx
 binfiles arch=win32 size=194
  bin/win32/dvipdfm.exe
  bin/win32/dvipdfmx.dll
@@ -171,6 +238,7 @@ binfiles arch=win32 size=194
 name dvipdfmx.x86_64-darwin
 category Package
 revision 31002
+shortdesc x86_64-darwin files of dvipdfmx
 binfiles arch=x86_64-darwin size=289
  bin/x86_64-darwin/dvipdfm
  bin/x86_64-darwin/dvipdfmx
@@ -180,8 +248,9 @@ binfiles arch=x86_64-darwin size=289
 
 name dvipdfmx.x86_64-linux
 category Package
-revision 31001
-binfiles arch=x86_64-linux size=206
+revision 32000
+shortdesc x86_64-linux files of dvipdfmx
+binfiles arch=x86_64-linux size=251
  bin/x86_64-linux/dvipdfm
  bin/x86_64-linux/dvipdfmx
  bin/x86_64-linux/dvipdft
@@ -564,6 +633,14 @@ binfiles arch=x86_64-linux size=3
  bin/x86_64-linux/kanji-config-updmap-sys
  bin/x86_64-linux/kanji-fontmap-creator
 
+name luatex.x86_64-linux
+category Package
+revision 1
+binfiles arch=x86_64-linux size=2942
+ bin/x86_64-linux/luatex
+ bin/x86_64-linux/texlua
+ bin/x86_64-linux/texluac
+
 name pmetapost
 category Package
 revision 4
@@ -736,7 +813,7 @@ binfiles arch=x86_64-linux size=502
  bin/x86_64-linux/ptftopl
 
 name pxdvi
-category TLCore
+category Package
 revision 6
 depend pxdvi.ARCH
 docfiles size=31
@@ -747,7 +824,7 @@ runfiles size=5
  texmf-dist/xdvi/xdvi-ptex.map.sample
 
 name pxdvi.amd64-freebsd
-category TLCore
+category Package
 revision 7
 shortdesc amd64-freebsd files of pxdvi
 binfiles arch=amd64-freebsd size=366
@@ -755,7 +832,7 @@ binfiles arch=amd64-freebsd size=366
  bin/amd64-freebsd/pxdvi-xaw
 
 name pxdvi.i386-cygwin
-category TLCore
+category Package
 revision 10
 shortdesc i386-cygwin files of pxdvi
 binfiles arch=i386-cygwin size=332
@@ -763,7 +840,7 @@ binfiles arch=i386-cygwin size=332
  bin/i386-cygwin/pxdvi-xaw.exe
 
 name pxdvi.i386-freebsd
-category TLCore
+category Package
 revision 7
 shortdesc i386-freebsd files of pxdvi
 binfiles arch=i386-freebsd size=330
@@ -771,7 +848,7 @@ binfiles arch=i386-freebsd size=330
  bin/i386-freebsd/pxdvi-xaw
 
 name pxdvi.i386-linux
-category TLCore
+category Package
 revision 9
 shortdesc i386-linux files of pxdvi
 binfiles arch=i386-linux size=326
@@ -779,7 +856,7 @@ binfiles arch=i386-linux size=326
  bin/i386-linux/pxdvi-xaw
 
 name pxdvi.i386-netbsd
-category TLCore
+category Package
 revision 9
 shortdesc i386-netbsd files of pxdvi
 binfiles arch=i386-netbsd size=308
@@ -787,7 +864,7 @@ binfiles arch=i386-netbsd size=308
  bin/i386-netbsd/pxdvi-xaw
 
 name pxdvi.universal-darwin
-category TLCore
+category Package
 revision 11
 shortdesc universal-darwin files of pxdvi
 binfiles arch=universal-darwin size=972
@@ -795,7 +872,7 @@ binfiles arch=universal-darwin size=972
  bin/universal-darwin/pxdvi-xaw
 
 name pxdvi.x86_64-darwin
-category TLCore
+category Package
 revision 11
 shortdesc x86_64-darwin files of pxdvi
 binfiles arch=x86_64-darwin size=603
@@ -803,7 +880,7 @@ binfiles arch=x86_64-darwin size=603
  bin/x86_64-darwin/pxdvi-xaw
 
 name pxdvi.x86_64-linux
-category TLCore
+category Package
 revision 9
 shortdesc x86_64-linux files of pxdvi
 binfiles arch=x86_64-linux size=375

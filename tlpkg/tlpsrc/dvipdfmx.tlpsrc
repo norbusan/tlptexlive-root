@@ -1,4 +1,3 @@
-category TLCore
 depend glyphlist
 depend dvipdfmx-def
 #

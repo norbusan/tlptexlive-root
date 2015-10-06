@@ -1,0 +1,4 @@
+binpattern f/x86_64-linux bin/${ARCH}/dviluatex
+binpattern f/x86_64-linux bin/${ARCH}/luatex
+binpattern f/x86_64-linux bin/${ARCH}/texlua
+binpattern f/x86_64-linux bin/${ARCH}/texluac

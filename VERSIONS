@@ -54,6 +54,7 @@ uptex.win32		31000
 
 dvipdfmx
 ========
+dvipdfmx.BIN			31200 TL2016dev 
 dvipdfmx.BIN			31000 TL2013
 dvipdfmx.x86_64-linux		31001 rebuild on lenny
 dvipdfmx.x86_64-darwin		31002 rebuild for fixes
