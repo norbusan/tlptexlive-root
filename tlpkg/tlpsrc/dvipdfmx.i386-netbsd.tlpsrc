@@ -1,5 +1,0 @@
-binpattern f/i386-netbsd bin/${ARCH}/dvipdfm
-binpattern f/i386-netbsd bin/${ARCH}/dvipdfmx
-binpattern f/i386-netbsd bin/${ARCH}/dvipdft
-binpattern f/i386-netbsd bin/${ARCH}/ebb
-binpattern f/i386-netbsd bin/${ARCH}/extractbb

@@ -1,0 +1,44 @@
+% pdflatex
+\documentclass[a4paper]{article}
+\usepackage[paperheight=60cm,margin=2cm]{geometry}
+\usepackage{graphicx}
+\setlength{\parindent}{0pt}
+\pagestyle{empty}
+
+\makeatletter
+\def\test#1#2{%
+  \def\@temp{#1}%
+  \ifx\@temp\@empty
+    \makebox[5.5cm][l]{\texttt{\LARGE pagebox is absent}}\fbox{\includegraphics{#2.pdf}}%
+  \else
+    \makebox[5.5cm][l]{\texttt{\LARGE pagebox=#1box}}\fbox{\includegraphics[pagebox=#1box]{#2.pdf}}%
+  \fi
+  \par
+}
+\makeatother
+
+\begin{document}
+\section{test: image1}
+\test{}{image1}
+\test{media}{image1}
+\test{}{image1}
+\test{art}{image1}
+\test{}{image1}
+\test{bleed}{image1}
+\test{}{image1}
+\test{trim}{image1}
+\test{}{image1}
+\newpage
+\section{test: image2}
+\test{}{image2}
+\test{media}{image2}
+\test{}{image2}
+\test{art}{image2}
+\test{}{image2}
+\test{bleed}{image2}
+\test{}{image2}
+\test{trim}{image2}
+\test{}{image2}
+\test{crop}{image2}
+\test{}{image2}
+\end{document}

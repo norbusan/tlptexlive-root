@@ -1,0 +1,336 @@
+.de EX
+.sp
+.in +5
+.nf
+.ft CW
+..
+.de EE
+.in -5
+.ft R
+.sp
+.fi
+..
+.TH "DVIPDFMX" "1" "15 July 2014"
+.SH NAME
+dvipdfmx, xdvipdfmx, dvipdfm \- produce PDF files directly from DVI files
+.SH SYNOPSIS
+.B dvipdfmx
+or
+.B dvipdfm
+.RI [ options ]
+.I file\c
+.RB [ .dvi ]
+.SH DESCRIPTION
+The program
+.B dvipdfmx
+generates a PDF file from a DVI file.  DVI files are the output produced
+by TeX.
+.B groff
+can also generate DVI files using
+.BR grodvi (-Tdvi).
+
+In TeX Live,
+.B dvipdfm
+is another incarnation of
+.B dvipdfmx
+rather than a separate program.  Compatibility is attempted as best as
+possible.  
+
+In addition,
+.B xdvipdfmx
+is yet another incarnation.  It is used as the back end for
+.BR xetex (1)
+and is not intended to be invoked directly.
+
+.B dvipdfmx
+recognizes several commonly used
+.BR \especial
+commands, which are extensions to the DVI format.  Specifically, it
+understands color specials, papersize specials, tpic specials (which
+allow it to be used with
+.BR pic ),
+hypertex specials, and some PostScript specials.  These extensions allow
+documents to contain color, figures, and hyperlinks.  The program tries
+to mimic the behavior of
+.B dvips
+where possible, so that many macro packages produced for use with
+.B dvips
+will also work with 
+.B dvipdfmx.
+In addition,
+.b Dvipdfmx 
+understands its own specific
+.B \especial
+commands to allow access to PDF features such as annotations and
+bookmarks.
+
+Unrecognized specials will generate warning messages. Packages that may need a 
+.B dvipdfm 
+or
+.B dvipdfmx 
+driver option include 
+.I geometry,
+.I hyperref,
+.I bookmark,
+.I graphicx,
+and
+.I xcolor.
+
+For issues related to bounding boxes (and hence image sizes), see
+.BR extractbb (1).
+.SH OPTIONS
+Unlike with many other programs, argument values must be separated from
+option names by a space, not an = sign; option names cannot be
+abbreviated; and \- and \-\- cannot be used interchangeably.
+.TP 5
+.B \-\^c
+Ignore (or accept) color
+.BR \especials .
+By default, color
+.BR \especial "s"
+are interpreted normally (changeable in the configuration file).  The
+.B \-\^c
+option may be used to produce a black and white document
+from a document containing color TeX
+.B \especial
+commands.
+.TP 5
+.B \-\-\^dvipdfm
+Enable
+.B dvipdfm
+emulation mode.  This is the default if the executable name is `dvipdfm'.
+.TP 5
+.B \-\^d number
+Specify the number of decimal digits in the PDF output; must be between
+0 and 5, default is 2.
+.TP 5
+.B \-\^e
+Ignored, for (semi-)compatibility with
+.BR dvipdfm .
+.TP 5
+.B \-\^f map_file
+Read the font map file given by
+.IR map_file .
+The default map file in TeX Live is
+.IR pdftex.map ,
+as defined in the configuration file.
+.B \-\-\^help
+Show a help message and exit successfully.
+.TP 5
+.B \-\^l
+Select landscape mode.  In other words, exchange the 
+.I x
+and
+.I y
+dimensions of the paper.
+.TP 5
+.B \-\^m " mag"
+Magnify the input document by
+.IR mag .
+.TP 5
+.B \-\^o " filename"
+Set the PDF output file name; use `-' for stdout.
+By default, the name of the output
+file is derived from the input, that is,
+.IR file .pdf.
+.TP 5
+.B \-\^p " paper"
+Select the papersize by name (e.g.,
+.BR letter ", " legal ", " ledger ", " tabloid ", " a3 ", " a4 ", or " a5
+)
+.TP 5
+.B \-\^q
+Quiet mode.
+.TP 5
+.B \-\^r " size"
+Set resolution of bitmapped fonts to
+.B size
+dots per inch.  Bitmapped fonts are generated
+by the Kpathsea library, which uses Metafont.  Bitmapped
+fonts are included as Type 3 fonts in the PDF output file.  Default is 600.
+.TP 5
+.B \-\^s " page_specifications"
+Select the pages of the DVI file to be processed; default is `-',
+meaning all pages.  The
+.I page_specifications
+consists of a comma separated list of
+.IR page_ranges :
+.EX
+.IR "page_specifications := page_specification" "[," page_specifications "]"
+.EE
+where
+.EX
+.IR "page_specification := single_page" | page_range
+.IR "page_range := " [ first_page ]\^\-\^[ last_page ]
+.EE
+An empty
+.I first_page
+is treated as the first page of the DVI file, and
+an empty
+.I last_page
+is treated as the last page of the DVI file.
+
+Examples:
+.RS
+.TP 5
+.B "\-\^s 1,3,5"
+includes pages 1, 3, and 5;
+.TP 5
+.B "\-\^s \-"
+includes all pages;
+.TP 5
+.B "\-\^s \-,\-"
+includes two copies of all pages in the DVI file;
+and
+.TP 5
+.B "\-\^s 1\-10"
+includes the first ten pages of the DVI
+file.
+.RE
+.TP 5
+.B \-\^t
+Search for thumbnail images of each page
+in the directory named by the
+.B TMPDIR
+environment variable.  The thumbnail images must be named in a specific
+format: the same base name as the DVI file and the page number as the
+extension to the file name.
+.B dvipdfmx
+does not generate such thumbnails itself, but it is distributed with a
+wrapper program named
+.B dvipdft 
+that does so.
+.TP 5
+.B \-\-\^version
+Show a help message and exit successfully.
+.TP 5
+.B \-\^v 
+Increase verbosity.
+Results of the 
+.B \-\^v
+option are cumulative (e.g., 
+.B \-\^vv
+increases the verbosity by two increments).  Maximum verbosity is four.
+.TP 5
+.B \-\-\^kpathsea-debug number
+Have Kpathsea output debugging information; `-1' for everything (voluminous).
+.TP 5
+.B \-\^x x_offset
+Set the left margin to 
+.IR x_offset .
+The default left margin is
+.BR 1.0in .
+The dimension may be specified in any units understood by TeX (e.g.,
+.BR bp ", " pt ", " in ", " cm ).
+.TP 5
+.B \-\^y y_offset
+Set the top margin to 
+.IR y_offset .
+The default top margin is
+.BR 1.0in .
+The dimension may be specified in any units understood by TeX (e.g.,
+.BR bpt ", " pt ", " in ", " cm ).
+.TP 5
+.B \-\^z number
+Set the compression level to 
+.IR compression_level .
+Compression levels range from 0 (no compression) to
+9 (maximum compression) and correspond to the values understood by zlib;
+default is 9.
+.TP 5
+.B \-\^C number
+Miscellaneous option flags; see the --help output for details.
+.TP 5
+.B \-\^D template
+PostScript to PDF conversion command line template; the default is taken
+from the configuration file, which also gives all the details and
+mentions several possibilities.
+.TP 5
+.B \-\^E
+Always try to embed fonts, ignoring licensing flags, etc.
+.TP 5
+.B \-\^I number
+Image cache life in hours; default is -2, meaning to not cache images at
+all.  A value of -1 means to erase all old images and also new images; 0
+means to erase all old images but leave new images.
+.TP 5
+.B \-\^K number
+Encryption key length; default 40.
+.TP 5
+.B \-\^M
+Process MetaPost PostScript output.
+.TP 5
+.B \-\^O number
+Set maximum depth of open bookmark items; default 0.
+.TP 5
+.B \-\^P number
+Set permission flags for PDF encryption; default 0x003C.
+.TP 5
+.B \-\^S
+Enable PDF encryption.
+.TP 5
+.B \-\^V number
+Set PDF minor version; default 5 (from the configuration file).
+.SH "IMAGE BOUNDING BOXES"
+When including images with 
+.BR dvipdfmx ,
+their bounding boxes should be generated by running
+.BR extractbb .
+The result will be in an
+.B .xbb
+file; the xbb information is the same as for the PDF format.
+.SH ENVIRONMENT
+.B dvipdfmx 
+uses the
+.B kpathsea
+library for locating the files that it opens.  Hence, the environment
+variables documented in the
+.I Kpathsea library
+documentation influence
+.BR dvipdfmx .
+It also uses the value of the environment variable TMPDIR as the
+directory to search for thumbnail images of each page.
+.SH FILES
+The precise location of the following files is determined by the
+.I Kpathsea library
+configuration.  The location may be determined by using kpsewhich, e.g.,
+.nf
+.B kpsewhich \-progname=dvipdfmx \-format='other text files' dvipdfmx.cfg
+.fi
+.TP 5
+.I dvipdfmx.cfg
+Default configuration file
+.TP 5
+.I pdftex.map
+The default font map file (this may be changed in the config file).
+.TP 5
+.I *.tfm
+TeX font metrics
+.TP 5
+.I *.vf
+TeX virtual font files
+.TP 5
+.I *.pfb
+PostScript Type 1 font files
+.TP 5
+.I 
+texmf.cnf
+The Kpathsea library configuration file.
+The location of this file may be found by typing
+.nf
+.B kpsewhich texmf.cnf
+.fi
+.SH "SEE ALSO"
+.BR dvipdft "(1), "
+.BR extractbb "(1), "
+.BR tex "(1), " dvips "(1), " groff "(1), " grodvi "(1), " pic "(1), "
+and the
+.I "Kpathsea library"
+Info documentation (http://tug.org/kpathsea).
+.SH AUTHOR
+Primarily Mark A. Wicks; dvipdfmx extensions primarily by Jin-Hwan Cho,
+Shunsaku Hirata, and Matthias Franz.  For the version in TeX Live, all
+bugs and other reports should go to the
+.B dvipdfmx
+maintainers at tex-k (at) tug.org.  This man page edited for TeX Live
+by Bob Tennent and others.

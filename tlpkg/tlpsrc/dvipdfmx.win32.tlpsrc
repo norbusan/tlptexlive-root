@@ -1,5 +1,0 @@
-binpattern f/win32 bin/${ARCH}/dvipdfm
-binpattern f/win32 bin/${ARCH}/dvipdfmx
-binpattern f/win32 bin/${ARCH}/dvipdft
-binpattern f/win32 bin/${ARCH}/ebb
-binpattern f/win32 bin/${ARCH}/extractbb

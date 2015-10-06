@@ -1,5 +1,0 @@
-binpattern f/x86_64-linux bin/${ARCH}/dvipdfm
-binpattern f/x86_64-linux bin/${ARCH}/dvipdfmx
-binpattern f/x86_64-linux bin/${ARCH}/dvipdft
-binpattern f/x86_64-linux bin/${ARCH}/ebb
-binpattern f/x86_64-linux bin/${ARCH}/extractbb

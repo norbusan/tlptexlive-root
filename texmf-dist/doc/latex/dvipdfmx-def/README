@@ -1,0 +1,26 @@
+                    README for dvipdfmx-def
+
+This directory contains the LaTeX graphics driver 'dvipdfmx.def'
+used with the driver program 'dvipdfmx'
+Version: 4.06; 2015-09-11.
+
+The canonical source is the subversion repository at
+https://puszcza.gnu.org.ua/projects/latexfmxdef.
+
+Copyright (C) 2005-2015 Jin-Hwan Cho, Shunsaku Hirata
+(with contributions from many others)
+
+This program can be redistributed and/or modified under the terms
+of the LaTeX Project Public License Distributed from CTAN
+archives in directory macros/latex/base/lppl.txt; either
+version 1 of the License, or any later version.
+
+To install:
+  (1) copy dvipdfmx.def to a directory
+      suitable-texmf/tex/latex/dvipdfmx-def
+  (2) copy all files in a subdirectory 'doc' to a directory
+      suitable-texmf/doc/latex/dvipdfmx-def
+  (3) update TeX's file database.
+
+----------------------------------------------------------------
+Akira Kakuto <kakuto at fuk dot kindai dot ac dot jp>

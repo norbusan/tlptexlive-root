@@ -1,0 +1,23 @@
+                          pagebox-dx.txt
+
+This directory contains examples for a new feature of dvipdfmx.def:
+support of an option [pagebox=artbox, etc.] in PDF inclusion, like
+that in pdflatex, in the case of latex, platex, and uplatex with the
+driver program dvipdfmx. The feature is supported in dvipdfmx.def
+version 4.06 or later ones. It requires a new dvipdfmx which is not
+in TeX Live 2015. The new dvipdfmx will be available in TeX Live 2016.
+Interested users may build themselves the new dvipdfmx by using new
+sources in the TeX Live repository.
+
+There is a Makefile for GNU Make. All test files are written by Y. Terada.
+
+Note that results are different in the case of dvipdfmx, pagebox-dx.pdf,
+compared with those for pdflatex, pagebox-pd.pdf, when the pagebox option
+is not given. This is because BoundingBox is determined in the order of
+precedence: CropBox --> ArtBox --> TrimBox --> BleedBox --> MediaBox
+in the case of dvipdfmx. We keep the order for compatibility with old
+documents which uses dvipdfmx. In the case of pdflatex and xelatex, the
+order is CropBox --> MediaBox --> BleedBox --> TrimBox --> ArtBox.
+ 
+--------------------------------------------------------------------
+Akira Kakuto <kakuto at fuk dot kindai dot ac dot jp>
